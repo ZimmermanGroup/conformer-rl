@@ -13,6 +13,8 @@ from rdkit.Chem import AllChem, TorsionFingerprints
 from rdkit.Chem import Draw, PyMol, rdFMCS
 from rdkit.Chem.Draw import IPythonConsole
 
+from utility_functions import *
+
 class ConformerGeneratorCustom(conformers.ConformerGenerator):
     # pruneRmsThresh=-1 means no pruning done here
     # I don't use embed_molecule() because it uses AddHs() & EmbedMultipleConfs()
@@ -114,10 +116,11 @@ class ConformerGeneratorCustom(conformers.ConformerGenerator):
         new = Chem.Mol(mol)
         new.RemoveAllConformers()
         conf_ids = [conf.GetId() for conf in mol.GetConformers()]
+        # print(keep) # ( index of pruned conformers will be saved in new)
         for i in keep:
             conf = mol.GetConformer(conf_ids[i])
-            new.AddConformer(conf, assignId=True)
-        # compute icRMSD/icTFD of pruned conformers (TODO: save index of pruned conformers so no need to recompute)
+            new.AddConformer(conf, assignId=False)
+        # compute icRMSD/icTFD of pruned conformers
         if measure == "rmsd":
             print("Computing RMSD matrix of pruned conformers...")
             new_rmsd = ConformerGeneratorCustom.get_conformer_rmsd_fast(new)
@@ -163,20 +166,20 @@ class ConformerGeneratorCustom(conformers.ConformerGenerator):
 
     @staticmethod
     def get_tfd_matrix(mol):
-    """
-    Calculate conformer-conformer torsion fingerprint deviation (TFD) matrix
+        """
+        Calculate conformer-conformer torsion fingerprint deviation (TFD) matrix
 
-    Parameters
-    ----------
-    mol : RDKit Molecule
+        Parameters
+        ----------
+        mol : RDKit Molecule
 
-    Returns
-    -------
-    nXn numpy array where n is the number of conformers
-    """
-    tfd_arr = TorsionFingerprints.GetTFDMatrix(mol, useWeights=True, maxDev='equal', symmRadius=0, ignoreColinearBonds=True)
-    tfd_lt = array_to_lower_triangle(tfd_arr)
-    return tfd_lt + np.transpose(tfd_lt)
+        Returns
+        -------
+        nXn numpy array where n is the number of conformers
+        """
+        tfd_arr = TorsionFingerprints.GetTFDMatrix(mol, useWeights=True, maxDev='equal', symmRadius=0, ignoreColinearBonds=True)
+        tfd_lt = array_to_lower_triangle(tfd_arr)
+        return tfd_lt + np.transpose(tfd_lt)
 
     @staticmethod
     def add_conformers_as_Molecules_to_Molecule(mol, confs):
@@ -196,9 +199,8 @@ class ConformerGeneratorCustom(conformers.ConformerGenerator):
                     continue # skip empty
             # get conformer to add (*if rerunning, reload the conformers again because the IDs have been changed)
             c = conf.GetConformer(id=0)
-            # c.SetId(i)
-            # cid = c.GetId()
-        # add each conformer to original input molecule
+            c.SetId(i)
+            # add each conformer to original input molecule
             mol.AddConformer(c, assignId=False)
         return mol
 
