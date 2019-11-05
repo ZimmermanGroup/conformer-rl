@@ -1,0 +1,92 @@
+
+Marvin  06150613472D          
+
+  9  8  0  0  0  0            999 V2000
+   -2.8579   -0.1833    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+   -2.1434    0.2292    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+   -1.4289   -0.1833    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+   -0.7145    0.2292    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    0.0000   -0.1833    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    0.7145    0.2292    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    1.4289   -0.1833    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    2.1434    0.2292    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    2.8579   -0.1833    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+  2  1  1  0  0  0  0
+  3  2  1  0  0  0  0
+  4  3  1  0  0  0  0
+  5  4  1  0  0  0  0
+  6  5  1  0  0  0  0
+  7  6  1  0  0  0  0
+  8  7  1  0  0  0  0
+  9  8  1  0  0  0  0
+M  END
+> <ID>
+CHEBI:32892
+
+> <NAME>
+nonane
+
+> <DEFINITION>
+A straight chain alkane composed of 9 carbon atoms.
+
+> <STAR>
+3
+
+> <SYNONYM>
+Nonan; n-nonane; CH3-[CH2]7-CH3
+
+> <IUPAC_NAME>
+nonane
+
+> <FORMULA>
+C9H20
+
+> <MASS>
+128.25510
+
+> <MONOISOTOPIC_MASS>
+128.15650
+
+> <CHARGE>
+0
+
+> <SMILES>
+CCCCCCCCC
+
+> <INCHI>
+InChI=1S/C9H20/c1-3-5-7-9-8-6-4-2/h3-9H2,1-2H3
+
+> <INCHIKEY>
+BKIMMITUMNQMOS-UHFFFAOYSA-N
+
+> <BEILSTEIN_REGISTRY_NUMBER>
+1696917
+
+> <CAS_REGISTRY_NUMBER>
+111-84-2
+
+> <GMELIN_REGISTRY_NUMBER>
+240576
+
+> <REAXYS_REGISTRY_NUMBER>
+1696917
+
+> <CHEMIDPLUS>
+111-84-2
+
+> <HMDB_ACCESSION>
+HMDB0029595
+
+> <KNAPSACK_ACCESSION>
+C00034882
+
+> <LIPID_MAPS_INSTANCE_ACCESSION>
+LMFA11000579
+
+> <NIST_CHEMISTRY_WEBBOOK>
+111-84-2
+
+> <PUBMED_CITATION>
+23822267
+
+$$$$

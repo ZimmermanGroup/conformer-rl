@@ -1,0 +1,116 @@
+
+Marvin  06150613512D          
+
+ 12 11  0  0  0  0            999 V2000
+   -3.9296   -0.2063    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+   -3.2151    0.2062    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+   -2.5006   -0.2063    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+   -1.7862    0.2062    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+   -1.0717   -0.2063    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+   -0.3572    0.2062    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    0.3572   -0.2063    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    1.0717    0.2063    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    1.7862   -0.2063    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    2.5006    0.2063    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    3.2151   -0.2063    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    3.9296    0.2062    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+  2  1  1  0  0  0  0
+  3  2  1  0  0  0  0
+  4  3  1  0  0  0  0
+  5  4  1  0  0  0  0
+  6  5  1  0  0  0  0
+  7  6  1  0  0  0  0
+  8  7  1  0  0  0  0
+  9  8  1  0  0  0  0
+ 10  9  1  0  0  0  0
+ 11 10  1  0  0  0  0
+ 12 11  1  0  0  0  0
+M  END
+> <ID>
+CHEBI:28817
+
+> <NAME>
+dodecane
+
+> <DEFINITION>
+A straight-chain alkane with 12 carbon atoms. It has been form the essential oils of various plants including Zingiber officinale (ginger).
+
+> <STAR>
+3
+
+> <SECONDARY_ID>
+CHEBI:41713; CHEBI:4675; CHEBI:25464
+
+> <SYNONYM>
+n-Dodecane; Dodekan; DODECANE; Dodecane; Dihexyl; CH3-[CH2]10-CH3; Bihexyl
+
+> <IUPAC_NAME>
+dodecane
+
+> <FORMULA>
+C12H26
+
+> <MASS>
+170.33484
+
+> <MONOISOTOPIC_MASS>
+170.20345
+
+> <CHARGE>
+0
+
+> <SMILES>
+CCCCCCCCCCCC
+
+> <INCHI>
+InChI=1S/C12H26/c1-3-5-7-9-11-12-10-8-6-4-2/h3-12H2,1-2H3
+
+> <INCHIKEY>
+SNRUBQQJIBEYMU-UHFFFAOYSA-N
+
+> <BEILSTEIN_REGISTRY_NUMBER>
+1697175
+
+> <CAS_REGISTRY_NUMBER>
+112-40-3
+
+> <GMELIN_REGISTRY_NUMBER>
+201408
+
+> <REAXYS_REGISTRY_NUMBER>
+1697175
+
+> <CHEMIDPLUS>
+112-40-3
+
+> <DRUGBANK_ACCESSION>
+DB02771
+
+> <HMDB_ACCESSION>
+HMDB0031444
+
+> <KEGG_COMPOUND_ACCESSION>
+C08374
+
+> <KNAPSACK_ACCESSION>
+C00001248
+
+> <LIPID_MAPS_INSTANCE_ACCESSION>
+LMFA11000004
+
+> <METACYC_ACCESSION>
+CPD-9290
+
+> <NIST_CHEMISTRY_WEBBOOK>
+112-40-3
+
+> <PDBECHEM_ACCESSION>
+D12
+
+> <WIKIPEDIA_ACCESSION>
+Dodecane
+
+> <PUBMED_CITATION>
+24493301
+
+$$$$
