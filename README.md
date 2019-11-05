@@ -1,2 +1,2 @@
-# conformer_generation
-generating conformers with RL
+# conformer-ml
+generating conformers with RL and human supervision
