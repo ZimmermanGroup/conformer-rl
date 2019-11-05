@@ -11,7 +11,6 @@ from rdkit import rdBase
 from rdkit.Chem import AllChem, TorsionFingerprints
 from rdkit.Chem import Draw,PyMol,rdFMCS
 from rdkit.Chem.Draw import IPythonConsole
-print(rdBase.rdkitVersion)
 # %alias_magic t timeit
 
 import gym
@@ -30,9 +29,6 @@ def load_from_sdf(sdf_file):
     """
     suppl = Chem.SDMolSupplier(sdf_file, removeHs=False) #, strictParsing=False
     sdf_mols = [mol for mol in suppl]
-#     print(type(suppl))
-#     print(type(sdf_mols))
-    print("Molecules loaded.")
     return sdf_mols
 
 def load_trajectories(dcd_files, psf_files, stride=1):
@@ -50,10 +46,8 @@ def load_trajectories(dcd_files, psf_files, stride=1):
     trajs = []
     for i in range(len(dcd_files)):
         traj = md.load_dcd(dcd_files[i], psf_files[i], stride=stride)
-        print('How many atoms?    %s' % traj.n_atoms)
         # align states onto first frame******
         traj.superpose(traj, frame=0)
-        print(traj)
         trajs.append(traj)
     return trajs
 
@@ -267,7 +261,15 @@ def save_xyz(m, file):
             for i in range(len(atoms)):
                 file.write("{} {} {} {}\n".format(atoms[i], xyz[i, 0], xyz[i, 1], xyz[i, 2]))
 
-                
+
+def get_torsions(mol):
+    nonring, ring = TorsionFingerprints.CalculateTorsionLists(mol)
+    conf = mol.GetConformer(id=0)
+    tups = [atoms[0] for atoms, ang in nonring]
+    degs = [Chem.rdMolTransforms.GetDihedralDeg(conf, *tup) for tup in tups]
+    discdeg = [0] + [translate_to_discrete(deg) for deg in degs] + [4]
+    return discdeg
+    
 def print_torsions(mol):
     nonring, ring = TorsionFingerprints.CalculateTorsionLists(mol)
     conf = mol.GetConformer(id=0)
@@ -613,6 +615,29 @@ class AlkaneDecoderEnv(AlkaneWithoutReplacementEnv):
         print_torsions(self.mol)
         
         return obs, rew, done, {}    
+    
+print('glug glug')
+class AlkaneConvolutionEnv(AlkaneDecoderEnv):
+    def _get_reward(self):
+        obs = tuple(get_torsions(self.mol))
+    
+        if obs in self.seen:
+            print('already seen')
+            return 0
+        else:
+            self.seen.add(obs)
+            print('Z is ', self.Z)
+            print('gibbs ', np.exp(-1.0 * confgen.get_conformer_energies(self.mol)[0]))
+            return 100 * np.exp(-1.0 * confgen.get_conformer_energies(self.mol)[0]) / self.Z   
+        
+    def _get_obs(self):
+        
+        dm = AllChem.Get3DDistanceMatrix(self.mol)
+        dm = dm / dm.max()
+        adj = Chem.rdmolops.GetAdjacencyMatrix(self.mol).astype(dm.dtype)
+        stacked = np.stack([adj, dm])
+
+        return stacked   
         
 class AlkaneCircularSpaceEnv(AlkaneEnv):
     def _load_spaces(self):
