@@ -19,6 +19,7 @@ from gym.envs.registration import registry, register, make, spec
 
 from itertools import product
 
+print('importing alkanes')
 # %load funcs.py
 # %load funcs.py
 # %load funcs.py
@@ -262,11 +263,15 @@ def save_xyz(m, file):
                 file.write("{} {} {} {}\n".format(atoms[i], xyz[i, 0], xyz[i, 1], xyz[i, 2]))
 
 
-def get_torsions(mol):
+def get_torsions_degs(mol):
     nonring, ring = TorsionFingerprints.CalculateTorsionLists(mol)
     conf = mol.GetConformer(id=0)
     tups = [atoms[0] for atoms, ang in nonring]
     degs = [Chem.rdMolTransforms.GetDihedralDeg(conf, *tup) for tup in tups]
+    return degs                
+                
+def get_torsions(mol):
+    degs = get_torsion_degs(mol)
     discdeg = [0] + [translate_to_discrete(deg) for deg in degs] + [4]
     return discdeg
     
@@ -334,32 +339,52 @@ for num, mol in sorted(mols_by_rbn.items()):
     energy = np.exp(-1.0 * confgen.get_conformer_energies(mol)[0])
     energy_max[num] = energy
     
+# Z = {
+#     1: 202.747829286591,
+#     2: 287.2264947637364,
+#     3: 410.1948064928314,
+#     4: 589.0199572719013,
+#     5: 847.1997013690351,
+#     6: 1219.977286030949,
+#     7: 1757.8757380586885,
+#     8: 2533.9561311348916,
+#     9: 3653.522091596034,
+#     11: 7599.921871806019,
+#     13: 15819.841252757644,
+# }
+
+# top_n = {
+#     1: 202.74911797108538,
+#     2: 287.2265490857062,
+#     3: 410.19434516277266,
+#     4: 589.0305102196965,
+#     5: 831.15924230415,
+#     6: 1191.1514450692125,
+#     7: 1646.2425377264608,
+#     8: 2359.906685402908,
+#     9: 3222.1225749490986,
+#     11: 5747.164570622177,
+#     13: 9400.403970830801,
+# }
+
 Z = {
-    1: 202.747829286591,
-    2: 287.2264947637364,
-    3: 410.1948064928314,
-    4: 589.0199572719013,
-    5: 847.1997013690351,
-    6: 1219.977286030949,
-    7: 1757.8757380586885,
-    8: 2533.9561311348916,
-    9: 3653.522091596034,
-    11: 7599.921871806019,
-    13: 15819.841252757644,
+    1: 298.2976919525584,
+    2: 586.8618761962805,
+    3: 1165.96340306337,
+    4: 2335.3407079008293,
+    5: 4691.896132512742,
+    6: 9457.892895270266,
+    7: 15099.886697178925,
 }
 
 top_n = {
-    1: 202.74911797108538,
-    2: 287.2265490857062,
-    3: 410.19434516277266,
-    4: 589.0305102196965,
-    5: 831.15924230415,
-    6: 1191.1514450692125,
-    7: 1646.2425377264608,
-    8: 2359.906685402908,
-    9: 3222.1225749490986,
-    11: 5747.164570622177,
-    13: 9400.403970830801,
+    1 :298.2976919525584,
+    2: 586.8618761962805,
+    3: 1165.963395952183,
+    4: 2333.1421795264077,
+    5: 3572.350335700116,
+    6: 6797.137366295856,
+    7: 8645.893996411598,
 }
     
 def translate_to_discrete(deg):
@@ -564,7 +589,7 @@ class AlkaneWithoutReplacementEnv(AlkaneEnv):
         elif self.mode == 'test':
             choice = 8
         elif self.mode == 'test_hard':
-            choice = np.random.choice(range(8, 10))  
+            choice = 13
         return choice
     
     def _random_start(self):
@@ -594,7 +619,12 @@ class AlkaneDecoderEnv(AlkaneWithoutReplacementEnv):
             
             deg = Chem.rdMolTransforms.GetDihedralDeg(self.conf, *tup)
             Chem.rdMolTransforms.SetDihedralDeg(self.conf, *tup, 60.0 + int(a)* 120.0)     
-    
+
+                    
+            
+            
+            
+            
         if self.rbn <= 3:
             done = self.current_step == 25
         elif self.rbn == 4 or self.rbn == 5:
@@ -638,22 +668,47 @@ class AlkaneConvolutionEnv(AlkaneDecoderEnv):
         stacked = np.stack([adj, dm])
 
         return stacked   
+     
+class AlkaneConvolutionEnv(AlkaneDecoderEnv):
+    def _get_reward(self):
+        obs = tuple(get_torsions(self.mol))
+    
+        if obs in self.seen:
+            print('already seen')
+            return 0
+        else:
+            self.seen.add(obs)
+            print('Z is ', self.Z)
+            print('gibbs ', np.exp(-1.0 * confgen.get_conformer_energies(self.mol)[0]))
+            return 100 * np.exp(-1.0 * confgen.get_conformer_energies(self.mol)[0]) / self.Z   
         
-class AlkaneCircularSpaceEnv(AlkaneEnv):
-    def _load_spaces(self):
-        self.space_sets = {}
-        self.n_torsions = range(1, 18, 2)
-        
-        for n in self.n_torsions:
-            self.space_sets[n] = {
-                'action': spaces.MultiDiscrete([2] * (n + 2)), 
-                'obs': spaces.Box(low=0.0, high=1.0, shape=(3, (n+2))),
-                'mol': self.mols_by_rbn[n]
-            }
-            
     def _get_obs(self):
-        tups = [atoms[0] for atoms, ang in self.nonring]
-        degs = [Chem.rdMolTransforms.GetDihedralDeg(self.conf, *tup) for tup in tups]
-        circ = [[1,0,0]] + [circular_format(deg) for deg in degs] + [[1,0,0]]
         
-        return np.array(circ)
+        dm = AllChem.Get3DDistanceMatrix(self.mol)
+        dm = dm / dm.max()
+        adj = Chem.rdmolops.GetAdjacencyMatrix(self.mol).astype(dm.dtype)
+        stacked = np.stack([adj, dm])
+
+        return stacked          
+                    
+
+        
+        
+# class AlkaneCircularSpaceEnv(AlkaneEnv):
+#     def _load_spaces(self):
+#         self.space_sets = {}
+#         self.n_torsions = range(1, 18, 2)
+        
+#         for n in self.n_torsions:
+#             self.space_sets[n] = {
+#                 'action': spaces.MultiDiscrete([2] * (n + 2)), 
+#                 'obs': spaces.Box(low=0.0, high=1.0, shape=(3, (n+2))),
+#                 'mol': self.mols_by_rbn[n]
+#             }
+            
+#     def _get_obs(self):
+#         tups = [atoms[0] for atoms, ang in self.nonring]
+#         degs = [Chem.rdMolTransforms.GetDihedralDeg(self.conf, *tup) for tup in tups]
+#         circ = [[1,0,0]] + [circular_format(deg) for deg in degs] + [[1,0,0]]
+        
+#         return np.array(circ)
