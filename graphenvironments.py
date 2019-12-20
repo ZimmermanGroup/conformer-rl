@@ -12,21 +12,53 @@ import time
 from torch_geometric.data import Data, Batch
 from torch_geometric.transforms import Distance
 
+import pdb
 
-def bond_features(bond, use_chirality=False):
+
+def bond_features(bond, torsionAngle = -1, bondAngle = -1, use_chirality=False):
     from rdkit import Chem
     bt = bond.GetBondType()
     bond_feats = [
         bt == Chem.rdchem.BondType.SINGLE, bt == Chem.rdchem.BondType.DOUBLE,
         bt == Chem.rdchem.BondType.TRIPLE, bt == Chem.rdchem.BondType.AROMATIC,
         bond.GetIsConjugated(),
-        bond.IsInRing()
+        bond.IsInRing(),
+        torsionAngle,
+        bondAngle
     ]
     if use_chirality:
         bond_feats = bond_feats + one_of_k_encoding_unk(
             str(bond.GetStereo()),
             ["STEREONONE", "STEREOANY", "STEREOZ", "STEREOE"])
     return np.array(bond_feats)
+
+def getAngles(mol): #returns a list of all sets of three atoms involved in an angle (no repeated angles).
+    angles = set()
+    bondDict = {}
+    bonds = mol.GetBonds()
+    for bond in bonds:
+        if not bond.IsInRing():
+            start = bond.GetBeginAtomIdx()
+            end = bond.GetEndAtomIdx()
+            if start in bondDict:
+                for atom in bondDict[start]:
+                    if atom != start and atom != end:
+                        if (atom < end):
+                            angles.add((atom, start, end))
+                        elif end < atom:
+                            angles.add((end, start, atom))
+                bondDict[start].append(end)
+            else:
+                bondDict[start] = [end]
+            if end in bondDict:
+                for atom in bondDict[end]:
+                    if atom != start and atom != end:
+                        if atom < start:
+                            angles.add((atom, end, start))
+                        elif start < atom:
+                            angles.add((start, end, atom))
+                bondDict[end].append(start)
+    return angles
 
 #################
 # pen added
@@ -46,13 +78,55 @@ def atom_features_simple(atom, conf):
 
 def mol2vecsimple(mol):
     conf = mol.GetConformer(id=-1)
+    nonring, _ = TorsionFingerprints.CalculateTorsionLists(mol)
+    angles = getAngles(mol)
     atoms = mol.GetAtoms()
     bonds = mol.GetBonds()
     node_f= [atom_features_simple(atom, conf) for atom in atoms]
-    edge_index = get_bond_pair(mol)
-    edge_attr = [bond_features(bond, use_chirality=False) for bond in bonds]
+    #edge_index = get_bond_pair(mol)
+
+    #Index-consistent way of adding things into edge_index to match the indexes of edge_attr:
+    edge_index = [[],[]]
     for bond in bonds:
+        #edge_index[0] += [bond.GetBeginAtomIdx(), bond.GetEndAtomIdx()]
+        #edge_index[1] += [bond.GetEndAtomIdx(), bond.GetBeginAtomIdx()]
+        edge_index[0].append(bond.GetBeginAtomIdx())
+        edge_index[1].append(bond.GetEndAtomIdx())
+
+    edge_attr = [bond_features(bond, use_chirality=False) for bond in bonds]
+    for torsion in nonring:
+        #edge_index[0] += [torsion[0][0][0], torsion[0][0][3]]
+        #edge_index[1] += [torsion[0][0][3], torsion[0][0][0]]
+        edge_index[0].append(torsion[0][0][0])
+        edge_index[1].append(torsion[0][0][3])
+        edge_attr.append([
+            0, 0, 0, 0, 0, 0, torsion[1], -1
+        ])
+    for angle in angles:
+        #edge_index[0] += [angle[0], angle[2]]
+        #edge_index[1] += [angle[2], angle[0]]
+        edge_index[0].append(angle[0])
+        edge_index[1].append(angle[2])
+        edge_attr.append([
+            0, 0, 0, 0, 0, 0, -1, Chem.rdMolTransforms.GetAngleDeg(conf, *angle)
+        ])
+    #pdb.set_trace()
+    for bond in bonds:
+        edge_index[1].append(bond.GetBeginAtomIdx())
+        edge_index[0].append(bond.GetEndAtomIdx())
         edge_attr.append(bond_features(bond))
+    for torsion in nonring:
+        edge_index[1].append(torsion[0][0][0])
+        edge_index[0].append(torsion[0][0][3])
+        edge_attr.append([
+            0, 0, 0, 0, 0, 0, -1*torsion[1], -1
+        ])
+    for angle in angles:
+        edge_index[1].append(angle[0])
+        edge_index[0].append(angle[2])
+        edge_attr.append([
+            0, 0, 0, 0, 0, 0, -1, Chem.rdMolTransforms.GetAngleDeg(conf, *angle)
+        ])
     data = Data(
                 x=torch.tensor(node_f, dtype=torch.float),
                 edge_index=torch.tensor(edge_index, dtype=torch.long),
@@ -60,6 +134,7 @@ def mol2vecsimple(mol):
                 pos=torch.Tensor(conf.GetPositions())
             )
     data = Distance()(data)
+    #pdb.set_trace()
     return data
 
 
@@ -74,6 +149,7 @@ AllChem.EmbedMultipleConfs(m, numConfs=200, numThreads=0)
 res = AllChem.MMFFOptimizeMoleculeConfs(m, numThreads=0)
 
 energys = confgen.get_conformer_energies(m)
+
 
 
 class LigninEnv(gym.Env):
@@ -183,7 +259,10 @@ class LigninEnv(gym.Env):
         # Render the environment to the screen
         print_torsions(self.mol)
 
+environment = LigninEnv()
+print(environment.reset())
 
+"""
 class LigninSetEnv(LigninEnv):
     def __init__(self):
         super(LigninSetEnv, self).__init__()
@@ -605,3 +684,4 @@ class DifferentCarbonSet(DifferentCarbon):
     def reset(self):
         self.seen = set()
         return super(DifferentCarbonSet, self).reset()
+"""
