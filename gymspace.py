@@ -112,10 +112,9 @@ class Environment(gym.Env):
                 0,
                 0,
                 0,
-                Chem.rdMolTransforms.GetAngleDeg(self.conf, *angle),
+                Chem.rdMolTransforms.GetAngleDeg(self.conf, *angle) / 180,
                 0
             ])
-            print(Chem.rdMolTransforms.GetAngleDeg(self.conf, *angle) / 180)
             obs['edge'][angle[0], angle[2], :] = feats
         for dih in self.nonring:
             feats = np.array([
@@ -126,9 +125,8 @@ class Environment(gym.Env):
                 0,
                 0,
                 0,
-                Chem.rdMolTransforms.GetDihedralDeg(self.conf, *dih)
+                Chem.rdMolTransforms.GetDihedralDeg(self.conf, *dih) / 180
             ])
-            print(Chem.rdMolTransforms.GetDihedralDeg(self.conf, *dih) / 180)
             obs['edge'][dih[0], dih[3], :] = feats
         return obs
 
