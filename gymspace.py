@@ -77,8 +77,8 @@ class Environment(gym.Env):
 
         self.actionspace = spaces.MultiDiscrete([6 for elt in self.nonring])
         self.observationspace = {}
-        self.observationspace['edge'] = gym.Space(shape=[len(self.bonds) + len(self.angles) + len(self.nonring), 10])
-        self.observationspace['node'] = gym.Space(shape=[self.mol.GetNumAtoms(), 3])
+        self.observationspace['edge'] = gym.Space(shape=[250, 250, 8])
+        self.observationspace['node'] = gym.Space(shape=[250, 3])
         
 
     def _get_reward(self):
@@ -86,42 +86,39 @@ class Environment(gym.Env):
 
     def _get_obs(self):
         obs = {}
-        obs['edge'] = np.zeros((len(self.bonds) + len(self.angles) + len(self.nonring), 10))
-        obs['node'] = np.array(self.conf.GetPositions())
+        obs['edge'] = np.zeros((250, 250, 8))
+        obs['node'] = np.zeros((250, 3))
+
+        obs['node'][0:self.mol.GetNumAtoms(), :] = np.array(self.conf.GetPositions())
         
-        for bondidx, _ in enumerate(self.bonds):
-            bt = self.bonds[bondidx].GetBondType()
+        for bond in self.bonds:
+            bt = bond.GetBondType()
             feats = np.array([
-                self.bonds[bondidx].GetBeginAtomIdx(),
-                self.bonds[bondidx].GetEndAtomIdx(),
                 bt == Chem.rdchem.BondType.SINGLE, 
                 bt == Chem.rdchem.BondType.DOUBLE,
                 bt == Chem.rdchem.BondType.TRIPLE, 
                 bt == Chem.rdchem.BondType.AROMATIC,
-                self.bonds[bondidx].GetIsConjugated(),
-                self.bonds[bondidx].IsInRing(),
+                bond.GetIsConjugated(),
+                bond.IsInRing(),
                 0,#angle degree
                 0#dihedral degree
             ])
-            obs['edge'][bondidx, :] = feats
-        for angleidx, _ in enumerate(self.angles):
+            obs['edge'][bond.GetBeginAtomIdx(), bond.GetEndAtomIdx(), :] = feats
+        for angle in self.angles:
             feats = np.array([
-                self.angles[angleidx][0],
-                self.angles[angleidx][2],
                 0,
                 0,
                 0,
                 0,
                 0,
                 0,
-                Chem.rdMolTransforms.GetAngleDeg(self.conf, *self.angles[angleidx]),
+                Chem.rdMolTransforms.GetAngleDeg(self.conf, *angle),
                 0
             ])
-            obs['edge'][len(self.bonds) + angleidx, :] = feats
-        for dihidx, _ in enumerate(self.nonring):
+            print(Chem.rdMolTransforms.GetAngleDeg(self.conf, *angle) / 180)
+            obs['edge'][angle[0], angle[2], :] = feats
+        for dih in self.nonring:
             feats = np.array([
-                self.nonring[dihidx][0],
-                self.nonring[dihidx][3],
                 0,
                 0,
                 0,
@@ -129,10 +126,10 @@ class Environment(gym.Env):
                 0,
                 0,
                 0,
-                Chem.rdMolTransforms.GetDihedralDeg(self.conf, *self.nonring[dihidx])
+                Chem.rdMolTransforms.GetDihedralDeg(self.conf, *dih)
             ])
-            obs['edge'][len(self.bonds)+len(self.angles)+dihidx, :] = feats
-        pdb.set_trace()
+            print(Chem.rdMolTransforms.GetDihedralDeg(self.conf, *dih) / 180)
+            obs['edge'][dih[0], dih[3], :] = feats
         return obs
 
 
