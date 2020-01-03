@@ -15,7 +15,7 @@ from torch_geometric.transforms import Distance
 import pdb
 
 
-def bond_features(bond, torsionAngle = -1, bondAngle = -1, use_chirality=False):
+def bond_features(bond, torsionAngle = 0, bondAngle = 0, use_chirality=False):
     from rdkit import Chem
     bt = bond.GetBondType()
     bond_feats = [
@@ -134,7 +134,7 @@ def mol2vecsimple(mol):
                 pos=torch.Tensor(conf.GetPositions())
             )
     data = Distance()(data)
-    #pdb.set_trace()
+    pdb.set_trace()
     return data
 
 
@@ -262,7 +262,7 @@ class LigninEnv(gym.Env):
 environment = LigninEnv()
 print(environment.reset())
 
-"""
+
 class LigninSetEnv(LigninEnv):
     def __init__(self):
         super(LigninSetEnv, self).__init__()
@@ -684,4 +684,3 @@ class DifferentCarbonSet(DifferentCarbon):
     def reset(self):
         self.seen = set()
         return super(DifferentCarbonSet, self).reset()
-"""
