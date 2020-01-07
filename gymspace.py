@@ -10,6 +10,9 @@ import pdb
 import gym
 from gym import spaces
 
+from torch_geometric.data import Data, Batch
+from torch_geometric.transforms import Distance
+
 
 confgen = ConformerGeneratorCustom(max_conformers=1,
                                 rmsd_threshold=None,
@@ -70,8 +73,8 @@ class Environment(gym.Env):
         self.action_space = spaces.MultiDiscrete([6 for elt in self.nonring])
         self.observation_space = spaces.Dict({
             'nodes':spaces.Box(low=-np.inf, high=np.inf, shape=(250, 3)),
-            'bonds':spaces.Box(low=-np.inf, high=np.inf, shape=(200, 8)),
-            'angles':spaces.Box(low=-np.inf, high=np.inf, shape=(100, 3)),
+            'bonds':spaces.Box(low=-np.inf, high=np.inf, shape=(300, 8)),
+            'angles':spaces.Box(low=-np.inf, high=np.inf, shape=(200, 3)),
             'dihedrals':spaces.Box(low=-np.inf, high=np.inf, shape=(100, 3))
         })
         """
@@ -90,9 +93,10 @@ class Environment(gym.Env):
         obs['nodes'] = np.zeros((250, 3))
         obs['nodes'][0:self.mol.GetNumAtoms(), :] = np.array(self.conf.GetPositions())
         
-        obs['bonds'] = np.zeros((200, 8))
-        obs['angles'] = np.zeros((100, 3))
+        obs['bonds'] = np.zeros((300, 8))
+        obs['angles'] = np.zeros((200, 3))
         obs['dihedrals'] = np.zeros((100, 3))
+        obs['count'] = np.array([self.mol.GetNumAtoms(), len(self.bonds), len(self.angles), len(self.nonring)])
 
         for idx, bond in enumerate(self.bonds):
             bt = bond.GetBondType()
@@ -211,6 +215,38 @@ class Environment(gym.Env):
         print('reset called')
         print_torsions(self.mol)
         return obs
+
+
+def obsToGraph(obs):
+    positions = obs['nodes'][:obs['count'][0]]
+    edge_index1 = obs['bonds'][:obs['count'][1], 0]
+    edge_index1 = np.concatenate((edge_index1, obs['angles'][:obs['count'][2], 0]))
+    edge_index1 = np.concatenate((edge_index1, obs['dihedrals'][:obs['count'][3], 0]))
+    edge_index2 = obs['bonds'][:obs['count'][1], 1]
+    edge_index2 = np.concatenate((edge_index2, obs['angles'][:obs['count'][2], 1]))
+    edge_index2 = np.concatenate((edge_index2, obs['dihedrals'][:obs['count'][3], 1]))
+    edge_index = np.array([np.concatenate((edge_index1,edge_index2)), np.concatenate((edge_index2,edge_index1))])
+
+    edge_attr = np.zeros((obs['count'][1]+obs['count'][2]+obs['count'][3], 8))
+    edge_attr[:obs['count'][1], :6] = obs['bonds'][:obs['count'][1], 2:]
+    edge_attr[obs['count'][1]:obs['count'][1]+obs['count'][2], 6] = obs['angles'][:obs['count'][2], 2]
+    edge_attr[obs['count'][1]+obs['count'][2]:,7] = obs['dihedrals'][:obs['count'][3], 2]
+    edge_attr = np.concatenate((edge_attr, edge_attr))
+    data = Data(
+        x=torch.tensor(positions, dtype=torch.float),
+        edge_index=torch.tensor(edge_index, dtype=torch.long),
+        edge_attr=torch.tensor(edge_attr, dtype=torch.float),
+        pos=torch.tensor(positions, dtype=torch.float),
+    )
+    data = Distance()(data)
+    return data
+
+
+    
+
+
+
 env = Environment()
-print(env.reset())
+obs = env.reset()
+print (obsToGraph(obs))
 

@@ -127,6 +127,7 @@ def mol2vecsimple(mol):
         edge_attr.append([
             0, 0, 0, 0, 0, 0, -1, Chem.rdMolTransforms.GetAngleDeg(conf, *angle)
         ])
+        pdb.set_trace()
     data = Data(
                 x=torch.tensor(node_f, dtype=torch.float),
                 edge_index=torch.tensor(edge_index, dtype=torch.long),
