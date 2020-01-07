@@ -4,27 +4,30 @@ from alkanes import *
 import numpy as np
 from rdkit import Chem
 from rdkit.Chem import AllChem
-import torch
 
 import pdb
 
 import gym
 from gym import spaces
 
-import ray
-import ray.rllib.agents
-from ray.rllib.models import ModelCatalog
-from ray.rllib.models.torch.torch_modelv2 import TorchModelV2
-from ray.rllib.utils.annotations import override
-import ray.rllib.agents.a3c as agent
-from ray.tune.logger import pretty_print
-import ray.rllib.models.catalog as catalog
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from ray import tune
+from rlpyt.samplers.serial.sampler import SerialSampler
+from rlpyt.samplers.parallel.cpu.sampler import CpuSampler
+from rlpyt.samplers.parallel.gpu.sampler import GpuSampler
+from rlpyt.samplers.parallel.gpu.alternating_sampler import AlternatingSampler
+from rlpyt.algos.dqn.dqn import DQN
+from rlpyt.runners.minibatch_rl import MinibatchRlEval
+from rlpyt.utils.logging.context import logger_context
+from rlpyt.envs.gym import GymEnvWrapper
+from rlpyt.spaces.gym_wrapper import GymSpaceWrapper
+from rlpyt.agents.base import BaseAgent, AgentStep
+from rlpyt.utils.collections import namedarraytuple
+from rlpyt.agents.dqn.epsilon_greedy import EpsilonGreedyAgentMixin
+from rlpyt.distributions.epsilon_greedy import EpsilonGreedy
+
 
 
 confgen = ConformerGeneratorCustom(max_conformers=1,
@@ -65,7 +68,7 @@ def getAngles(mol): #returns a list of all sets of three atoms involved in an an
 
 class Environment(gym.Env):
     metadata = {'render.modes': ['human']}
-    def __init__(self, env_config):
+    def __init__(self):
         mol = Chem.AddHs(m)
         AllChem.EmbedMultipleConfs(mol, numConfs=200, numThreads=0)
         energys = confgen.get_conformer_energies(mol)
@@ -84,7 +87,7 @@ class Environment(gym.Env):
         self.angles = getAngles(self.mol)
 
         self.action_space = spaces.MultiDiscrete([6 for elt in self.nonring])
-        self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(1, 250, 3))
+        self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(250, 3))
         print("Length of action array:", len(self.nonring))
         
 
@@ -94,7 +97,6 @@ class Environment(gym.Env):
     def _get_obs(self):
         obs = np.zeros((250, 3))
         obs[0:self.mol.GetNumAtoms(), :] = np.array(self.conf.GetPositions())
-        obs = np.reshape(obs, (1, 250, 3))
         
         return obs
 
@@ -140,73 +142,84 @@ class Environment(gym.Env):
         print_torsions(self.mol)
         return obs
 
+env = GymEnvWrapper(Environment())
 
-class Fcn(TorchModelV2):
-    
-    def __init__(self, obs_space, action_space, num_outputs, model_config, name):
-        super(Fcn, self).__init__(obs_space, action_space, num_outputs, model_config, name)
-        self.curr = None
-        self.model = nn.sequential(Net(in_size = np.product(obs_space.shape), out_size = num_outputs))
-
-    @override(TorchModelV2)
-    def forward(self, input_dict, state, seq_lens):
-        obs = input_dict["obs_flat"]
-        obs = obs.reshape(obs.shape[0], -1)
-        out = self.model(obs)
-        self.curr = out
-        return out, state
-
-    @override(TorchModelV2)
-    def value_function(self):
-        return self.curr
 
 
 #Dummy Neural Net for Testing:
 class Net(nn.Module):
-    def __init__(self, in_size, out_size):
+    def __init__(self, image_shape, output_size):
         super(Net, self).__init__()
-        self.fc1 = nn.Linear(in_size, 24)
+        self.fc1 = nn.Linear(750, 24)
         self.fc2 = nn.Linear(24, 48)
-        self.fc3 = nn.Linear(48, out_size)
+        self.fc3 = nn.Linear(48, output_size[0])
 
     def forward(self, x):
-        x = x.view(-1, )
+        x = x.view(-1, 750)
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
         x = self.fc3(x)
+        return x
+
+class Env(GymEnvWrapper):
+
+    def __init__(self, e=Environment()):
+        super().__init__(env=e)
+
+
+class Mixin:
+    def make_env_to_model_kwargs(self, env_spaces):
+        return dict(image_shape=env_spaces.observation.shape,
+        output_size=env_spaces.action.shape)
+
+AgentInfo = namedarraytuple("AgentInfo", "q")
+class CustomAgent(EpsilonGreedyAgentMixin, Mixin, BaseAgent):
+    def __init__(self, ModelCls = Net, **kwargs):
+        super().__init__(ModelCls=ModelCls, **kwargs)
+
+    def initialize(self, env_spaces, share_memory=False, global_B=1, env_ranks=None):
+        super().initialize(env_spaces, share_memory, global_B=global_B, env_ranks=env_ranks)
+        self.distribution = EpsilonGreedy(dim=env_spaces.action.shape[0])
+
+    def __call__(self, observation, prev_action, prev_reward):
+        return self.model(observation)
+
+    @torch.no_grad()
+    def step(self, observation, prev_action, prev_reward):
+        action = self.model(observation)
+        agent_info = AgentInfo(q=action)
+        pdb.set_trace()
+        return AgentStep(action=action, agent_info=agent_info)
 
 
 
 
+def build_and_train(run_ID=0, cuda_idx=None):
+    sampler = SerialSampler(
+        env_kwargs=dict(),
+        eval_env_kwargs={},
+        EnvCls=Env,
+        batch_T=4,  # Four time-steps per sampler iteration.
+        batch_B=1,
+        max_decorrelation_steps=0,
+        eval_n_envs=10,
+        eval_max_steps=int(10e3),
+        eval_max_trajectories=5,
+    )
+    algo = DQN(min_steps_learn=1e3)  # Run with defaults.
+    agent = CustomAgent()
+    runner = MinibatchRlEval(
+        algo=algo,
+        agent=agent,
+        sampler=sampler,
+        n_steps=50e6,
+        log_interval_steps=1e3,
+        affinity=dict(cuda_idx=cuda_idx),
+    )
+    config = {}
+    name = "test"
+    log_dir = "example_1"
+    with logger_context(log_dir, run_ID, name, config, snapshot_mode="last"):
+        runner.train()
 
-ray.init()
-ModelCatalog.register_custom_model("fullyconnected", Fcn)
-
-#standard implementation:
-
-modelconfig = catalog.MODEL_DEFAULTS.copy()
-modelconfig["custom_model"] = "fullyconnected"
-config = agent.DEFAULT_CONFIG.copy()
-config["model"] = modelconfig
-config["use_pytorch"] = True
-config["sample_async"] = False
-
-trainer = agent.A3CTrainer(config = config, env=Environment)
-for i in range(1):
-    result = trainer.train()
-    print(pretty_print(result))
-
-#tune implementation:
-"""
-tune.run(
-    "PPO",
-    stop={"time_total_s": 2},
-    config={
-        "env": Environment,
-        "model": {
-            "custom_model": "fullyconnected",
-        }
-    }
-)
-"""
-
+build_and_train()
