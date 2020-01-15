@@ -22,6 +22,8 @@ import json
 import alkanes
 from alkanes import *
 
+import pdb
+
 def bond_features(bond, use_chirality=False):
     from rdkit import Chem
     bt = bond.GetBondType()
@@ -201,7 +203,8 @@ class LigninEnv(gym.Env):
         super(LigninEnv, self).__init__()
         # Define action and observation space
         # They must be gym.spaces objects
-        # Example when using discrete actions:
+        # Example when
+        # using discrete actions:
         self.standard_energy = energys.min()
         AllChem.EmbedMultipleConfs(m, numConfs=1, numThreads=0)
         res = AllChem.MMFFOptimizeMoleculeConfs(m, numThreads=0)
@@ -217,8 +220,8 @@ class LigninEnv(gym.Env):
         return np.exp(-1.0 * (confgen.get_conformer_energies(self.mol)[0] - self.standard_energy))
 
     def _get_obs(self):
-        #data = Batch.from_data_list([mol2vecsimple(self.mol)])
-        data = Batch.from_data_list([mol2vecmeta(self.mol)])
+        data = Batch.from_data_list([mol2vecsimple(self.mol)])
+        #data = Batch.from_data_list([mol2vecmeta(self.mol)])
         return data, self.nonring
 
     def step(self, action):
@@ -296,6 +299,7 @@ class LigninEnv(gym.Env):
         print('step time mean', np.array(self.delta_t).mean())
         print('reset called')
         print_torsions(self.mol)
+        pdb.set_trace()
         return obs
 
     def render(self, mode='human', close=False):
@@ -324,7 +328,7 @@ class LigninSetEnv(LigninEnv):
 test = LigninEnv()
 print(test.reset())
 
-
+"""
 mm = Chem.MolFromSmiles('CCC(CC)CC(CCC)CCC')
 mm = Chem.AddHs(mm)
 AllChem.EmbedMultipleConfs(mm, numConfs=200, numThreads=0)
@@ -728,3 +732,4 @@ class DifferentCarbonSet(DifferentCarbon):
     def reset(self):
         self.seen = set()
         return super(DifferentCarbonSet, self).reset()
+"""
