@@ -873,12 +873,14 @@ class SetCurricula(SetGibbs):
         else:
             self.num_good_episodes = 0
 
-        if self.num_good_episodes >= 5:
-            self.choice_ind += 1
+        if self.num_good_episodes >= 10:
+            self.choice_ind *= 2
+            self.choice_ind = self.choice_ind % len(self.all_files)
+            self.num_good_episodes = 0
 
         if self.in_order:
-            self.choice = (self.choice + 1) % len(self.all_files)
-            cjson = self.all_files[self.choice]
+            self.choice = (self.choice + 1) % len(self.all_files[0:self.choice_ind])
+            cjson = self.all_files[0:self.choice_ind][self.choice]
         else:
             cjson = np.random.choice(self.all_files[0:self.choice_ind])
 

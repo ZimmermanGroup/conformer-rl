@@ -3,7 +3,7 @@
 
 #“#SBATCH” directives that convey submission options:
 
-#SBATCH --job-name=eight_torsion_dense
+#SBATCH --job-name=diff_bench
 #SBATCH --mail-user=tgog@umich.edu
 #SBATCH --cpus-per-task=2
 #SBATCH --mem-per-cpu=2048m

@@ -414,7 +414,7 @@ class AdaTask:
             Wrapper = DummyVecEnv
             self.env = DummyVecEnv(envs)
         else:
-            self.env = SubprocVecEnv(envs, start_method='spawn')
+            self.env = SubprocVecEnv(envs)
         self.name = name
 
     def reset(self):

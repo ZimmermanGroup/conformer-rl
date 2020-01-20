@@ -101,27 +101,27 @@ def a2c_feature(**kwargs):
     config.merge(kwargs)
 
     config.num_workers = 1
-    config.task_fn = lambda: AdaTask('AllEightTorsionSetDense-v0', seed=random.randint(0,7e4))
+    config.task_fn = lambda: AdaTask('DiffDense-v0', seed=random.randint(0,7e4))
     config.optimizer_fn = lambda params: torch.optim.RMSprop(params, lr=7e-5, alpha=0.99, eps=1e-5) #learning_rate #alpha #epsilon
     config.network = model
     config.discount = 0.9999 # gamma
-    config.use_gae = False
+    config.use_gae = True
     config.gae_tau = 0.95
     config.value_loss_weight = 0.25 # vf_coef
     config.entropy_weight = 0.0005 #ent_coef
     config.rollout_length = 5 # n_steps
     config.gradient_clip = 0.5 #max_grad_norm
-    config.max_steps = 1000000
+    config.max_steps = 100000
     config.save_interval = 10000
     config.eval_interval = 2000
     config.eval_episodes = 2
-    config.eval_env = AdaTask('DiffDense-v0', seed=random.randint(0,7e4))
+    config.eval_env = AdaTask('DiffBench-v0', seed=random.randint(0,7e4))
     config.state_normalizer = DummyNormalizer()
 
     agent = A2CRecurrentEvalAgent(config)
     return agent
 
-model = RTGN(6, 64, edge_dim=2)
+model = RTGN(6, 128, edge_dim=2)
 model.to(torch.device('cuda'))
 
 
@@ -129,7 +129,7 @@ mkdir('log')
 mkdir('tf_log')
 set_one_thread()
 select_device(0)
-tag='eight_torsion_dense'
+tag='DiffBench'
 print(tag)
 agent = a2c_feature(tag=tag)
 

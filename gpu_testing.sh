@@ -3,12 +3,12 @@
 
 #“#SBATCH” directives that convey submission options:
 
-#SBATCH --job-name=batch_training
+#SBATCH --job-name=mp_testing
 #SBATCH --mail-user=tgog@umich.edu
-#SBATCH --cpus-per-task=10
+#SBATCH --cpus-per-task=4
 #SBATCH --gres=gpu:1
 #SBATCH --nodes=1
-#SBATCH --time=10:00:00
+#SBATCH --time=00:00:05
 #SBATCH --account=tewaria1
 #SBATCH --partition=gpu
 #SBATCH --output=/home/%u/%x-%j.log
@@ -19,4 +19,4 @@ source ~/.bashrc
 cd ~/conformer-ml/
 module load cuda
 module load gcc
-python run_batch_train.py
+python gpu_pytorch_test.py

@@ -37,7 +37,7 @@ def a2c_feature(**kwargs):
 
     config.num_workers = 10
     single_process = (config.num_workers == 1)
-    config.task_fn = lambda: AdaTask('OneSet-v0',num_envs=config.num_workers, seed=random.randint(0,1e5), single_process=single_process)
+    config.task_fn = lambda: AdaTask('Diff-v0',num_envs=config.num_workers, seed=random.randint(0,1e5), single_process=single_process)
     lr = 7e-5 * np.sqrt(config.num_workers)
     config.optimizer_fn = lambda params: torch.optim.RMSprop(params, lr=lr, alpha=0.99, eps=1e-5)
     config.network = model
