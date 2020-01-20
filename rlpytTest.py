@@ -382,7 +382,7 @@ class CustomAgent(BaseAgent):
     @torch.no_grad()
     def step(self, observation, prev_action, prev_reward):
         pred, _ = self.model(observation)
-        action = [pred['a']]
+        action = pred['a']
         dist_info = DistInfo(prob=pred['log_pi_a'])
         value = pred['v']
         agent_info = AgentInfo(dist_info=dist_info, value=value)

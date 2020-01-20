@@ -350,7 +350,7 @@ class LigninSetEnv(LigninEnv):
 test = LigninEnv()
 print(test.reset())
 
-"""
+
 mm = Chem.MolFromSmiles('CCC(CC)CC(CCC)CCC')
 mm = Chem.AddHs(mm)
 AllChem.EmbedMultipleConfs(mm, numConfs=200, numThreads=0)
@@ -1085,9 +1085,5 @@ class DifferentCarbonSetReward(DifferentCarbonReward):
 
     def reset(self):
         self.seen = set()
-<<<<<<< HEAD
         return super(DifferentCarbonSet, self).reset()
-"""
-=======
-        return super(DifferentCarbonSetReward, self).reset()
->>>>>>> f2534d8fb55560b11894964005cc289ce6da6eec
+
