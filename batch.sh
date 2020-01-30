@@ -17,4 +17,6 @@
 source deactivate my-rdkit-env
 source ~/.bashrc
 cd ~/conformer-ml/
-python hydrocarbons.py
+module load gcc
+jupyter notebook --no-browser --port=8080
+

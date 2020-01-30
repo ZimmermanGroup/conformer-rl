@@ -391,11 +391,11 @@ class RTGNAblation(torch.nn.Module):
 
 
 class CriticBatchNet(torch.nn.Module):
-    def __init__(self, action_dim, dim):
+    def __init__(self, action_dim, dim, edge_dim):
         super(CriticBatchNet, self).__init__()
         num_features = 3
         self.lin0 = torch.nn.Linear(num_features, dim)
-        func_ag = nn.Sequential(nn.Linear(7, dim), nn.ReLU(), nn.Linear(dim, dim * dim))
+        func_ag = nn.Sequential(nn.Linear(edge_dim, dim), nn.ReLU(), nn.Linear(dim, dim * dim))
         self.conv = gnn.NNConv(dim, dim, func_ag, aggr='mean')
         self.gru = nn.GRU(dim, dim)
 
@@ -434,11 +434,11 @@ class CriticBatchNet(torch.nn.Module):
         return v, (hx, cx)
 
 class ActorBatchNet(torch.nn.Module):
-    def __init__(self, action_dim, dim):
+    def __init__(self, action_dim, dim, edge_dim):
         super(ActorBatchNet, self).__init__()
         num_features = 3
         self.lin0 = torch.nn.Linear(num_features, dim)
-        func_ag = nn.Sequential(nn.Linear(7, dim), nn.ReLU(), nn.Linear(dim, dim * dim))
+        func_ag = nn.Sequential(nn.Linear(edge_dim, dim), nn.ReLU(), nn.Linear(dim, dim * dim))
         self.conv = gnn.NNConv(dim, dim, func_ag, aggr='mean')
         self.gru = nn.GRU(dim, dim)
 
@@ -494,14 +494,14 @@ class ActorBatchNet(torch.nn.Module):
         return logit, (hx, cx)
 
 class RTGNBatch(torch.nn.Module):
-    def __init__(self, action_dim, dim):
+    def __init__(self, action_dim, dim, edge_dim=7):
         super(RTGNBatch, self).__init__()
         num_features = 3
         self.action_dim = action_dim
         self.dim = dim
 
-        self.actor = ActorBatchNet(action_dim, dim)
-        self.critic = CriticBatchNet(action_dim, dim)
+        self.actor = ActorBatchNet(action_dim, dim, edge_dim=edge_dim)
+        self.critic = CriticBatchNet(action_dim, dim, edge_dim=edge_dim)
 
     def forward(self, obs, states=None):
         data_list = []

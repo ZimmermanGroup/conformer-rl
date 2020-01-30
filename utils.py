@@ -337,7 +337,6 @@ def enumerateTorsions(mol):
                 torsionList.append((idx1, idx2, idx3, idx4))
     return torsionList
 
-
 class A2CEvalAgent(A2CAgent):
     def eval_step(self, state):
         prediction = self.network(self.config.state_normalizer(state))
@@ -365,7 +364,9 @@ class A2CRecurrentEvalAgent(A2CRecurrentAgent):
             ret = info[0]['episodic_return']
             if ret is not None:
                 break
+
         return ret
+
 
 class OriginalReturnWrapper(gym.Wrapper):
     def __init__(self, env):
@@ -392,8 +393,6 @@ def make_env(env_id, seed, rank, episode_life=True):
         env = gym.make(env_id)
         env = OriginalReturnWrapper(env)
         return env
-
-
 
     return _thunk
 

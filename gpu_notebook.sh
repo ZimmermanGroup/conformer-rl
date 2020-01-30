@@ -5,7 +5,8 @@
 
 #SBATCH --job-name=gpu_notebook
 #SBATCH --mail-user=tgog@umich.edu
-#SBATCH --cpus-per-task=5
+#SBATCH --cpus-per-task=2
+#SBATCH --mem-per-cpu=2048m
 #SBATCH --gres=gpu:1
 #SBATCH --nodes=1
 #SBATCH --time=10:00:00

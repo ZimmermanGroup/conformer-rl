@@ -22,7 +22,7 @@ from deep_rl import *
 from deep_rl.component.envs import DummyVecEnv, make_env
 
 import envs
-from models import RTGN
+from models import RTGN, RTGNBatch
 
 random.seed(0)
 np.random.seed(0)
@@ -101,8 +101,8 @@ def a2c_feature(**kwargs):
     config.merge(kwargs)
 
     config.num_workers = 1
-    config.task_fn = lambda: AdaTask('DiffDense-v0', seed=random.randint(0,7e4))
-    config.optimizer_fn = lambda params: torch.optim.RMSprop(params, lr=7e-5, alpha=0.99, eps=1e-5) #learning_rate #alpha #epsilon
+    config.task_fn = lambda: AdaTask('TrihexylStupid-v0', seed=random.randint(0,7e4))
+    config.optimizer_fn = lambda params: torch.optim.RMSprop(params, lr=0, alpha=0.99, eps=1e-5) #learning_rate #alpha #epsilon
     config.network = model
     config.discount = 0.9999 # gamma
     config.use_gae = True
@@ -111,17 +111,17 @@ def a2c_feature(**kwargs):
     config.entropy_weight = 0.0005 #ent_coef
     config.rollout_length = 5 # n_steps
     config.gradient_clip = 0.5 #max_grad_norm
-    config.max_steps = 100000
+    config.max_steps = 1000000
     config.save_interval = 10000
     config.eval_interval = 2000
     config.eval_episodes = 2
-    config.eval_env = AdaTask('DiffBench-v0', seed=random.randint(0,7e4))
+    config.eval_env = AdaTask('TrihexylStupid-v0', seed=random.randint(0,7e4))
     config.state_normalizer = DummyNormalizer()
-
     agent = A2CRecurrentEvalAgent(config)
     return agent
 
-model = RTGN(6, 128, edge_dim=2)
+model = RTGNBatch(6, 128, edge_dim=1)
+model.load_state_dict(torch.load('data/A2CRecurrentEvalAgent-batch_three_set-1000000.model'))
 model.to(torch.device('cuda'))
 
 
@@ -129,7 +129,7 @@ mkdir('log')
 mkdir('tf_log')
 set_one_thread()
 select_device(0)
-tag='DiffBench'
+tag='trihexyl_test_run'
 print(tag)
 agent = a2c_feature(tag=tag)
 

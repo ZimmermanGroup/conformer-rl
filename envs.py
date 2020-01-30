@@ -3,65 +3,6 @@ import gymspace
 import gym
 
 
-gym.envs.register(
-     id='Lignin-v0',
-     entry_point='graphenvironments:LigninEnv',
-     max_episode_steps=1000,
-)
-
-gym.envs.register(
-     id='Lignin-v1',
-     entry_point='graphenvironments:LigninSetEnv',
-     max_episode_steps=1000,
-)
-
-gym.envs.register(
-     id='Carbon-v0',
-     entry_point='graphenvironments:BranchedCarbonSet',
-     max_episode_steps=1000,
-)
-
-gym.envs.register(
-     id='UnholierSetEnergy-v0',
-     entry_point='graphenvironments:UnholierSetEnergy',
-     max_episode_steps=1000,
-)
-
-gym.envs.register(
-     id='UnholierSetEnergyEval-v0',
-     entry_point='graphenvironments:UnholierSetEnergyEval',
-     max_episode_steps=1000,
-)
-
-gym.envs.register(
-     id='Trihexyl-v0',
-     entry_point='graphenvironments:TrihexylSet',
-     max_episode_steps=1000,
-)
-
-gym.envs.register(
-     id='UnholySetEnergy-v0',
-     entry_point='graphenvironments:UnholySetEnergy',
-     max_episode_steps=1000,
-)
-
-gym.envs.register(
-     id='UnholySet-v0',
-     entry_point='graphenvironments:UnholySet',
-     max_episode_steps=1000,
-)
-
-gym.envs.register(
-     id='UnholierSet-v0',
-     entry_point='graphenvironments:UnholierSet',
-     max_episode_steps=1000,
-)
-
-gym.envs.register(
-     id='UnholierPointSetEnergy-v0',
-     entry_point='graphenvironments:UnholierPointSetEnergy',
-     max_episode_steps=1000,
-)
 
 gym.envs.register(
      id='Diff-v0',
@@ -94,12 +35,6 @@ gym.envs.register(
 )
 
 gym.envs.register(
-     id='UnholierSetEnergyScaled-v0',
-     entry_point='graphenvironments:UnholierSetEnergyScaled',
-     max_episode_steps=1000,
-)
-
-gym.envs.register(
      id='TwoSet-v0',
      entry_point='graphenvironments:TwoSet',
      max_episode_steps=1000,
@@ -112,26 +47,21 @@ gym.envs.register(
 )
 
 gym.envs.register(
-     id='AnotherOneSet-v0',
-     entry_point='graphenvironments:AnotherOneSet',
-     max_episode_steps=1000,
-)
-
-gym.envs.register(
      id='ThreeSet-v0',
      entry_point='graphenvironments:ThreeSet',
      max_episode_steps=1000,
 )
 
 gym.envs.register(
-     id='FourSet-v0',
-     entry_point='graphenvironments:FourSet',
+     id='ThreeSetSimple-v0',
+     entry_point='graphenvironments:ThreeSetSimple',
      max_episode_steps=1000,
 )
 
+
 gym.envs.register(
-     id='OneSetUN-v0',
-     entry_point='graphenvironments:OneSetUN',
+     id='FourSet-v0',
+     entry_point='graphenvironments:FourSet',
      max_episode_steps=1000,
 )
 
@@ -183,9 +113,62 @@ gym.envs.register(
      max_episode_steps=1000,
 )
 
+gym.envs.register(
+     id='TenTorsionSetCurriculumBasic-v0',
+     entry_point='graphenvironments:TenTorsionSetCurriculumBasic',
+     max_episode_steps=1000,
+)
 
 gym.envs.register(
      id='LigninSpacedEnvironment-v0',
      entry_point='gymspace:LigninSpacedEnvironment',
+     max_episode_steps=1000,
+)
+
+gym.envs.register(
+     id='LigninSet-v0',
+     entry_point='graphenvironments:LigninSet',
+     max_episode_steps=1000,
+)
+
+gym.envs.register(
+     id='LigninSmalls-v0',
+     entry_point='graphenvironments:LigninSmalls',
+     max_episode_steps=1000,
+)
+
+gym.envs.register(
+     id='LigninFourSet-v0',
+     entry_point='graphenvironments:LigninFourSet',
+     max_episode_steps=1000,
+)
+
+gym.envs.register(
+     id='LigninThreeSet-v0',
+     entry_point='graphenvironments:LigninThreeSet',
+     max_episode_steps=1000,
+)
+
+gym.envs.register(
+     id='LigninTwoSet-v0',
+     entry_point='graphenvironments:LigninTwoSet',
+     max_episode_steps=1000,
+)
+
+gym.envs.register(
+     id='LargeCarbonSet-v0',
+     entry_point='graphenvironments:LargeCarbonSet',
+     max_episode_steps=1000,
+)
+
+gym.envs.register(
+     id='Trihexyl-v0',
+     entry_point='graphenvironments:Trihexyl',
+     max_episode_steps=1000,
+)
+
+gym.envs.register(
+     id='TrihexylEval-v0',
+     entry_point='graphenvironments:TrihexylEval',
      max_episode_steps=1000,
 )

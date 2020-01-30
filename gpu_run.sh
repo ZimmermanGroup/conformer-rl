@@ -3,7 +3,7 @@
 
 #“#SBATCH” directives that convey submission options:
 
-#SBATCH --job-name=diff_bench
+#SBATCH --job-name=eval
 #SBATCH --mail-user=tgog@umich.edu
 #SBATCH --cpus-per-task=2
 #SBATCH --mem-per-cpu=2048m
@@ -20,4 +20,4 @@ source ~/.bashrc
 cd ~/conformer-ml/
 module load cuda
 module load gcc
-python run_train.py
+python run_eval.py
