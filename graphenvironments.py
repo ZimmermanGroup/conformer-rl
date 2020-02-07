@@ -200,7 +200,7 @@ confgen = ConformerGeneratorCustom(max_conformers=1,
 
 
 lignin_standard = 0
-res = glob.glob('cache/lignin.json')
+res = None#glob.glob('cache/lignin.json')
 
 if res:
     with open(res[0]) as fp:
@@ -321,7 +321,6 @@ class LigninEnv(gym.Env):
         print('step time mean', np.array(self.delta_t).mean())
         print('reset called')
         print_torsions(self.mol)
-        pdb.set_trace()
         return obs
 
     def render(self, mode='human', close=False):
@@ -356,16 +355,16 @@ mm = Chem.AddHs(mm)
 AllChem.EmbedMultipleConfs(mm, numConfs=200, numThreads=0)
 res = AllChem.MMFFOptimizeMoleculeConfs(mm, numThreads=0)
 
-    AllChem.EmbedMultipleConfs(mm, numConfs=200, numThreads=-1)
-    res = AllChem.MMFFOptimizeMoleculeConfs(mm, numThreads=-1)
+AllChem.EmbedMultipleConfs(mm, numConfs=200, numThreads=-1)
+res = AllChem.MMFFOptimizeMoleculeConfs(mm, numThreads=-1)
 
-    energys = confgen.get_conformer_energies(mm)
+energys = confgen.get_conformer_energies(mm)
 
-    cached = {}
-    branched_standard = energys.min()
-    cached['standard_energy'] = branched_standard
-    with open('cache/branched.json', 'w') as fp:
-        json.dump(cached, fp)
+cached = {}
+branched_standard = energys.min()
+cached['standard_energy'] = branched_standard
+with open('cache/branched.json', 'w') as fp:
+    json.dump(cached, fp)
 
 class BranchedCarbon(gym.Env):
     metadata = {'render.modes': ['human']}
