@@ -27,12 +27,12 @@ random.seed(0)
 np.random.seed(0)
 torch.manual_seed(0)
 
-class A2CEvalAgent(PPOAgent):
+class PPOEvalAgent(PPOAgent):
     def eval_step(self, state):
         prediction = self.network(self.config.state_normalizer(state))
         return prediction['a']
 
-class A2CRecurrentEvalAgent(PPORecurrentAgent):
+class PPORecurrentEvalAgent(PPORecurrentAgent):
     def eval_step(self, state, done, rstates):
         with torch.no_grad():
             if done:
@@ -117,16 +117,16 @@ class ActorNet(torch.nn.Module):
     def forward(self, obs, states=None):
         obs = obs[0]
         data, nonring = obs
-        #data.to(torch.device(0))
-        nonring = torch.LongTensor(nonring)#.to(torch.device(0))
+        data.to(torch.device(0))
+        nonring = torch.LongTensor(nonring).to(torch.device(0))
         
         if states:
             hx, cx = states
         else:
-            hx = Variable(torch.zeros(1, 1, self.dim))#.cuda()
-            cx = Variable(torch.zeros(1, 1, self.dim))#.cuda()
+            hx = Variable(torch.zeros(1, 1, self.dim)).cuda()
+            cx = Variable(torch.zeros(1, 1, self.dim)).cuda()
     
-        out = F.relu(self.lin0(data.x))#.cuda()))
+        out = F.relu(self.lin0(data.x)).cuda()))
         h = out.unsqueeze(0)
 
         for i in range(6):
@@ -168,15 +168,15 @@ class CriticNet(torch.nn.Module):
     def forward(self, obs, states=None):
         obs = obs[0]
         data, nonring = obs
-        #data.to(torch.device(0))
+        data.to(torch.device(0))
         
         if states:
             hx, cx = states
         else:
-            hx = Variable(torch.zeros(1, 1, self.dim))#.cuda()
-            cx = Variable(torch.zeros(1, 1, self.dim))#.cuda()
+            hx = Variable(torch.zeros(1, 1, self.dim)).cuda()
+            cx = Variable(torch.zeros(1, 1, self.dim)).cuda()
     
-        out = F.relu(self.lin0(data.x))#.cuda()))
+        out = F.relu(self.lin0(data.x)).cuda()))
         h = out.unsqueeze(0)
 
         for i in range(6):
@@ -219,9 +219,9 @@ class RTGN(torch.nn.Module):
         v, (hv, cv) = self.critic(obs, value_states)
         
         dist = torch.distributions.Categorical(logits=logits)
-        action = dist.sample()#.cuda()
-        log_prob = dist.log_prob(action).unsqueeze(0)#.cuda()
-        entropy = dist.entropy().unsqueeze(0)#.cuda()
+        action = dist.sample().cuda()
+        log_prob = dist.log_prob(action).unsqueeze(0).cuda()
+        entropy = dist.entropy().unsqueeze(0).cuda()
 
         prediction = {
             'a': action,
@@ -233,8 +233,9 @@ class RTGN(torch.nn.Module):
         return prediction, (hp, cp, hv, cv)
 
 model = RTGN(6, 128)
+model.to(torch.device('cuda'))
 
-def a2c_feature(**kwargs):
+def ppo_feature(**kwargs):
     generate_tag(kwargs)
     kwargs.setdefault('log_level', 0)
     config = Config()
@@ -258,14 +259,14 @@ def a2c_feature(**kwargs):
     config.eval_env = AdaTask('Diff-v0', seed=random.randint(0,7e4))
     config.state_normalizer = DummyNormalizer()
     
-    agent = A2CRecurrentEvalAgent(config)
+    agent = PPORecurrentEvalAgent(config)
     return agent
 
 mkdir('log')
 mkdir('tf_log')
 set_one_thread()
-#select_device(0)
+select_device(0)
 tag='normalized_diff_to_diff_low_lr'
-agent = a2c_feature(tag=tag)
+agent = ppo_feature(tag=tag)
 
 run_steps(agent)
