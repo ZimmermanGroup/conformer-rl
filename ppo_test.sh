@@ -17,9 +17,8 @@
 #SBATCH --output=/home/%u/%x-%j.log
 #SBATCH --get-user-env
 # The application(s) to execute along with its input arguments and options:
-source deactivate my-rdkit-env
-source ~/.bashrc
-cd ~/conformer-ml/
+conda activate my-rdkit-env
+cd ~/conformer-ml-testing/conformer-ml
 module load cuda
 module load gcc
-python drl-a2c.py
+python drl-ppo.py

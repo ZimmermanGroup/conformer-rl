@@ -126,7 +126,7 @@ class ActorNet(torch.nn.Module):
             hx = Variable(torch.zeros(1, 1, self.dim)).cuda()
             cx = Variable(torch.zeros(1, 1, self.dim)).cuda()
     
-        out = F.relu(self.lin0(data.x)).cuda()))
+        out = F.relu(self.lin0(data.x)).cuda()
         h = out.unsqueeze(0)
 
         for i in range(6):
@@ -176,7 +176,7 @@ class CriticNet(torch.nn.Module):
             hx = Variable(torch.zeros(1, 1, self.dim)).cuda()
             cx = Variable(torch.zeros(1, 1, self.dim)).cuda()
     
-        out = F.relu(self.lin0(data.x)).cuda()))
+        out = F.relu(self.lin0(data.x)).cuda()
         h = out.unsqueeze(0)
 
         for i in range(6):
