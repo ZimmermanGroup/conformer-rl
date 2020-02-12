@@ -710,11 +710,12 @@ class DifferentCarbon(gym.Env):
 
         obs = self._get_obs()
         rew = self._get_reward()
-        done = self.current_step == 200
+        done = self.current_step == 20#0
 
         print("reward is ", rew)
         print ("new state is:")
         print_torsions(self.mol)
+        print("current step:", self.current_step)
 
         end_step = time.process_time()
 
