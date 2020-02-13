@@ -597,3 +597,4 @@ class LigninTwoSet(SetGibbs):
 # def _get_reward(self):
 #     print('standard_energy', self.standard_energy)
 #     return self.standard_energy / confgen.get_conformer_energies(self.mol)[0]
+
