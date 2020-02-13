@@ -23,16 +23,20 @@ from deep_rl.component.envs import DummyVecEnv, make_env
 
 import envs
 
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
 random.seed(0)
 np.random.seed(0)
 torch.manual_seed(0)
 
-class A2CEvalAgent(A2CAgent):
+env_name = 'Diff-v0'
+
+class PPOEvalAgent(PPOAgent):
     def eval_step(self, state):
         prediction = self.network(self.config.state_normalizer(state))
         return prediction['a']
 
-class A2CRecurrentEvalAgent(A2CRecurrentAgent):
+class PPORecurrentEvalAgent(PPORecurrentAgent):
     def eval_step(self, state, done, rstates):
         with torch.no_grad():
             if done:
@@ -117,16 +121,16 @@ class ActorNet(torch.nn.Module):
     def forward(self, obs, states=None):
         obs = obs[0]
         data, nonring = obs
-        #data.to(torch.device(0))
-        nonring = torch.LongTensor(nonring)#.to(torch.device(0))
+        data.to(device)
+        nonring = torch.LongTensor(nonring).to(device)
         
         if states:
             hx, cx = states
         else:
-            hx = Variable(torch.zeros(1, 1, self.dim))#.cuda()
-            cx = Variable(torch.zeros(1, 1, self.dim))#.cuda()
+            hx = Variable(torch.zeros(1, 1, self.dim)).to(device)
+            cx = Variable(torch.zeros(1, 1, self.dim)).to(device)
     
-        out = F.relu(self.lin0(data.x))#.cuda()))
+        out = F.relu(self.lin0(data.x)).to(device)
         h = out.unsqueeze(0)
 
         for i in range(6):
@@ -168,15 +172,15 @@ class CriticNet(torch.nn.Module):
     def forward(self, obs, states=None):
         obs = obs[0]
         data, nonring = obs
-        #data.to(torch.device(0))
+        data.to(device)
         
         if states:
             hx, cx = states
         else:
-            hx = Variable(torch.zeros(1, 1, self.dim))#.cuda()
-            cx = Variable(torch.zeros(1, 1, self.dim))#.cuda()
+            hx = Variable(torch.zeros(1, 1, self.dim)).to(device)
+            cx = Variable(torch.zeros(1, 1, self.dim)).to(device)
     
-        out = F.relu(self.lin0(data.x))#.cuda()))
+        out = F.relu(self.lin0(data.x)).to(device)
         h = out.unsqueeze(0)
 
         for i in range(6):
@@ -219,9 +223,9 @@ class RTGN(torch.nn.Module):
         v, (hv, cv) = self.critic(obs, value_states)
         
         dist = torch.distributions.Categorical(logits=logits)
-        action = dist.sample()#.cuda()
-        log_prob = dist.log_prob(action).unsqueeze(0)#.cuda()
-        entropy = dist.entropy().unsqueeze(0)#.cuda()
+        action = dist.sample().to(device)
+        log_prob = dist.log_prob(action).unsqueeze(0).to(device)
+        entropy = dist.entropy().unsqueeze(0).to(device)
 
         prediction = {
             'a': action,
@@ -233,15 +237,16 @@ class RTGN(torch.nn.Module):
         return prediction, (hp, cp, hv, cv)
 
 model = RTGN(6, 128)
+model.to(device)
 
-def a2c_feature(**kwargs):
+def ppo_feature(**kwargs):
     generate_tag(kwargs)
     kwargs.setdefault('log_level', 0)
     config = Config()
     config.merge(kwargs)
 
     config.num_workers = 1
-    config.task_fn = lambda: AdaTask('Diff-v0', seed=random.randint(0,7e4))
+    config.task_fn = lambda: AdaTask(env_name, seed=random.randint(0,7e4))
     config.optimizer_fn = lambda params: torch.optim.RMSprop(params, lr=7e-5, alpha=0.99, eps=1e-5) #learning_rate #alpha #epsilon
     config.network = model
     config.discount = 0.9999 # gamma
@@ -255,17 +260,19 @@ def a2c_feature(**kwargs):
     config.save_interval = 10000
     config.eval_interval = 2000
     config.eval_episodes = 2
-    config.eval_env = AdaTask('Diff-v0', seed=random.randint(0,7e4))
+    config.eval_env = AdaTask(env_name, seed=random.randint(0,7e4))
     config.state_normalizer = DummyNormalizer()
+    config.ppo_ratio_clip = 0.75
     
-    agent = A2CRecurrentEvalAgent(config)
+    agent = PPORecurrentEvalAgent(config)
     return agent
 
 mkdir('log')
 mkdir('tf_log')
 set_one_thread()
-#select_device(0)
+select_device(0)
 tag='normalized_diff_to_diff_low_lr'
-agent = a2c_feature(tag=tag)
+agent = ppo_feature(tag=tag)
 
 run_steps(agent)
+
