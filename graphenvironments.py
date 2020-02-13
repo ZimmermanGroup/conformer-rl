@@ -6,6 +6,7 @@ import scipy
 from rdkit import Chem
 from rdkit.Chem import AllChem
 
+import os.path
 import multiprocessing
 import logging
 import torch
@@ -15,81 +16,27 @@ import time
 import torch
 
 from torch_geometric.data import Data, Batch
-from torch_geometric.transforms import Distance
+from torch_geometric.transforms import Distance, NormalizeScale
 
 import glob
 import json
 
-import alkanes
-from alkanes import *
-
-import pdb
-
-def bond_features(bond, use_chirality=False):
-    from rdkit import Chem
+def bond_features(bond, use_chirality=False, use_basic_feats=True):
     bt = bond.GetBondType()
-    bond_feats = [
-        bt == Chem.rdchem.BondType.SINGLE, bt == Chem.rdchem.BondType.DOUBLE,
-        bt == Chem.rdchem.BondType.TRIPLE, bt == Chem.rdchem.BondType.AROMATIC,
-        bond.GetIsConjugated(),
-        bond.IsInRing()
-    ]
+    bond_feats = []
+    if use_basic_feats:
+        bond_feats = bond_feats + [
+            bt == Chem.rdchem.BondType.SINGLE, bt == Chem.rdchem.BondType.DOUBLE,
+            bt == Chem.rdchem.BondType.TRIPLE, bt == Chem.rdchem.BondType.AROMATIC,
+            bond.GetIsConjugated(),
+            bond.IsInRing()
+        ]
     if use_chirality:
         bond_feats = bond_feats + one_of_k_encoding_unk(
             str(bond.GetStereo()),
             ["STEREONONE", "STEREOANY", "STEREOZ", "STEREOE"])
     return np.array(bond_feats)
 
-
-def bond_features_meta(bond, torsionAngle = 0, bondAngle = 0, use_chirality=False):
-    from rdkit import Chem
-    bt = bond.GetBondType()
-    bond_feats = [
-        bt == Chem.rdchem.BondType.SINGLE, bt == Chem.rdchem.BondType.DOUBLE,
-        bt == Chem.rdchem.BondType.TRIPLE, bt == Chem.rdchem.BondType.AROMATIC,
-        bond.GetIsConjugated(),
-        bond.IsInRing(),
-        torsionAngle,
-        bondAngle
-    ]
-    if use_chirality:
-        bond_feats = bond_feats + one_of_k_encoding_unk(
-            str(bond.GetStereo()),
-            ["STEREONONE", "STEREOANY", "STEREOZ", "STEREOE"])
-    return np.array(bond_feats)
-
-
-def getAngles(mol): #returns a list of all sets of three atoms involved in an angle (no repeated angles).
-    angles = set()
-    bondDict = {}
-    bonds = mol.GetBonds()
-    for bond in bonds:
-        if not bond.IsInRing():
-            start = bond.GetBeginAtomIdx()
-            end = bond.GetEndAtomIdx()
-            if start in bondDict:
-                for atom in bondDict[start]:
-                    if atom != start and atom != end:
-                        if (atom < end):
-                            angles.add((atom, start, end))
-                        elif end < atom:
-                            angles.add((end, start, atom))
-                bondDict[start].append(end)
-            else:
-                bondDict[start] = [end]
-            if end in bondDict:
-                for atom in bondDict[end]:
-                    if atom != start and atom != end:
-                        if atom < start:
-                            angles.add((atom, end, start))
-                        elif start < atom:
-                            angles.add((start, end, atom))
-                bondDict[end].append(start)
-    return angles
-
-#################
-# pen added
-#################
 def get_bond_pair(mol):
     bonds = mol.GetBonds()
     res = [[],[]]
@@ -120,665 +67,158 @@ def mol2vecsimple(mol):
     data = Distance()(data)
     return data
 
-def mol2points(mol):
+def mol2vecstupidsimple(mol):
     conf = mol.GetConformer(id=-1)
     atoms = mol.GetAtoms()
     bonds = mol.GetBonds()
-    node_f= [atom_features_simple(atom, conf) for atom in atoms]
-
-    data = Data(
-                x=torch.tensor(node_f, dtype=torch.float),
-            )
-    data = Distance()(data)
-    return data
-
-
-def mol2vecmeta(mol): #includes all the meta-edge features, eg. angles and dihedrals
-    conf = mol.GetConformer(id=-1)
-    nonring, _ = TorsionFingerprints.CalculateTorsionLists(mol)
-    angles = getAngles(mol)
-    atoms = mol.GetAtoms()
-    bonds = mol.GetBonds()
-    node_f= [atom_features_simple(atom, conf) for atom in atoms]
-    #edge_index = get_bond_pair(mol)
-
-    #Index-consistent way of adding things into edge_index to match the indexes of edge_attr:
-    edge_index = [[],[]]
+    node_f= [[] for atom in atoms]
+    edge_index = get_bond_pair(mol)
+    edge_attr = [bond_features(bond, use_chirality=False, use_basic_feats=False) for bond in bonds]
     for bond in bonds:
-        #edge_index[0] += [bond.GetBeginAtomIdx(), bond.GetEndAtomIdx()]
-        #edge_index[1] += [bond.GetEndAtomIdx(), bond.GetBeginAtomIdx()]
-        edge_index[0].append(bond.GetBeginAtomIdx())
-        edge_index[1].append(bond.GetEndAtomIdx())
-
-    edge_attr = [bond_features_meta(bond, use_chirality=False) for bond in bonds]
-    for torsion in nonring:
-        #edge_index[0] += [torsion[0][0][0], torsion[0][0][3]]
-        #edge_index[1] += [torsion[0][0][3], torsion[0][0][0]]
-        edge_index[0].append(torsion[0][0][0])
-        edge_index[1].append(torsion[0][0][3])
-        edge_attr.append([
-            0, 0, 0, 0, 0, 0, torsion[1], -1
-        ])
-    for angle in angles:
-        #edge_index[0] += [angle[0], angle[2]]
-        #edge_index[1] += [angle[2], angle[0]]
-        edge_index[0].append(angle[0])
-        edge_index[1].append(angle[2])
-        edge_attr.append([
-            0, 0, 0, 0, 0, 0, -1, Chem.rdMolTransforms.GetAngleDeg(conf, *angle)
-        ])
-    for bond in bonds:
-        edge_index[1].append(bond.GetBeginAtomIdx())
-        edge_index[0].append(bond.GetEndAtomIdx())
-        edge_attr.append(bond_features_meta(bond))
-    for torsion in nonring:
-        edge_index[1].append(torsion[0][0][0])
-        edge_index[0].append(torsion[0][0][3])
-        edge_attr.append([
-            0, 0, 0, 0, 0, 0, -1*torsion[1], -1
-        ])
-    for angle in angles:
-        edge_index[1].append(angle[0])
-        edge_index[0].append(angle[2])
-        edge_attr.append([
-            0, 0, 0, 0, 0, 0, -1, Chem.rdMolTransforms.GetAngleDeg(conf, *angle)
-        ])
+        edge_attr.append(bond_features(bond, use_chirality=False, use_basic_feats=False))
     data = Data(
                 x=torch.tensor(node_f, dtype=torch.float),
                 edge_index=torch.tensor(edge_index, dtype=torch.long),
                 edge_attr=torch.tensor(edge_attr,dtype=torch.float),
                 pos=torch.Tensor(conf.GetPositions())
             )
-    data = Distance()(data)
+
+    data = NormalizeScale()(data)
+    data = Distance(norm=False)(data)
+    data.x = data.pos
+
+    e = data.edge_attr
+    new_e = -1 + ((e - e.min())*2)/(e.max() - e.min())
+    data.edge_attr = new_e
+
     return data
 
+def mol2vecskeleton(mol):
+    mol = Chem.rdmolops.RemoveHs(mol)
+    conf = mol.GetConformer(id=-1)
+    atoms = mol.GetAtoms()
+    bonds = mol.GetBonds()
+    node_f= [[] for atom in atoms]
+    edge_index = get_bond_pair(mol)
+    edge_attr = [bond_features(bond, use_chirality=False, use_basic_feats=True) for bond in bonds]
+    for bond in bonds:
+        edge_attr.append(bond_features(bond, use_chirality=False, use_basic_feats=True))
+
+    data = Data(
+                x=torch.tensor(node_f, dtype=torch.float),
+                edge_index=torch.tensor(edge_index, dtype=torch.long),
+                edge_attr=torch.tensor(edge_attr,dtype=torch.float),
+                pos=torch.Tensor(conf.GetPositions())
+            )
+
+    data = NormalizeScale()(data)
+    data = Distance(norm=False)(data)
+    data.x = data.pos
+
+    return data
+
+
+def mol2vecdense(mol):
+    conf = mol.GetConformer(id=-1)
+    atoms = mol.GetAtoms()
+    bonds = mol.GetBonds()
+
+    adj = Chem.rdmolops.GetAdjacencyMatrix(mol)
+    n = len(atoms)
+
+    edge_index = []
+    edge_attr = []
+
+
+    for i in range(n):
+        for j in range(n):
+            if i == j:
+                continue
+            edge_index.append([i, j])
+            edge_attr.append(adj[i][j])
+
+
+    node_f= [[] for atom in atoms]
+
+    data = Data(
+                x=torch.tensor(node_f, dtype=torch.float),
+                edge_index=torch.tensor(edge_index, dtype=torch.long).T,
+                edge_attr=torch.tensor(edge_attr,dtype=torch.float),
+                pos=torch.Tensor(conf.GetPositions())
+            )
+
+    data = NormalizeScale()(data)
+    data = Distance(norm=False)(data)
+    data.x = data.pos
+
+    return data
+
+def mol2vecbasic(mol):
+    mol = Chem.rdmolops.RemoveHs(mol)
+    conf = mol.GetConformer(id=-1)
+    atoms = mol.GetAtoms()
+    bonds = mol.GetBonds()
+    node_f= [[] for atom in atoms]
+    edge_index = get_bond_pair(mol)
+    edge_attr = [bond_features(bond, use_chirality=False, use_basic_feats=False) for bond in bonds]
+    for bond in bonds:
+        edge_attr.append(bond_features(bond, use_chirality=False, use_basic_feats=False))
+
+    data = Data(
+                x=torch.tensor(node_f, dtype=torch.float),
+                edge_index=torch.tensor(edge_index, dtype=torch.long),
+                edge_attr=torch.tensor(edge_attr,dtype=torch.float),
+                pos=torch.Tensor(conf.GetPositions())
+            )
+
+    data = NormalizeScale()(data)
+    data = Distance(norm=False)(data)
+    data.x = data.pos
+
+    e = data.edge_attr
+    new_e = -1 + ((e - e.min())*2)/(e.max() - e.min())
+    data.edge_attr = new_e
+
+    return data
+
+
+# def mol2points(mol):
+#     conf = mol.GetConformer(id=-1)
+#     atoms = mol.GetAtoms()
+#     bonds = mol.GetBonds()
+#     node_f= [atom_features_simple(atom, conf) for atom in atoms]
+
+#     data = Data(
+#                 x=torch.tensor(node_f, dtype=torch.float),
+#             )
+#     data = Distance()(data)
+#     return data
 
 confgen = ConformerGeneratorCustom(max_conformers=1,
                              rmsd_threshold=None,
                              force_field='mmff',
                              pool_multiplier=1)
 
-
-lignin_standard = 0
-res = None#glob.glob('cache/lignin.json')
-
-if res:
-    with open(res[0]) as fp:
-        cached = json.load(fp)
-        lignin_standard = cached['standard_energy']
-else:
-    m = Chem.MolFromMolFile('lignin_guaiacyl.mol')
-    m = Chem.AddHs(m)
-    AllChem.EmbedMultipleConfs(m, numConfs=200, numThreads=-1)
-    res = AllChem.MMFFOptimizeMoleculeConfs(m, numThreads=-1)
-
-    energys = confgen.get_conformer_energies(m)
-    cached = {}
-    lignin_standard = energys.min()
-    cached['standard_energy'] = lignin_standard
-    with open('cache/lignin.json', 'w') as fp:
-        json.dump(cached, fp)
-
-
-class LigninEnv(gym.Env):
-    metadata = {'render.modes': ['human']}
-
-    def __init__(self):
-        super(LigninEnv, self).__init__()
-        # Define action and observation space
-        # They must be gym.spaces objects
-        # Example when
-        # using discrete actions:
-        self.standard_energy = energys.min()
-        AllChem.EmbedMultipleConfs(m, numConfs=1, numThreads=0)
-        res = AllChem.MMFFOptimizeMoleculeConfs(m, numThreads=0)
-
-        self.mol = m
-        self.conf = self.mol.GetConformer(id=0)
-        self.everseen = set()
-        nonring, ring = TorsionFingerprints.CalculateTorsionLists(self.mol)
-        self.nonring = [list(atoms[0]) for atoms, ang in nonring]
-        self.delta_t = []
-
-    def _get_reward(self):
-        return np.exp(-1.0 * (confgen.get_conformer_energies(self.mol)[0] - self.standard_energy))
-
-    def _get_obs(self):
-        data = Batch.from_data_list([mol2vecsimple(self.mol)])
-        #data = Batch.from_data_list([mol2vecmeta(self.mol)])
-        return data, self.nonring
-
-    def step(self, action):
-        # Execute one time step within the environment
-        print("action is ", action)
-        self.action = action
-        self.current_step += 1
-
-        begin_step = time.process_time()
-        desired_torsions = []
-
-#         ff = Chem.rdForceFieldHelpers.MMFFGetMoleculeForceField(m, Chem.rdForceFieldHelpers.MMFFGetMoleculeProperties(m))
-#         for idx, tors in enumerate(self.nonring):
-#             deg = Chem.rdMolTransforms.GetDihedralDeg(self.conf, *tors)
-#             ang = -180.0 + 60 * action[idx]
-#             desired_torsions.append(ang)
-#             ff.MMFFAddTorsionConstraint(*tup, False, ang, ang,  1e12)
-
-#         ff.Initialize()
-#         ff.Minimize()
-
-
-        for idx, tors in enumerate(self.nonring):
-            deg = Chem.rdMolTransforms.GetDihedralDeg(self.conf, *tors)
-            ang = -180.0 + 60 * action[idx]
-            desired_torsions.append(ang)
-            Chem.rdMolTransforms.SetDihedralDeg(self.conf, tors[0], tors[1], tors[2], tors[3], ang)
-
-        # degs = [Chem.rdMolTransforms.GetDihedralDeg(self.conf, *tors) for tors in self.nonring]
-        #
-        # dist = np.linalg.norm(np.sin(np.array(degs) * np.pi / 180.) - np.sin(np.array(desired_torsions) * np.pi / 180.))
-        # dist += np.linalg.norm(np.cos(np.array(degs)* np.pi / 180.) - np.cos(np.array(desired_torsions) * np.pi / 180.))
-        #
-        # if dist > 0.1:
-        #     print('desired torsions', desired_torsions)
-        #     print('actual torsions', degs)
-        #     print(dist)
-        #     energy = np.exp(-1.0 * confgen.get_conformer_energies(m)[0])
-        #     print(energy)
-        #
-        #     raise Exception
-
-        ff = Chem.rdForceFieldHelpers.MMFFGetMoleculeForceField(self.mol, Chem.rdForceFieldHelpers.MMFFGetMoleculeProperties(self.mol))
-        ff.Initialize()
-        ff.Minimize()
-
-
-        obs = self._get_obs()
-        rew = self._get_reward()
-        done = self.current_step == 200
-
-
-        print("reward is ", rew)
-        print ("new state is:")
-        print_torsions(self.mol)
-
-
-        end_step = time.process_time()
-
-        delta_t = end_step-begin_step
-        self.delta_t.append(delta_t)
-
-        return obs, rew, done, {}
-
-    def reset(self):
-        # Reset the state of the environment to an initial state
-        self.current_step = 0
-        AllChem.EmbedMultipleConfs(self.mol, numConfs=1, numThreads=0)
-        res = AllChem.MMFFOptimizeMoleculeConfs(self.mol, numThreads=0)
-        obs = self._get_obs()
-        self.conf = self.mol.GetConformer(id=0)
-
-        print('step time mean', np.array(self.delta_t).mean())
-        print('reset called')
-        print_torsions(self.mol)
-        return obs
-
-    def render(self, mode='human', close=False):
-        # Render the environment to the screen
-        print_torsions(self.mol)
-
-
-
-class LigninSetEnv(LigninEnv):
-    def __init__(self):
-        super(LigninSetEnv, self).__init__()
-        self.seen = set()
-
-    def _get_reward(self):
-        if tuple(self.action) in self.seen:
-            print('already seen')
-            return 0
-        else:
-            self.seen.add(tuple(self.action))
-            return np.exp(-1.0 * (confgen.get_conformer_energies(self.mol)[0] - self.standard_energy))
-
-    def reset(self):
-        self.seen = set()
-        return super(LigninSetEnv, self).reset()
-
-test = LigninEnv()
-print(test.reset())
-
-
-mm = Chem.MolFromSmiles('CCC(CC)CC(CCC)CCC')
-mm = Chem.AddHs(mm)
-AllChem.EmbedMultipleConfs(mm, numConfs=200, numThreads=0)
-res = AllChem.MMFFOptimizeMoleculeConfs(mm, numThreads=0)
-
-AllChem.EmbedMultipleConfs(mm, numConfs=200, numThreads=-1)
-res = AllChem.MMFFOptimizeMoleculeConfs(mm, numThreads=-1)
-
-energys = confgen.get_conformer_energies(mm)
-
-cached = {}
-branched_standard = energys.min()
-cached['standard_energy'] = branched_standard
-with open('cache/branched.json', 'w') as fp:
-    json.dump(cached, fp)
-
-class BranchedCarbon(gym.Env):
-    metadata = {'render.modes': ['human']}
-
-    def __init__(self):
-        super(BranchedCarbon, self).__init__()
-        # Define action and observation space
-        # They must be gym.spaces objects
-        # Example when using discrete actions:
-        self.standard_energy = branched_standard
-        self.mol = Chem.MolFromSmiles('CCC(CC)CC(CCC)CCC')
-        self.mol = Chem.AddHs(self.mol)
-
-        AllChem.EmbedMultipleConfs(self.mol, numConfs=1, numThreads=-1)
-        res = AllChem.MMFFOptimizeMoleculeConfs(self.mol, numThreads=-1)
-
-        self.conf = self.mol.GetConformer(id=0)
-        self.everseen = set()
-        nonring, ring = TorsionFingerprints.CalculateTorsionLists(self.mol)
-        self.nonring = [list(atoms[0]) for atoms, ang in nonring]
-        self.delta_t = []
-
-    def _get_reward(self):
-        print('standard_energy', self.standard_energy)
-        return np.exp(-1.0 * (confgen.get_conformer_energies(self.mol)[0] - self.standard_energy))
-
-    def _get_obs(self):
-        data = Batch.from_data_list([mol2vecsimple(self.mol)])
-        return data, self.nonring
-
-    def step(self, action):
-        # Execute one time step within the environment
-        print("action is ", action)
-        self.action = action
-        self.current_step += 1
-
-        begin_step = time.process_time()
-        desired_torsions = []
-
-#         ff = Chem.rdForceFieldHelpers.MMFFGetMoleculeForceField(m, Chem.rdForceFieldHelpers.MMFFGetMoleculeProperties(m))
-#         for idx, tors in enumerate(self.nonring):
-#             deg = Chem.rdMolTransforms.GetDihedralDeg(self.conf, *tors)
-#             ang = -180.0 + 60 * action[idx]
-#             desired_torsions.append(ang)
-#             ff.MMFFAddTorsionConstraint(*tup, False, ang, ang,  1e12)
-
-#         ff.Initialize()
-#         ff.Minimize()
-
-
-        for idx, tors in enumerate(self.nonring):
-            deg = Chem.rdMolTransforms.GetDihedralDeg(self.conf, *tors)
-            ang = -180.0 + 60 * action[idx]
-            desired_torsions.append(ang)
-            Chem.rdMolTransforms.SetDihedralDeg(self.conf, tors[0], tors[1], tors[2], tors[3], ang)
-
-
-
-        # degs = [Chem.rdMolTransforms.GetDihedralDeg(self.conf, *tors) for tors in self.nonring]
-        #
-        # dist = np.linalg.norm(np.sin(np.array(degs) * np.pi / 180.) - np.sin(np.array(desired_torsions) * np.pi / 180.))
-        # dist += np.linalg.norm(np.cos(np.array(degs)* np.pi / 180.) - np.cos(np.array(desired_torsions) * np.pi / 180.))
-        #
-        # if dist > 0.1:
-        #     print('desired torsions', desired_torsions)
-        #     print('actual torsions', degs)
-        #     print(dist)
-        #     energy = np.exp(-1.0 * confgen.get_conformer_energies(m)[0])
-        #     print(energy)
-        #
-        #     raise Exception
-
-        ff = Chem.rdForceFieldHelpers.MMFFGetMoleculeForceField(self.mol, Chem.rdForceFieldHelpers.MMFFGetMoleculeProperties(self.mol))
-        ff.Initialize()
-        ff.Minimize()
-
-
-        obs = self._get_obs()
-        rew = self._get_reward()
-        done = self.current_step == 200
-
-
-        print("reward is ", rew)
-        print ("new state is:")
-        print_torsions(self.mol)
-
-
-        end_step = time.process_time()
-
-        delta_t = end_step-begin_step
-        self.delta_t.append(delta_t)
-
-        return obs, rew, done, {}
-
-    def reset(self):
-        # Reset the state of the environment to an initial state
-        self.current_step = 0
-        AllChem.EmbedMultipleConfs(self.mol, numConfs=1, numThreads=0)
-        res = AllChem.MMFFOptimizeMoleculeConfs(self.mol, numThreads=0)
-        obs = self._get_obs()
-        self.conf = self.mol.GetConformer(id=0)
-
-        print('step time mean', np.array(self.delta_t).mean())
-        print('reset called')
-        print_torsions(self.mol)
-        return obs
-
-    def render(self, mode='human', close=False):
-        # Render the environment to the screen
-        print_torsions(self.mol)
-
-
-class BranchedCarbonSet(BranchedCarbon):
-    def __init__(self):
-        super(BranchedCarbonSet, self).__init__()
-        self.seen = set()
-
-    def _get_reward(self):
-        if tuple(self.action) in self.seen:
-            print('already seen')
-            return 0
-        else:
-            self.seen.add(tuple(self.action))
-            print('standard_energy', self.standard_energy)
-            return np.exp(-1.0 * (confgen.get_conformer_energies(self.mol)[0] - self.standard_energy))
-
-    def reset(self):
-        self.seen = set()
-        return super(BranchedCarbonSet, self).reset()
-
-
-trihexyl_standard = 0
-mmm = Chem.MolFromMolFile('258-trihexyl-decane.mol')
-mmm = Chem.AddHs(mmm)
-
-res = glob.glob('cache/trihexyl.json')
-
-if res:
-    with open(res[0]) as fp:
-        cached = json.load(fp)
-        trihexyl_standard = cached['standard_energy']
-else:
-    AllChem.EmbedMultipleConfs(mmm, numConfs=200, numThreads=0)
-    res = AllChem.MMFFOptimizeMoleculeConfs(mmm, numThreads=0)
-
-    tenergys = confgen.get_conformer_energies(mmm)
-    cached = {}
-    trihexyl_standard = tenergys.min()
-    cached['standard_energy'] = trihexyl_standard
-    with open('cache/trihexyl.json', 'w') as fp:
-        json.dump(cached, fp)
-
-class Trihexyl(gym.Env):
-    metadata = {'render.modes': ['human']}
-
-    def __init__(self):
-        super(Trihexyl, self).__init__()
-        # Define action and observation space
-        # They must be gym.spaces objects
-        # Example when using discrete actions:
-        self.standard_energy = trihexyl_standard
-        AllChem.EmbedMultipleConfs(mmm, numConfs=1, numThreads=0)
-        res = AllChem.MMFFOptimizeMoleculeConfs(mmm, numThreads=0)
-
-        self.mol = mmm
-        self.conf = self.mol.GetConformer(id=0)
-        self.everseen = set()
-        nonring, ring = TorsionFingerprints.CalculateTorsionLists(self.mol)
-        self.nonring = [list(atoms[0]) for atoms, ang in nonring]
-        self.delta_t = []
-
-    def _get_reward(self):
-        return np.exp(-1.0 * (confgen.get_conformer_energies(self.mol)[0] - self.standard_energy))
-
-    def _get_obs(self):
-        data = Batch.from_data_list([mol2vecsimple(self.mol)])
-        return data, self.nonring
-
-    def step(self, action):
-        # Execute one time step within the environment
-        print("action is ", action)
-        self.action = action
-        self.current_step += 1
-
-        begin_step = time.process_time()
-        desired_torsions = []
-
-#         ff = Chem.rdForceFieldHelpers.MMFFGetMoleculeForceField(m, Chem.rdForceFieldHelpers.MMFFGetMoleculeProperties(m))
-#         for idx, tors in enumerate(self.nonring):
-#             deg = Chem.rdMolTransforms.GetDihedralDeg(self.conf, *tors)
-#             ang = -180.0 + 60 * action[idx]
-#             desired_torsions.append(ang)
-#             ff.MMFFAddTorsionConstraint(*tup, False, ang, ang,  1e12)
-
-#         ff.Initialize()
-#         ff.Minimize()
-
-
-        for idx, tors in enumerate(self.nonring):
-            deg = Chem.rdMolTransforms.GetDihedralDeg(self.conf, *tors)
-            ang = -180.0 + 60 * action[idx]
-            desired_torsions.append(ang)
-            Chem.rdMolTransforms.SetDihedralDeg(self.conf, tors[0], tors[1], tors[2], tors[3], ang)
-
-
-
-        # degs = [Chem.rdMolTransforms.GetDihedralDeg(self.conf, *tors) for tors in self.nonring]
-        #
-        # dist = np.linalg.norm(np.sin(np.array(degs) * np.pi / 180.) - np.sin(np.array(desired_torsions) * np.pi / 180.))
-        # dist += np.linalg.norm(np.cos(np.array(degs)* np.pi / 180.) - np.cos(np.array(desired_torsions) * np.pi / 180.))
-        #
-        # if dist > 0.1:
-        #     print('desired torsions', desired_torsions)
-        #     print('actual torsions', degs)
-        #     print(dist)
-        #     energy = np.exp(-1.0 * confgen.get_conformer_energies(m)[0])
-        #     print(energy)
-        #
-        #     raise Exception
-
-        ff = Chem.rdForceFieldHelpers.MMFFGetMoleculeForceField(self.mol, Chem.rdForceFieldHelpers.MMFFGetMoleculeProperties(self.mol))
-        ff.Initialize()
-        ff.Minimize()
-
-
-        obs = self._get_obs()
-        rew = self._get_reward()
-        done = self.current_step == 200
-
-
-        print("reward is ", rew)
-        print ("new state is:")
-        print_torsions(self.mol)
-
-
-        end_step = time.process_time()
-
-        delta_t = end_step-begin_step
-        self.delta_t.append(delta_t)
-
-        return obs, rew, done, {}
-
-    def reset(self):
-        # Reset the state of the environment to an initial state
-        self.current_step = 0
-        AllChem.EmbedMultipleConfs(self.mol, numConfs=1, numThreads=0)
-        res = AllChem.MMFFOptimizeMoleculeConfs(self.mol, numThreads=0)
-        obs = self._get_obs()
-        self.conf = self.mol.GetConformer(id=0)
-
-        print('step time mean', np.array(self.delta_t).mean())
-        print('reset called')
-        print_torsions(self.mol)
-        return obs
-
-    def render(self, mode='human', close=False):
-        # Render the environment to the screen
-        print_torsions(self.mol)
-
-
-class TrihexylSet(Trihexyl):
-    def __init__(self):
-        super(TrihexylSet, self).__init__()
-        self.seen = set()
-
-    def _get_reward(self):
-        if tuple(self.action) in self.seen:
-            print('already seen')
-            return 0
-        else:
-            self.seen.add(tuple(self.action))
-            return np.exp(-1.0 * (confgen.get_conformer_energies(self.mol)[0] - self.standard_energy))
-
-    def reset(self):
-        self.seen = set()
-        return super(TrihexylSet, self).reset()
-
-res = glob.glob('cache/differentcarbon.json')
-diffcarbon_standard = 0
-if res:
-    with open(res[0]) as fp:
-        cached = json.load(fp)
-        diffcarbon_standard = cached['standard_energy']
-else:
-    mmmm = Chem.MolFromSmiles('CC(CCC)CCCC(CCCC)CC')
-    mmmm = Chem.AddHs(mmmm)
-    AllChem.EmbedMultipleConfs(mmmm, numConfs=200, numThreads=0)
-    res = AllChem.MMFFOptimizeMoleculeConfs(mmmm, numThreads=0)
-    benergys = confgen.get_conformer_energies(mmmm)
-
-    diffcarbon_standard = benergys.min()
-    cached = {}
-    cached['standard_energy'] = diffcarbon_standard
-    with open('cache/differentcarbon.json', 'w') as fp:
-        json.dump(cached, fp)
-
-class DifferentCarbon(gym.Env):
-    metadata = {'render.modes': ['human']}
-
-    def __init__(self):
-        super(DifferentCarbon, self).__init__()
-        # Define action and observation space
-        # They must be gym.spaces objects
-        # Example when using discrete actions:
-        self.standard_energy = diffcarbon_standard
-        self.mol = Chem.MolFromSmiles('CC(CCC)CCCC(CCCC)CC')
-        self.mol = Chem.AddHs(self.mol)
-        AllChem.EmbedMultipleConfs(self.mol, numConfs=1, numThreads=0)
-        res = AllChem.MMFFOptimizeMoleculeConfs(self.mol, numThreads=0)
-
-        self.conf = self.mol.GetConformer(id=0)
-        self.everseen = set()
-        nonring, ring = TorsionFingerprints.CalculateTorsionLists(self.mol)
-        self.nonring = [list(atoms[0]) for atoms, ang in nonring]
-        self.delta_t = []
-
-    def _get_reward(self):
-        print('standard_energy', self.standard_energy)
-        return np.exp(-1.0 * (confgen.get_conformer_energies(self.mol)[0] - self.standard_energy))
-
-    def _get_obs(self):
-        data = Batch.from_data_list([mol2vecsimple(self.mol)])
-        return data, self.nonring
-
-    def step(self, action):
-        # Execute one time step within the environment
-        print("action is ", action)
-        self.action = action
-        self.current_step += 1
-
-        begin_step = time.process_time()
-        desired_torsions = []
-
-        for idx, tors in enumerate(self.nonring):
-            deg = Chem.rdMolTransforms.GetDihedralDeg(self.conf, *tors)
-            ang = -180.0 + 60 * action[idx]
-            desired_torsions.append(ang)
-            Chem.rdMolTransforms.SetDihedralDeg(self.conf, tors[0], tors[1], tors[2], tors[3], ang)
-
-        ff = Chem.rdForceFieldHelpers.MMFFGetMoleculeForceField(self.mol, Chem.rdForceFieldHelpers.MMFFGetMoleculeProperties(self.mol))
-        ff.Initialize()
-        ff.Minimize()
-
-        obs = self._get_obs()
-        rew = self._get_reward()
-        done = self.current_step == 20#0
-
-        print("reward is ", rew)
-        print ("new state is:")
-        print_torsions(self.mol)
-        print("current step:", self.current_step)
-
-        end_step = time.process_time()
-
-        delta_t = end_step-begin_step
-        self.delta_t.append(delta_t)
-
-        return obs, rew, done, {}
-
-    def reset(self):
-        # Reset the state of the environment to an initial state
-        self.current_step = 0
-        AllChem.EmbedMultipleConfs(self.mol, numConfs=1, numThreads=0)
-        res = AllChem.MMFFOptimizeMoleculeConfs(self.mol, numThreads=0)
-        obs = self._get_obs()
-        self.conf = self.mol.GetConformer(id=0)
-
-        print('step time mean', np.array(self.delta_t).mean())
-        print('reset called')
-        print_torsions(self.mol)
-        return obs
-
-    def render(self, mode='human', close=False):
-        # Render the environment to the screen
-        print_torsions(self.mol)
-
-
-class DifferentCarbonSet(DifferentCarbon):
-    def __init__(self):
-        super(DifferentCarbonSet, self).__init__()
-        self.seen = set()
-        self.m = Chem.MolFromSmiles('CC(CCC)CCCC(CCCC)CC')
-        self.m = Chem.AddHs(self.m)
-
-    def _get_reward(self):
-        if tuple(self.action) in self.seen:
-            print('already seen')
-            return 0.0
-        else:
-            self.seen.add(tuple(self.action))
-            return super(DifferentCarbonSet, self)._get_reward()
-
-    def reset(self):
-        self.seen = set()
-        return super(DifferentCarbonSet, self).reset()
-
-
 class SetGibbs(gym.Env):
     metadata = {'render.modes': ['human']}
 
-    def __init__(self, folder_name):
+    def __init__(self, folder_name, gibbs_normalize=True, in_order=False):
         super(SetGibbs, self).__init__()
-
-        self.all_files = glob.glob(f'{folder_name}/*.json')
+        self.gibbs_normalize = gibbs_normalize
+        self.all_files = glob.glob(f'{folder_name}*')
+        self.all_files.sort(key=os.path.getsize)
+        self.in_order = in_order
+        self.choice = -1
+        self.episode_reward = 0
+        self.choice_ind = 1
+        self.num_good_episodes = 0
 
         while True:
-            cjson = np.random.choice(self.all_files[:-1])
-            with open(cjson) as fp:
-                obj = json.load(fp)
-
+            obj = self.molecule_choice()
             self.mol = Chem.MolFromSmiles(obj['mol'])
 
             self.standard_energy = float(obj['standard'])
-            if 'total' in obj:
+            if 'total' in obj and self.gibbs_normalize:
                 self.total = obj['total']
             else:
                 self.total = 1.0
@@ -797,10 +237,13 @@ class SetGibbs(gym.Env):
         self.current_step = 0
         self.seen = set()
         self.energys = []
+        self.zero_steps = 0
+        self.repeats = 0
 
     def _get_reward(self):
         if tuple(self.action) in self.seen:
             print('already seen')
+            self.repeats += 1
             return 0
         else:
             self.seen.add(tuple(self.action))
@@ -816,7 +259,10 @@ class SetGibbs(gym.Env):
     def step(self, action):
         # Execute one time step within the environment
         print("action is ", action)
-        self.action = action
+        if len(action.shape) > 1:
+            self.action = action[0]
+        else:
+            self.action = action
         self.current_step += 1
 
         begin_step = time.process_time()
@@ -824,19 +270,28 @@ class SetGibbs(gym.Env):
 
         for idx, tors in enumerate(self.nonring):
             deg = Chem.rdMolTransforms.GetDihedralDeg(self.conf, *tors)
-            ang = -180.0 + 60 * action[idx]
+            ang = -180.0 + 60 * self.action[idx]
             desired_torsions.append(ang)
             try:
                 Chem.rdMolTransforms.SetDihedralDeg(self.conf, tors[0], tors[1], tors[2], tors[3], float(ang))
             except:
                 Chem.MolToMolFile(self.mol, 'debug.mol')
-                exit()
-
-        Chem.AllChem.MMFFOptimizeMoleculeConfs(self.mol, numThreads=-1)
+                print('exit with debug.mol')
+                exit(0)
+        Chem.AllChem.MMFFOptimizeMolecule(self.mol, confId=0)
 
         obs = self._get_obs()
         rew = self._get_reward()
-        done = self.current_step == 200
+        self.episode_reward += rew
+
+        rbn = len(self.nonring)
+        if rbn == 3:
+            done = (self.current_step == 25)
+        else:
+            done = (self.current_step == 200)
+
+        print(done)
+        self.mol_appends(done)
 
         print("reward is ", rew)
         print ("new state is:")
@@ -847,19 +302,40 @@ class SetGibbs(gym.Env):
         delta_t = end_step-begin_step
         self.delta_t.append(delta_t)
 
-        return obs, rew, done, {}
+        info = {}
+        if done:
+            info['repeats'] = self.repeats
+
+        info = self.info(info)
+
+        return obs, rew, done, info
+
+    def info(self, info):
+        return info
+
+    def mol_appends(self, done):
+        pass
+
+    def molecule_choice(self):
+        if self.in_order:
+            self.choice = (self.choice + 1) % len(self.all_files)
+            cjson = self.all_files[self.choice]
+        else:
+            cjson = np.random.choice(self.all_files)
+        with open(cjson) as fp:
+            obj = json.load(fp)
+        return obj
 
     def reset(self):
+        self.repeats = 0
         self.current_step = 0
-
+        self.zero_steps = 0
+        self.seen = set()
         while True:
-            cjson = np.random.choice(self.all_files[:-1])
-            with open(cjson) as fp:
-                obj = json.load(fp)
-
+            obj = self.molecule_choice()
             self.mol = Chem.MolFromSmiles(obj['mol'])
             self.standard_energy = float(obj['standard'])
-            if 'total' in obj:
+            if 'total' in obj and self.gibbs_normalize:
                 self.total = obj['total']
             else:
                 self.total = 1.0
@@ -867,34 +343,161 @@ class SetGibbs(gym.Env):
             res = AllChem.EmbedMultipleConfs(self.mol, numConfs=1)
             if not len(res):
                 continue
-            res = Chem.AllChem.MMFFOptimizeMoleculeConfs(self.mol, numThreads=-1)
+            res = Chem.AllChem.MMFFOptimizeMoleculeConfs(self.mol)
             self.conf = self.mol.GetConformer(id=0)
             break
 
+        self.episode_reward = 0
         nonring, ring = TorsionFingerprints.CalculateTorsionLists(self.mol)
         self.nonring = [list(atoms[0]) for atoms, ang in nonring]
 
         obs = self._get_obs()
 
         print('step time mean', np.array(self.delta_t).mean())
-        print('reset called')
+        print('reset called\n\n\n\n\n')
         print_torsions(self.mol)
         return obs
 
     def render(self, mode='human', close=False):
         print_torsions(self.mol)
 
-class UnholySet(SetGibbs):
-    def __init__(self):
-        super(UnholySet, self).__init__('branched_hydrocarbons')
 
-class UnholierSet(SetGibbs):
+class SetEval(SetGibbs):
+    def mol_appends(self, done):
+        if done:
+            import pickle
+            with open('test_mol.pickle', 'wb') as fp:
+                pickle.dump(self.mol, fp)
+        else:
+            c = self.mol.GetConformer(id=0)
+            self.mol.AddConformer(c, assignId=True)
+
+
+class TrihexylEval(SetEval):
     def __init__(self):
-        super(UnholierSet, self).__init__('bigger_branched')
+        super(TrihexylEval, self).__init__('trihexyl/')
+
+    def _get_obs(self):
+        data = Batch.from_data_list([mol2vecstupidsimple(self.mol)])
+        return data, self.nonring
+
+
+class SetCurricula(SetGibbs):
+    def info(self, info):
+        info['num_good_episodes'] = self.num_good_episodes
+        info['choice_ind'] = self.choice_ind
+        return info
+
+    def molecule_choice(self):
+        if self.episode_reward > 0.85:
+            self.num_good_episodes += 1
+        else:
+            self.num_good_episodes = 0
+
+        if self.num_good_episodes >= 10:
+            self.choice_ind *= 2
+            self.choice_ind = self.choice_ind % len(self.all_files)
+            self.num_good_episodes = 0
+
+        if self.in_order:
+            self.choice = (self.choice + 1) % len(self.all_files[0:self.choice_ind])
+            cjson = self.all_files[0:self.choice_ind][self.choice]
+        else:
+            cjson = np.random.choice(self.all_files[0:self.choice_ind])
+
+        print(cjson, '\n\n\n\n')
+
+        with open(cjson) as fp:
+            obj = json.load(fp)
+        return obj
+
+class SetGibbsStupid(SetGibbs):
+    def _get_obs(self):
+        data = Batch.from_data_list([mol2vecstupidsimple(self.mol)])
+        return data, self.nonring
+
+class SetGibbsDense(SetGibbs):
+    def _get_obs(self):
+        data = Batch.from_data_list([mol2vecdense(self.mol)])
+        return data, self.nonring
+
+class AllThreeTorsionSet(SetGibbs):
+    def __init__(self):
+        super(AllThreeTorsionSet, self).__init__('huge_hc_set/3_')
+
+class AllFiveTorsionSet(SetGibbs):
+    def __init__(self):
+        super(AllFiveTorsionSet, self).__init__('huge_hc_set/5_')
+
+class AllEightTorsionSet(SetGibbs):
+    def __init__(self):
+        super(AllEightTorsionSet, self).__init__('huge_hc_set/8_')
+
+
+class AllEightTorsionSetStupid(SetGibbsStupid):
+    def __init__(self):
+        super(AllEightTorsionSetStupid, self).__init__('huge_hc_set/8_')
+
+class AllEightTorsionSetDense(SetGibbsDense):
+    def __init__(self):
+        super(AllEightTorsionSetDense, self).__init__('huge_hc_set/8_')
+
+class AllTenTorsionSet(SetGibbs):
+    def __init__(self):
+        super(AllTenTorsionSet, self).__init__('huge_hc_set/10_')
+
+class TenTorsionSetCurriculumSimple(SetCurricula):
+    def __init__(self):
+        super(TenTorsionSetCurriculumSimple, self).__init__('huge_hc_set/10_')
+
+    def _get_obs(self):
+        data = Batch.from_data_list([mol2vecstupidsimple(self.mol)])
+        return data, self.nonring
+
+class TenTorsionSetCurriculumBasic(SetCurricula):
+    def __init__(self):
+        super(TenTorsionSetCurriculumBasic, self).__init__('huge_hc_set/10_')
+
+    def _get_obs(self):
+        data = Batch.from_data_list([mol2vecbasic(self.mol)])
+        return data, self.nonring
+
+class TenTorsionSetCurriculum(SetCurricula):
+    def __init__(self):
+        super(TenTorsionSetCurriculum, self).__init__('huge_hc_set/10_')
+
+class DifferentCarbonSet(SetGibbs):
+    def __init__(self):
+        super(DifferentCarbonSet, self).__init__('diff/')
+
+class DifferentCarbonSetStupid(SetGibbsStupid):
+    def __init__(self):
+        super(DifferentCarbonSetStupid, self).__init__('diff/')
+
+
+class Trihexyl(SetGibbs):
+    def __init__(self):
+        super(Trihexyl, self).__init__('trihexyl/')
+
+    def _get_obs(self):
+        data = Batch.from_data_list([mol2vecbasic(self.mol)])
+        return data, self.nonring
+
+class LargeCarbonSet(SetGibbsStupid):
+    def __init__(self):
+        super(LargeCarbonSet, self).__init__('large_carbon/')
+
+class DifferentCarbonSetDense(SetGibbsDense):
+    def __init__(self):
+        super(DifferentCarbonSetDense, self).__init__('diff/')
 
 class TestSet(SetGibbs):
     def __init__(self):
-        super(TestSet, self).__init__('test_set')
+        super(TestSet, self).__init__('test_set', gibbs_normalize=False)
+
+class InOrderTestSet(SetGibbs):
+    def __init__(self):
+        super(InOrderTestSet, self).__init__('test_set', in_order=True)
 
 class SetEnergy(SetGibbs):
     def _get_reward(self):
@@ -906,38 +509,11 @@ class SetEnergy(SetGibbs):
             print('standard', self.standard_energy)
             current = confgen.get_conformer_energies(self.mol)[0]
             print('current', current)
-            if current - self.standard_energy > 10.0:
+            if current - self.standard_energy > 50.0:
                 return 0.0
-            return self.standard_energy / current
+            return self.standard_energy / (200 * current)
 
-class SetEnergyEval(SetEnergy):
-    def __init__(self, folder_name):
-        super(SetEnergyEval, self).__init__(folder_name, eval=True)
-
-    def _get_reward(self):
-        if tuple(self.action) in self.seen:
-            print('already seen')
-            return 0.0
-        else:
-            self.seen.add(tuple(self.action))
-            print('standard', self.standard_energy)
-            current = confgen.get_conformer_energies(self.mol)[0]
-            print('current', current)
-            return np.exp(-1.0 * (current - self.standard_energy))
-
-class UnholierSetEnergyEval(SetEnergyEval):
-    def __init__(self):
-        super(UnholierSetEnergyEval, self).__init__('bigger_branched')
-
-class UnholySetEnergy(SetEnergy):
-    def __init__(self):
-        super(UnholySetEnergy, self).__init__('branched_hydrocarbons')
-
-class UnholierSetEnergy(SetEnergy):
-    def __init__(self):
-        super(UnholierSetEnergy, self).__init__('bigger_branched')
-
-class UnholierSetEnergyScaled(UnholierSetEnergy):
+class SetEnergyScaled(SetGibbs):
     def _get_reward(self):
         if tuple(self.action) in self.seen:
             print('already seen')
@@ -953,137 +529,71 @@ class UnholierSetEnergyScaled(UnholierSetEnergy):
             x = current - self.standard_energy
             return 1.0 - x/5.0
 
-class UnholierPointSetEnergy(UnholierSetEnergy):
+class GiantSet(SetGibbs):
+    def __init__(self):
+        super(GiantSet, self).__init__('giant_hc_set/')
+
+class OneSet(SetGibbs):
+    def __init__(self):
+        super(OneSet, self).__init__('one_set/')
+
+class TwoSet(SetGibbs):
+    def __init__(self):
+        super(TwoSet, self).__init__('two_set/')
+
+class ThreeSet(SetGibbs):
+    def __init__(self):
+        super(ThreeSet, self).__init__('three_set/')
+
+class ThreeSetSimple(SetGibbsStupid):
+    def __init__(self):
+        super(ThreeSetSimple, self).__init__('three_set/')
+
+class FourSet(SetGibbs):
+    def __init__(self):
+        super(FourSet, self).__init__('four_set/')
+
+class LigninSet(SetGibbsStupid):
+    def __init__(self):
+        super(LigninSet, self).__init__('lignin_large/')
+
+class LigninTest(SetGibbsStupid):
+    def __init__(self):
+        super(LigninTest, self).__init__('lignin_ten/')
+
+class LigninSmalls(SetCurricula):
+    def __init__(self):
+        super(LigninSmalls, self).__init__('LigninSmallSet/')
+
     def _get_obs(self):
-        data = Batch.from_data_list([mol2points(self.mol)])
+        data = Batch.from_data_list([mol2vecbasic(self.mol)])
         return data, self.nonring
 
-class DifferentCarbonReward(gym.Env):
-    metadata = {'render.modes': ['human']}
-
+class LigninFourSet(SetGibbs):
     def __init__(self):
-        super(DifferentCarbonReward, self).__init__()
-        # Define action and observation space
-        # They must be gym.spaces objects
-        # Example when using discrete actions:
-        self.standard_energy = diffcarbon_standard
-        self.mol = Chem.MolFromSmiles('CC(CCC)CCCC(CCCC)CC')
-        self.mol = Chem.AddHs(self.mol)
-        AllChem.EmbedMultipleConfs(self.mol, numConfs=1, numThreads=0)
-        res = AllChem.MMFFOptimizeMoleculeConfs(self.mol, numThreads=0)
-
-        self.conf = self.mol.GetConformer(id=0)
-        self.everseen = set()
-        nonring, ring = TorsionFingerprints.CalculateTorsionLists(self.mol)
-        self.nonring = [list(atoms[0]) for atoms, ang in nonring]
-        self.delta_t = []
-
-    def _get_reward(self):
-        print('standard_energy', self.standard_energy)
-        return self.standard_energy / confgen.get_conformer_energies(self.mol)[0]
+        super(LigninFourSet, self).__init__('LigninFourSet/')
 
     def _get_obs(self):
-        data = Batch.from_data_list([mol2vecsimple(self.mol)])
+        data = Batch.from_data_list([mol2vecbasic(self.mol)])
         return data, self.nonring
 
-    def step(self, action):
-        # Execute one time step within the environment
-        print("action is ", action)
-        self.action = action
-        self.current_step += 1
-
-        begin_step = time.process_time()
-        desired_torsions = []
-
-#         ff = Chem.rdForceFieldHelpers.MMFFGetMoleculeForceField(m, Chem.rdForceFieldHelpers.MMFFGetMoleculeProperties(m))
-#         for idx, tors in enumerate(self.nonring):
-#             deg = Chem.rdMolTransforms.GetDihedralDeg(self.conf, *tors)
-#             ang = -180.0 + 60 * action[idx]
-#             desired_torsions.append(ang)
-#             ff.MMFFAddTorsionConstraint(*tup, False, ang, ang,  1e12)
-
-#         ff.Initialize()
-#         ff.Minimize()
-
-
-        for idx, tors in enumerate(self.nonring):
-            deg = Chem.rdMolTransforms.GetDihedralDeg(self.conf, *tors)
-            ang = -180.0 + 60 * action[idx]
-            desired_torsions.append(ang)
-            Chem.rdMolTransforms.SetDihedralDeg(self.conf, tors[0], tors[1], tors[2], tors[3], ang)
-
-
-
-        # degs = [Chem.rdMolTransforms.GetDihedralDeg(self.conf, *tors) for tors in self.nonring]
-        #
-        # dist = np.linalg.norm(np.sin(np.array(degs) * np.pi / 180.) - np.sin(np.array(desired_torsions) * np.pi / 180.))
-        # dist += np.linalg.norm(np.cos(np.array(degs)* np.pi / 180.) - np.cos(np.array(desired_torsions) * np.pi / 180.))
-        #
-        # if dist > 0.1:
-        #     print('desired torsions', desired_torsions)
-        #     print('actual torsions', degs)
-        #     print(dist)
-        #     energy = np.exp(-1.0 * confgen.get_conformer_energies(m)[0])
-        #     print(energy)
-        #
-        #     raise Exception
-
-        ff = Chem.rdForceFieldHelpers.MMFFGetMoleculeForceField(self.mol, Chem.rdForceFieldHelpers.MMFFGetMoleculeProperties(self.mol))
-        ff.Initialize()
-        ff.Minimize()
-
-
-        obs = self._get_obs()
-        rew = self._get_reward()
-        done = self.current_step == 200
-
-
-        print("reward is ", rew)
-        print ("new state is:")
-        print_torsions(self.mol)
-
-
-        end_step = time.process_time()
-
-        delta_t = end_step-begin_step
-        self.delta_t.append(delta_t)
-
-        return obs, rew, done, {}
-
-    def reset(self):
-        # Reset the state of the environment to an initial state
-        self.current_step = 0
-        AllChem.EmbedMultipleConfs(self.mol, numConfs=1, numThreads=0)
-        res = AllChem.MMFFOptimizeMoleculeConfs(self.mol, numThreads=0)
-        obs = self._get_obs()
-        self.conf = self.mol.GetConformer(id=0)
-
-        print('step time mean', np.array(self.delta_t).mean())
-        print('reset called')
-        print_torsions(self.mol)
-        return obs
-
-    def render(self, mode='human', close=False):
-        # Render the environment to the screen
-        print_torsions(self.mol)
-
-
-class DifferentCarbonSetReward(DifferentCarbonReward):
+class LigninThreeSet(SetGibbs):
     def __init__(self):
-        super(DifferentCarbonSetReward, self).__init__()
-        self.seen = set()
-        self.m = Chem.MolFromSmiles('CC(CCC)CCCC(CCCC)CC')
-        self.m = Chem.AddHs(self.m)
+        super(LigninThreeSet, self).__init__('three_lignin/')
 
-    def _get_reward(self):
-        if tuple(self.action) in self.seen:
-            print('already seen')
-            return 0.0
-        else:
-            self.seen.add(tuple(self.action))
-            return super(DifferentCarbonSetReward, self)._get_reward()
 
-    def reset(self):
-        self.seen = set()
-        return super(DifferentCarbonSet, self).reset()
+    def _get_obs(self):
+        data = Batch.from_data_list([mol2vecbasic(self.mol)])
+        return data, self.nonring
 
+class LigninTwoSet(SetGibbs):
+    def __init__(self):
+        super(LigninTwoSet, self).__init__('lignin_two/')
+
+    def _get_obs(self):
+        data = Batch.from_data_list([mol2vecskeleton(self.mol)])
+        return data, self.nonring
+
+# def _get_reward(self):
+#     print('standard_energy', self.standard_energy)
+#     return self.standard_energy / confgen.get_conformer_energies(self.mol)[0]
