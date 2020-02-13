@@ -29,7 +29,7 @@ random.seed(0)
 np.random.seed(0)
 torch.manual_seed(0)
 
-env_name = 'Diff-v0'
+env_name = 'OneSet-v0'
 
 class PPOEvalAgent(PPOAgent):
     def eval_step(self, state):

@@ -21,4 +21,4 @@ conda activate my-rdkit-env
 cd ~/conformer-ml-testing/conformer-ml
 module load cuda
 module load gcc
-python drl-ppo.py
+python drl-oneset.py
