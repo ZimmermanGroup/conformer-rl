@@ -247,13 +247,13 @@ def ppo_feature(**kwargs):
 
     config.num_workers = 1
     config.task_fn = lambda: AdaTask(env_name, seed=random.randint(0,7e4))
-    config.optimizer_fn = lambda params: torch.optim.RMSprop(params, lr=7e-5, alpha=0.99, eps=1e-5) #learning_rate #alpha #epsilon
+    config.optimizer_fn = lambda params: torch.optim.RMSprop(params, lr=1e-5, alpha=0.99, eps=1e-5) #learning_rate #alpha #epsilon
     config.network = model
     config.discount = 0.9999 # gamma
     config.use_gae = False
     config.gae_tau = 0.95
     config.value_loss_weight = 0.25 # vf_coef
-    config.entropy_weight = 0.001 #ent_coef
+    config.entropy_weight = 0 #ent_coef
     config.rollout_length = 5 # n_steps
     config.gradient_clip = 0.5 #max_grad_norm
     config.max_steps = 5000000
@@ -262,7 +262,7 @@ def ppo_feature(**kwargs):
     config.eval_episodes = 2
     config.eval_env = AdaTask(env_name, seed=random.randint(0,7e4))
     config.state_normalizer = DummyNormalizer()
-    config.ppo_ratio_clip = 0.75
+    config.ppo_ratio_clip = 0.9
     
     agent = PPORecurrentEvalAgent(config)
     return agent
@@ -271,7 +271,7 @@ mkdir('log')
 mkdir('tf_log')
 set_one_thread()
 select_device(0)
-tag='normalized_diff_to_diff_low_lr'
+tag='ppo:oneset'
 agent = ppo_feature(tag=tag)
 
 run_steps(agent)
