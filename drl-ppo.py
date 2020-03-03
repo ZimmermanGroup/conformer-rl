@@ -29,7 +29,7 @@ random.seed(0)
 np.random.seed(0)
 torch.manual_seed(0)
 
-env_name = 'OneSet-v0'
+env_name = 'Diff-v0'
 
 class PPOEvalAgent(PPOAgent):
     def eval_step(self, state):
@@ -247,32 +247,39 @@ def ppo_feature(**kwargs):
 
     config.num_workers = 1
     config.task_fn = lambda: AdaTask(env_name, seed=random.randint(0,7e4))
-    config.optimizer_fn = lambda params: torch.optim.RMSprop(params, lr=7e-5, alpha=0.99, eps=1e-5) #learning_rate #alpha #epsilon
+    config.optimizer_fn = lambda params: torch.optim.Adam(params, 0.001, eps=1e-8) #torch.optim.RMSprop(params, lr=7e-5, alpha=0.99, eps=1e-5) #learning_rate #alpha #epsilon
     config.network = model
-    config.discount = 0.9999 # gamma
+    config.discount = 0.99 # gamma
     config.use_gae = False
     config.gae_tau = 0.95
-    config.value_loss_weight = 0.25 # vf_coef
-    config.entropy_weight = 0.0001 #ent_coef
+    config.value_loss_weight = 1 # vf_coef
+    config.entropy_weight = 1e-5 #ent_coef
     config.rollout_length = 100 # n_steps
     config.gradient_clip = 0.5 #max_grad_norm
-    config.max_steps = 5000000
+    config.max_steps = 1000000
     config.save_interval = 10000
     config.eval_interval = 2000
     config.eval_episodes = 2
     config.eval_env = AdaTask(env_name, seed=random.randint(0,7e4))
     config.state_normalizer = DummyNormalizer()
-    config.ppo_ratio_clip = 0.9
+    config.ppo_ratio_clip = 0.2
+    config.optimization_epochs = 3
+    config.mini_batch_size = 32
+    config.recurrence = 4
     
     agent = PPORecurrentEvalAgent(config)
     return agent
+
+
+
 
 mkdir('log')
 mkdir('tf_log')
 set_one_thread()
 select_device(0)
-tag='ppo-OneSet_22Feb2020'
+tag='2MAR-NEWIMPL'#ppo-Diff_27Feb2020'
 agent = ppo_feature(tag=tag)
 
 run_steps(agent)
+
 
