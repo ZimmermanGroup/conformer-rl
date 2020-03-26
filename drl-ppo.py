@@ -277,7 +277,7 @@ mkdir('log')
 mkdir('tf_log')
 set_one_thread()
 select_device(0)
-tag='2MAR-NEWIMPL'#ppo-Diff_27Feb2020'
+tag='TEMP'#ppo-Diff_27Feb2020'
 agent = ppo_feature(tag=tag)
 
 run_steps(agent)

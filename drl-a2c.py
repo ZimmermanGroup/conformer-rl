@@ -254,7 +254,7 @@ def a2c_feature(**kwargs):
     config.gae_tau = 0.95
     config.value_loss_weight = 1 # vf_coef
     config.entropy_weight = 0.001 #ent_coef
-    config.rollout_length = 12 # n_steps
+    config.rollout_length = 5 # n_steps
     config.gradient_clip = 0.5 #max_grad_norm
     config.max_steps = 1000000
     config.save_interval = 10000
@@ -276,7 +276,7 @@ mkdir('log')
 mkdir('tf_log')
 set_one_thread()
 select_device(0)
-tag='TEMP'#ppo-Diff_27Feb2020'
+tag='a2c_test'
 agent = a2c_feature(tag=tag)
 
 run_steps(agent)
