@@ -19,11 +19,6 @@ env_name = 'CartPole-v0'
 
 torch.manual_seed(1)
 
-def layer_init(layer, w_scale=1.0):
-    nn.init.orthogonal_(layer.weight.data)
-    layer.weight.data.mul_(w_scale)
-    nn.init.constant_(layer.bias.data, 0)
-    return layer
 
 class A2CRecurrentEvalAgent(A2CRecurrentAgent):
     def eval_step(self, state, done, rstates):
@@ -117,7 +112,6 @@ class Policy(nn.Module):
     def __init__(self):
         super(Policy, self).__init__()
         self.lstm = nn.LSTMCell(4, HIDDEN_SIZE)
-        # self.affine = nn.Linear(HIDDEN_SIZE, HIDDEN_SIZE)
         self.action_head = layer_init(nn.Linear(HIDDEN_SIZE, 2), 1e-3)
         self.value_head = layer_init(nn.Linear(HIDDEN_SIZE, 1), 1e-3)
         self.rewards = []
@@ -126,18 +120,21 @@ class Policy(nn.Module):
         x = tensor(x)
         x = x.to(device)
         if states:
-            states = states[0].detach(), states[1].detach()
-            # for i, h0 in enumerate(states[0]):
-            #     if h0 == None:
-            #         states[0][i] = Variable(torch.zeros(HIDDEN_SIZE))
-            #     else:
-            #         states[0][i] = states[0][i].detach()
-            # for i, c0 in enumerate(states[1]):
-            #     if c0 == None:
-            #         states[1][i] = Variable(torch.zeros(HIDDEN_SIZE))
-            #     else:
-            #         states[1][i] = states[1][i].detach()
-            
+            if isinstance(states, list):
+                h0 = None
+                c0 = None
+                for state in states:
+                    if state[0][0] == None:
+                        state = [torch.zeros(len(state[0]), HIDDEN_SIZE), torch.zeros(len(state[1]), HIDDEN_SIZE)]
+                    if h0 == None:
+                        h0 = state[0]
+                        c0 = state[1]
+                    else:
+                        h0 = torch.cat((h0, state[0]), 0)
+                        c0 = torch.cat((c0, state[1]), 0)
+                states = h0, c0
+            else:
+                states = states[0].detach(), states[1].detach()
         else:
             states = Variable(torch.zeros(len(x), HIDDEN_SIZE)), Variable(torch.zeros(len(x), HIDDEN_SIZE))
         states = states[0].to(device), states[1].to(device)
@@ -201,7 +198,7 @@ def ppo_feature(**kwargs):
     config = Config()
     config.merge(kwargs)
 
-    config.num_workers = 1
+    config.num_workers = 5
     config.task_fn = lambda: AdaTask(env_name, num_envs = config.num_workers, seed=random.randint(0,7e4))
     config.optimizer_fn = lambda params: torch.optim.RMSprop(params, 0.001) #learning_rate #alpha #epsilon
     config.network = model
@@ -234,6 +231,6 @@ mkdir('tf_log')
 set_one_thread()
 select_device(0)
 tag = "TESTING"#'ppo_cartpole_april6_v0'
-agent = a2c_feature(tag=tag)
+agent = ppo_feature(tag=tag)
 
 run_steps(agent)
