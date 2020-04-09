@@ -21,8 +21,4 @@ conda activate my-rdkit-env
 cd ~/conformer-ml-testing/conformer-ml
 module load cuda
 module load gcc
-python drl-ppo.py
-
-#first run a2c with oneset
-#then ran ppo with diff-v0
-#then ran ppo  (edited) with oneset
+python drl-a2c.py

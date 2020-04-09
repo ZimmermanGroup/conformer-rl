@@ -31,12 +31,12 @@ torch.manual_seed(0)
 
 env_name = 'Diff-v0'
 
-class PPOEvalAgent(PPOAgent):
+class A2CEvalAgent(A2CAgent):
     def eval_step(self, state):
         prediction = self.network(self.config.state_normalizer(state))
         return prediction['a']
 
-class PPORecurrentEvalAgent(PPORecurrentAgent):
+class A2CRecurrentEvalAgent(A2CRecurrentAgent):
     def eval_step(self, state, done, rstates):
         with torch.no_grad():
             if done:
@@ -239,7 +239,7 @@ class RTGN(torch.nn.Module):
 model = RTGN(6, 128)
 model.to(device)
 
-def ppo_feature(**kwargs):
+def a2c_feature(**kwargs):
     generate_tag(kwargs)
     kwargs.setdefault('log_level', 0)
     config = Config()
@@ -247,32 +247,38 @@ def ppo_feature(**kwargs):
 
     config.num_workers = 1
     config.task_fn = lambda: AdaTask(env_name, seed=random.randint(0,7e4))
-    config.optimizer_fn = lambda params: torch.optim.RMSprop(params, lr=7e-5, alpha=0.99, eps=1e-5) #learning_rate #alpha #epsilon
+    config.optimizer_fn = lambda params: torch.optim.Adam(params, 0.001, eps=1e-8) #torch.optim.RMSprop(params, lr=7e-5, alpha=0.99, eps=1e-5) #learning_rate #alpha #epsilon
     config.network = model
-    config.discount = 0.9999 # gamma
+    config.discount = 0.99 # gamma
     config.use_gae = False
     config.gae_tau = 0.95
-    config.value_loss_weight = 0.25 # vf_coef
+    config.value_loss_weight = 1 # vf_coef
     config.entropy_weight = 0.001 #ent_coef
     config.rollout_length = 5 # n_steps
     config.gradient_clip = 0.5 #max_grad_norm
-    config.max_steps = 5000000
+    config.max_steps = 1000000
     config.save_interval = 10000
     config.eval_interval = 2000
     config.eval_episodes = 2
     config.eval_env = AdaTask(env_name, seed=random.randint(0,7e4))
     config.state_normalizer = DummyNormalizer()
-    config.ppo_ratio_clip = 0.75
+    #config.ppo_ratio_clip = 0.2
+    #config.optimization_epochs = 4
+    config.mini_batch_size = 32
     
-    agent = PPORecurrentEvalAgent(config)
+    agent = A2CRecurrentEvalAgent(config)
     return agent
+
+
+
 
 mkdir('log')
 mkdir('tf_log')
 set_one_thread()
 select_device(0)
-tag='normalized_diff_to_diff_low_lr'
-agent = ppo_feature(tag=tag)
+tag='a2c_test'
+agent = a2c_feature(tag=tag)
 
 run_steps(agent)
+
 
