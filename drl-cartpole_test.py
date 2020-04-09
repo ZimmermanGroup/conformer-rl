@@ -14,12 +14,16 @@ from deep_rl import *
 from deep_rl.component.envs import DummyVecEnv, make_env
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-
-
 HIDDEN_SIZE = 64
-env_name = 'CartPole-v1'
+env_name = 'CartPole-v0'
 
 torch.manual_seed(1)
+
+def layer_init(layer, w_scale=1.0):
+    nn.init.orthogonal_(layer.weight.data)
+    layer.weight.data.mul_(w_scale)
+    nn.init.constant_(layer.bias.data, 0)
+    return layer
 
 class A2CRecurrentEvalAgent(A2CRecurrentAgent):
     def eval_step(self, state, done, rstates):
@@ -45,7 +49,33 @@ class A2CRecurrentEvalAgent(A2CRecurrentAgent):
             ret = info[0]['episodic_return']
             if ret is not None:
                 break
-        return ret    
+        return ret
+
+class PPORecurrentEvalAgent(PPORecurrentAgent):
+    def eval_step(self, state, done, rstates):
+        with torch.no_grad():
+            if done:
+                prediction, rstates = self.network(self.config.state_normalizer(state))
+            else:
+                prediction, rstates = self.network(self.config.state_normalizer(state), rstates)
+
+            out = to_np(prediction['a'])
+            return out, rstates
+    
+    def eval_episode(self):
+        env = self.config.eval_env
+        state = env.reset()
+        done = True
+        rstates = None
+        while True:
+            action, rstates = self.eval_step(state, done, rstates)
+            
+            done = False
+            state, reward, done, info = env.step(action)
+            ret = info[0]['episodic_return']
+            if ret is not None:
+                break
+        return ret   
     
 class AdaTask:
     def __init__(self,
@@ -88,8 +118,8 @@ class Policy(nn.Module):
         super(Policy, self).__init__()
         self.lstm = nn.LSTMCell(4, HIDDEN_SIZE)
         # self.affine = nn.Linear(HIDDEN_SIZE, HIDDEN_SIZE)
-        self.action_head = nn.Linear(HIDDEN_SIZE, 2)
-        self.value_head = nn.Linear(HIDDEN_SIZE, 1)
+        self.action_head = layer_init(nn.Linear(HIDDEN_SIZE, 2), 1e-3)
+        self.value_head = layer_init(nn.Linear(HIDDEN_SIZE, 1), 1e-3)
         self.rewards = []
 
     def forward(self, x, states=None):
@@ -97,8 +127,19 @@ class Policy(nn.Module):
         x = x.to(device)
         if states:
             states = states[0].detach(), states[1].detach()
+            # for i, h0 in enumerate(states[0]):
+            #     if h0 == None:
+            #         states[0][i] = Variable(torch.zeros(HIDDEN_SIZE))
+            #     else:
+            #         states[0][i] = states[0][i].detach()
+            # for i, c0 in enumerate(states[1]):
+            #     if c0 == None:
+            #         states[1][i] = Variable(torch.zeros(HIDDEN_SIZE))
+            #     else:
+            #         states[1][i] = states[1][i].detach()
+            
         else:
-            states = Variable(torch.zeros(1, HIDDEN_SIZE)), Variable(torch.zeros(1, HIDDEN_SIZE))
+            states = Variable(torch.zeros(len(x), HIDDEN_SIZE)), Variable(torch.zeros(len(x), HIDDEN_SIZE))
         states = states[0].to(device), states[1].to(device)
         rstates = self.lstm(x, states)
         x = rstates[0]
@@ -131,28 +172,58 @@ def a2c_feature(**kwargs):
     config = Config()
     config.merge(kwargs)
 
-    config.num_workers = 1
-    config.task_fn = lambda: AdaTask(env_name, seed=random.randint(0,7e4))
-    config.optimizer_fn = lambda params: torch.optim.Adam(params, 0.001, eps=1e-8) #torch.optim.RMSprop(params, lr=7e-5, alpha=0.99, eps=1e-5) #learning_rate #alpha #epsilon
+    config.num_workers = 5
+    config.task_fn = lambda: AdaTask(env_name, num_envs = config.num_workers, seed=random.randint(0,7e4))
+    config.optimizer_fn = lambda params: torch.optim.RMSprop(params, 0.001) #learning_rate #alpha #epsilon
     config.network = model
     config.discount = 0.99 # gamma
-    config.use_gae = False
+    config.use_gae = True
     config.gae_tau = 0.95
-    config.value_loss_weight = 1 # vf_coef
-    config.entropy_weight = 0.001 #ent_coef
+    # config.value_loss_weight = 1 # vf_coef
+    config.entropy_weight = 0.01 #ent_coef
     config.rollout_length = 5 # n_steps
     config.gradient_clip = 0.5 #max_grad_norm
     config.max_steps = 1000000
     config.save_interval = 10000
-    config.eval_interval = 2000
-    config.eval_episodes = 2
+    # config.eval_interval = 2000
+    # config.eval_episodes = 2
+    # config.eval_env = AdaTask(env_name, seed=random.randint(0,7e4))
+    config.state_normalizer = DummyNormalizer()
+    # config.optimization_epochs = 4
+    # config.mini_batch_size = 32
+    
+    agent = A2CRecurrentEvalAgent(config)
+    return agent
+
+def ppo_feature(**kwargs):
+    generate_tag(kwargs)
+    kwargs.setdefault('log_level', 0)
+    config = Config()
+    config.merge(kwargs)
+
+    config.num_workers = 1
+    config.task_fn = lambda: AdaTask(env_name, num_envs = config.num_workers, seed=random.randint(0,7e4))
+    config.optimizer_fn = lambda params: torch.optim.RMSprop(params, 0.001) #learning_rate #alpha #epsilon
+    config.network = model
+    config.discount = 0.99 # gamma
+    config.use_gae = True
+    config.gae_tau = 0.95
+    # config.value_loss_weight = 1 # vf_coef
+    config.entropy_weight = 0.01 #ent_coef
+    config.rollout_length = 128 # n_steps
+    config.gradient_clip = 5 #max_grad_norm
+    config.max_steps = 1000000
+    config.save_interval = 10000
+    # config.eval_interval = 2000
+    # config.eval_episodes = 2
     config.eval_env = AdaTask(env_name, seed=random.randint(0,7e4))
     config.state_normalizer = DummyNormalizer()
     config.ppo_ratio_clip = 0.2
-    config.optimization_epochs = 4
-    config.mini_batch_size = 32
+    config.optimization_epochs = 10
+    config.mini_batch_size = 32*5
+    config.recurrence = 1
     
-    agent = A2CRecurrentEvalAgent(config)
+    agent = PPORecurrentEvalAgent(config)
     return agent
 
 
@@ -162,7 +233,7 @@ mkdir('log')
 mkdir('tf_log')
 set_one_thread()
 select_device(0)
-tag='a2c_cartpole_test'
+tag = "TESTING"#'ppo_cartpole_april6_v0'
 agent = a2c_feature(tag=tag)
 
 run_steps(agent)
