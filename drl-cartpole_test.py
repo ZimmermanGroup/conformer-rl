@@ -14,6 +14,8 @@ from deep_rl import *
 from deep_rl.component.envs import DummyVecEnv, make_env
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
+from stable_baselines.common.vec_env.subproc_vec_env import SubprocVecEnv, VecEnv
+
 HIDDEN_SIZE = 64
 env_name = 'CartPole-v0'
 
@@ -125,14 +127,14 @@ class Policy(nn.Module):
                 c0 = None
                 for state in states:
                     if state[0][0] == None:
-                        state = [torch.zeros(len(state[0]), HIDDEN_SIZE), torch.zeros(len(state[1]), HIDDEN_SIZE)]
+                        state = [torch.zeros(len(state[0]), HIDDEN_SIZE).to(device), torch.zeros(len(state[1]), HIDDEN_SIZE).to(device)]
                     if h0 == None:
-                        h0 = state[0]
-                        c0 = state[1]
+                        h0 = state[0].to(device)
+                        c0 = state[1].to(device)
                     else:
-                        h0 = torch.cat((h0, state[0]), 0)
-                        c0 = torch.cat((c0, state[1]), 0)
-                states = h0, c0
+                        h0 = torch.cat((h0, state[0].to(device)), 0)
+                        c0 = torch.cat((c0, state[1].to(device)), 0)
+                states = h0.to(device), c0.to(device)
             else:
                 states = states[0].detach(), states[1].detach()
         else:
@@ -148,8 +150,8 @@ class Policy(nn.Module):
         probs = F.softmax(action_scores, dim=-1)
         dist = Categorical(probs)
         action = dist.sample()
-        log_prob = dist.log_prob(action).unsqueeze(0).to(device)
-        entropy = dist.entropy().unsqueeze(0).to(device)
+        log_prob = dist.log_prob(action).unsqueeze(-1).to(device)
+        entropy = dist.entropy().unsqueeze(-1).to(device)
 
         prediction = {
             'a': action,
@@ -170,7 +172,7 @@ def a2c_feature(**kwargs):
     config.merge(kwargs)
 
     config.num_workers = 5
-    config.task_fn = lambda: AdaTask(env_name, num_envs = config.num_workers, seed=random.randint(0,7e4))
+    config.task_fn = lambda: AdaTask(env_name, num_envs = config.num_workers, single_process=False, seed=random.randint(0,7e4))
     config.optimizer_fn = lambda params: torch.optim.RMSprop(params, 0.001) #learning_rate #alpha #epsilon
     config.network = model
     config.discount = 0.99 # gamma
@@ -199,7 +201,7 @@ def ppo_feature(**kwargs):
     config.merge(kwargs)
 
     config.num_workers = 5
-    config.task_fn = lambda: AdaTask(env_name, num_envs = config.num_workers, seed=random.randint(0,7e4))
+    config.task_fn = lambda: AdaTask(env_name, num_envs = config.num_workers, single_process = False, seed=random.randint(0,7e4))
     config.optimizer_fn = lambda params: torch.optim.RMSprop(params, 0.001) #learning_rate #alpha #epsilon
     config.network = model
     config.discount = 0.99 # gamma
@@ -230,7 +232,7 @@ mkdir('log')
 mkdir('tf_log')
 set_one_thread()
 select_device(0)
-tag = "TESTING"#'ppo_cartpole_april6_v0'
+tag = 'ppo_cartpole_april9_v0'
 agent = ppo_feature(tag=tag)
 
 run_steps(agent)
