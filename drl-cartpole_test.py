@@ -14,6 +14,8 @@ from deep_rl import *
 from deep_rl.component.envs import DummyVecEnv, make_env
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
+from stable_baselines.common.vec_env.subproc_vec_env import SubprocVecEnv, VecEnv
+
 HIDDEN_SIZE = 64
 env_name = 'CartPole-v0'
 
@@ -111,45 +113,38 @@ class DummyNormalizer(BaseNormalizer):
 class Policy(nn.Module):
     def __init__(self):
         super(Policy, self).__init__()
+        self.fc1 = nn.Linear(4, 4)
+        self.relu = torch.nn.ReLU()
         self.lstm = nn.LSTMCell(4, HIDDEN_SIZE)
-        self.action_head = layer_init(nn.Linear(HIDDEN_SIZE, 2), 1e-3)
-        self.value_head = layer_init(nn.Linear(HIDDEN_SIZE, 1), 1e-3)
+        self.action_head = nn.Linear(HIDDEN_SIZE, 2)
+        self.value_head = nn.Linear(HIDDEN_SIZE, 1)
         self.rewards = []
 
-    def forward(self, x, states=None):
-        x = tensor(x)
-        x = x.to(device)
+    def forward(self, x, states = None, actions = None):
+        x = tensor(x).to(device)
         if states:
-            if isinstance(states, list):
-                h0 = None
-                c0 = None
-                for state in states:
-                    if state[0][0] == None:
-                        state = [torch.zeros(len(state[0]), HIDDEN_SIZE), torch.zeros(len(state[1]), HIDDEN_SIZE)]
-                    if h0 == None:
-                        h0 = state[0]
-                        c0 = state[1]
-                    else:
-                        h0 = torch.cat((h0, state[0]), 0)
-                        c0 = torch.cat((c0, state[1]), 0)
-                states = h0, c0
-            else:
-                states = states[0].detach(), states[1].detach()
+            states = (states[0].detach()).to(device), (states[1].detach()).to(device)
         else:
-            states = Variable(torch.zeros(len(x), HIDDEN_SIZE)), Variable(torch.zeros(len(x), HIDDEN_SIZE))
-        states = states[0].to(device), states[1].to(device)
+            states = (torch.zeros(x.shape[0], HIDDEN_SIZE).to(device), torch.zeros(x.shape[0], HIDDEN_SIZE).to(device))
+        x = self.fc1(x)
+        x = self.relu(x)
         rstates = self.lstm(x, states)
         x = rstates[0]
         x = x.squeeze(0)
 
-        action_scores = self.action_head(x)
         v = self.value_head(x)
+        action_scores = self.action_head(x)
 
         probs = F.softmax(action_scores, dim=-1)
         dist = Categorical(probs)
-        action = dist.sample()
-        log_prob = dist.log_prob(action).unsqueeze(0).to(device)
-        entropy = dist.entropy().unsqueeze(0).to(device)
+
+        if actions != None:
+            action = actions
+        else:
+            action = dist.sample()
+
+        log_prob = dist.log_prob(action).unsqueeze(-1).to(device)
+        entropy = dist.entropy().unsqueeze(-1).to(device)
 
         prediction = {
             'a': action,
@@ -170,7 +165,7 @@ def a2c_feature(**kwargs):
     config.merge(kwargs)
 
     config.num_workers = 5
-    config.task_fn = lambda: AdaTask(env_name, num_envs = config.num_workers, seed=random.randint(0,7e4))
+    config.task_fn = lambda: AdaTask(env_name, num_envs = config.num_workers, single_process=False, seed=random.randint(0,7e4))
     config.optimizer_fn = lambda params: torch.optim.RMSprop(params, 0.001) #learning_rate #alpha #epsilon
     config.network = model
     config.discount = 0.99 # gamma
@@ -198,27 +193,23 @@ def ppo_feature(**kwargs):
     config = Config()
     config.merge(kwargs)
 
-    config.num_workers = 5
-    config.task_fn = lambda: AdaTask(env_name, num_envs = config.num_workers, seed=random.randint(0,7e4))
-    config.optimizer_fn = lambda params: torch.optim.RMSprop(params, 0.001) #learning_rate #alpha #epsilon
+    config.num_workers = 20
+    config.task_fn = lambda: AdaTask(env_name, num_envs = config.num_workers, single_process = False, seed=random.randint(0,7e4))
+    config.eval_env = AdaTask(env_name, single_process = False, seed=random.randint(0,7e4))
+    config.optimizer_fn = lambda params: torch.optim.RMSprop(params, 0.002) #learning_rate #alpha #epsilon
     config.network = model
     config.discount = 0.99 # gamma
     config.use_gae = True
     config.gae_tau = 0.95
-    # config.value_loss_weight = 1 # vf_coef
     config.entropy_weight = 0.01 #ent_coef
-    config.rollout_length = 128 # n_steps
     config.gradient_clip = 5 #max_grad_norm
+    config.rollout_length = 128 # n_steps
     config.max_steps = 1000000
     config.save_interval = 10000
-    # config.eval_interval = 2000
-    # config.eval_episodes = 2
-    config.eval_env = AdaTask(env_name, seed=random.randint(0,7e4))
-    config.state_normalizer = DummyNormalizer()
-    config.ppo_ratio_clip = 0.2
     config.optimization_epochs = 10
     config.mini_batch_size = 32*5
-    config.recurrence = 1
+    config.ppo_ratio_clip = 0.2
+    config.hidden_size = HIDDEN_SIZE
     
     agent = PPORecurrentEvalAgent(config)
     return agent
@@ -230,7 +221,7 @@ mkdir('log')
 mkdir('tf_log')
 set_one_thread()
 select_device(0)
-tag = "TESTING"#'ppo_cartpole_april6_v0'
+tag = 'ppo_cartpole_april10_v11'
 agent = ppo_feature(tag=tag)
 
 run_steps(agent)
