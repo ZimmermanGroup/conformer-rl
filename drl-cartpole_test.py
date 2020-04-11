@@ -118,28 +118,9 @@ class Policy(nn.Module):
         self.value_head = layer_init(nn.Linear(HIDDEN_SIZE, 1), 1e-3)
         self.rewards = []
 
-    def forward(self, x, states=None):
-        x = tensor(x)
-        x = x.to(device)
-        if states:
-            if isinstance(states, list):
-                h0 = None
-                c0 = None
-                for state in states:
-                    if state[0][0] == None:
-                        state = [torch.zeros(len(state[0]), HIDDEN_SIZE).to(device), torch.zeros(len(state[1]), HIDDEN_SIZE).to(device)]
-                    if h0 == None:
-                        h0 = state[0].to(device)
-                        c0 = state[1].to(device)
-                    else:
-                        h0 = torch.cat((h0, state[0].to(device)), 0)
-                        c0 = torch.cat((c0, state[1].to(device)), 0)
-                states = h0.to(device), c0.to(device)
-            else:
-                states = states[0].detach(), states[1].detach()
-        else:
-            states = Variable(torch.zeros(len(x), HIDDEN_SIZE)), Variable(torch.zeros(len(x), HIDDEN_SIZE))
-        states = states[0].to(device), states[1].to(device)
+    def forward(self, x, states):
+        x = tensor(x).to(device)
+        states = (states[0].detach()).to(device), (states[1].detach()).to(device)
         rstates = self.lstm(x, states)
         x = rstates[0]
         x = x.squeeze(0)
@@ -202,25 +183,21 @@ def ppo_feature(**kwargs):
 
     config.num_workers = 5
     config.task_fn = lambda: AdaTask(env_name, num_envs = config.num_workers, single_process = False, seed=random.randint(0,7e4))
+    config.eval_env = AdaTask(env_name, single_process = False, seed=random.randint(0,7e4))
     config.optimizer_fn = lambda params: torch.optim.RMSprop(params, 0.001) #learning_rate #alpha #epsilon
     config.network = model
     config.discount = 0.99 # gamma
     config.use_gae = True
     config.gae_tau = 0.95
-    # config.value_loss_weight = 1 # vf_coef
     config.entropy_weight = 0.01 #ent_coef
-    config.rollout_length = 128 # n_steps
     config.gradient_clip = 5 #max_grad_norm
+    config.rollout_length = 128 # n_steps
     config.max_steps = 1000000
     config.save_interval = 10000
-    # config.eval_interval = 2000
-    # config.eval_episodes = 2
-    config.eval_env = AdaTask(env_name, seed=random.randint(0,7e4))
-    config.state_normalizer = DummyNormalizer()
-    config.ppo_ratio_clip = 0.2
     config.optimization_epochs = 10
     config.mini_batch_size = 32*5
-    config.recurrence = 1
+    config.ppo_ratio_clip = 0.2
+    config.hidden_size = HIDDEN_SIZE
     
     agent = PPORecurrentEvalAgent(config)
     return agent
@@ -232,7 +209,7 @@ mkdir('log')
 mkdir('tf_log')
 set_one_thread()
 select_device(0)
-tag = 'ppo_cartpole_april9_v0'
+tag = 'ppo_cartpole_april10_v0'
 agent = ppo_feature(tag=tag)
 
 run_steps(agent)
