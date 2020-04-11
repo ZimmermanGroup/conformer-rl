@@ -113,24 +113,36 @@ class DummyNormalizer(BaseNormalizer):
 class Policy(nn.Module):
     def __init__(self):
         super(Policy, self).__init__()
+        self.fc1 = nn.Linear(4, 4)
+        self.relu = torch.nn.ReLU()
         self.lstm = nn.LSTMCell(4, HIDDEN_SIZE)
-        self.action_head = layer_init(nn.Linear(HIDDEN_SIZE, 2), 1e-3)
-        self.value_head = layer_init(nn.Linear(HIDDEN_SIZE, 1), 1e-3)
+        self.action_head = nn.Linear(HIDDEN_SIZE, 2)
+        self.value_head = nn.Linear(HIDDEN_SIZE, 1)
         self.rewards = []
 
-    def forward(self, x, states):
+    def forward(self, x, states = None, actions = None):
         x = tensor(x).to(device)
-        states = (states[0].detach()).to(device), (states[1].detach()).to(device)
+        if states:
+            states = (states[0].detach()).to(device), (states[1].detach()).to(device)
+        else:
+            states = (torch.zeros(x.shape[0], HIDDEN_SIZE).to(device), torch.zeros(x.shape[0], HIDDEN_SIZE).to(device))
+        x = self.fc1(x)
+        x = self.relu(x)
         rstates = self.lstm(x, states)
         x = rstates[0]
         x = x.squeeze(0)
 
-        action_scores = self.action_head(x)
         v = self.value_head(x)
+        action_scores = self.action_head(x)
 
         probs = F.softmax(action_scores, dim=-1)
         dist = Categorical(probs)
-        action = dist.sample()
+
+        if actions != None:
+            action = actions
+        else:
+            action = dist.sample()
+
         log_prob = dist.log_prob(action).unsqueeze(-1).to(device)
         entropy = dist.entropy().unsqueeze(-1).to(device)
 
@@ -181,10 +193,10 @@ def ppo_feature(**kwargs):
     config = Config()
     config.merge(kwargs)
 
-    config.num_workers = 5
+    config.num_workers = 20
     config.task_fn = lambda: AdaTask(env_name, num_envs = config.num_workers, single_process = False, seed=random.randint(0,7e4))
     config.eval_env = AdaTask(env_name, single_process = False, seed=random.randint(0,7e4))
-    config.optimizer_fn = lambda params: torch.optim.RMSprop(params, 0.001) #learning_rate #alpha #epsilon
+    config.optimizer_fn = lambda params: torch.optim.RMSprop(params, 0.002) #learning_rate #alpha #epsilon
     config.network = model
     config.discount = 0.99 # gamma
     config.use_gae = True
@@ -209,7 +221,7 @@ mkdir('log')
 mkdir('tf_log')
 set_one_thread()
 select_device(0)
-tag = 'ppo_cartpole_april10_v0'
+tag = 'ppo_cartpole_april10_v11'
 agent = ppo_feature(tag=tag)
 
 run_steps(agent)
