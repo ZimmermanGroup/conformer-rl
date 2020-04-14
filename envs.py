@@ -2,7 +2,41 @@ import graphenvironments
 import gymspace
 import gym
 
+gym.envs.register(
+     id='StraightChainTen-v0',
+     entry_point='graphenvironments:StraightChainTen',
+     max_episode_steps=1000,
+)
 
+gym.envs.register(
+     id='StraightChainTenEval-v0',
+     entry_point='graphenvironments:StraightChainTenEval',
+     max_episode_steps=1000,
+)
+
+gym.envs.register(
+     id='StraightChainTenEleven-v0',
+     entry_point='graphenvironments:StraightChainTenEleven',
+     max_episode_steps=1000,
+)
+
+gym.envs.register(
+     id='StraightChainElevenEval-v0',
+     entry_point='graphenvironments:StraightChainElevenEval',
+     max_episode_steps=1000,
+)
+
+gym.envs.register(
+     id='StraightChainTenElevenTwelve-v0',
+     entry_point='graphenvironments:StraightChainTenElevenTwelve',
+     max_episode_steps=1000,
+)
+
+gym.envs.register(
+     id='StraightChainTwelveEval-v0',
+     entry_point='graphenvironments:StraightChainTwelveEval',
+     max_episode_steps=1000,
+)
 
 gym.envs.register(
      id='Diff-v0',
@@ -11,14 +45,8 @@ gym.envs.register(
 )
 
 gym.envs.register(
-     id='DiffStupid-v0',
-     entry_point='graphenvironments:DifferentCarbonSetStupid',
-     max_episode_steps=1000,
-)
-
-gym.envs.register(
-     id='DiffDense-v0',
-     entry_point='graphenvironments:DifferentCarbonSetDense',
+     id='Diff11-v0',
+     entry_point='graphenvironments:DifferentCarbonSet11',
      max_episode_steps=1000,
 )
 
@@ -53,15 +81,45 @@ gym.envs.register(
 )
 
 gym.envs.register(
-     id='ThreeSetSimple-v0',
-     entry_point='graphenvironments:ThreeSetSimple',
+     id='ThreeSetPruning-v0',
+     entry_point='graphenvironments:ThreeSetPruning',
+     max_episode_steps=1000,
+)
+
+gym.envs.register(
+     id='FourSet-v0',
+     entry_point='graphenvironments:FourSet',
+     max_episode_steps=1000,
+)
+
+gym.envs.register(
+     id='DiffUnique-v0',
+     entry_point='graphenvironments:DifferentCarbonSetUnique',
+     max_episode_steps=1000,
+)
+
+gym.envs.register(
+     id='DiffEval-v0',
+     entry_point='graphenvironments:DifferentCarbonSkeletonEval',
      max_episode_steps=1000,
 )
 
 
 gym.envs.register(
-     id='FourSet-v0',
-     entry_point='graphenvironments:FourSet',
+     id='FourSetUnique-v0',
+     entry_point='graphenvironments:FourSetUnique',
+     max_episode_steps=1000,
+)
+
+gym.envs.register(
+     id='OneSetUnique-v0',
+     entry_point='graphenvironments:OneSetUnique',
+     max_episode_steps=1000,
+)
+
+gym.envs.register(
+     id='OneSetPruning-v0',
+     entry_point='graphenvironments:OneSetPruning',
      max_episode_steps=1000,
 )
 
@@ -108,14 +166,34 @@ gym.envs.register(
 )
 
 gym.envs.register(
+     id='AllTenTorsionSetPruning-v0',
+     entry_point='graphenvironments:AllTenTorsionSetPruning',
+     max_episode_steps=1000,
+)
+
+gym.envs.register(
      id='TenTorsionSetCurriculum-v0',
      entry_point='graphenvironments:TenTorsionSetCurriculum',
      max_episode_steps=1000,
 )
 
 gym.envs.register(
-     id='TenTorsionSetCurriculumBasic-v0',
-     entry_point='graphenvironments:TenTorsionSetCurriculumBasic',
+     id='TenTorsionSetCurriculumExp-v0',
+     entry_point='graphenvironments:TenTorsionSetCurriculumExp',
+     max_episode_steps=1000,
+)
+
+gym.envs.register(
+     id='TenTorsionSetCurriculumForgetting-v0',
+     entry_point='graphenvironments:TenTorsionSetCurriculumForgetting',
+     max_episode_steps=1000,
+)
+
+
+
+gym.envs.register(
+     id='TenTorsionSetCurriculumPruning-v0',
+     entry_point='graphenvironments:TenTorsionSetCurriculumPruning',
      max_episode_steps=1000,
 )
 
@@ -126,20 +204,8 @@ gym.envs.register(
 )
 
 gym.envs.register(
-     id='LigninSet-v0',
-     entry_point='graphenvironments:LigninSet',
-     max_episode_steps=1000,
-)
-
-gym.envs.register(
-     id='LigninSmalls-v0',
-     entry_point='graphenvironments:LigninSmalls',
-     max_episode_steps=1000,
-)
-
-gym.envs.register(
-     id='LigninFourSet-v0',
-     entry_point='graphenvironments:LigninFourSet',
+     id='LigninTwoSet-v0',
+     entry_point='graphenvironments:LigninTwoSet',
      max_episode_steps=1000,
 )
 
@@ -150,8 +216,74 @@ gym.envs.register(
 )
 
 gym.envs.register(
-     id='LigninTwoSet-v0',
-     entry_point='graphenvironments:LigninTwoSet',
+     id='LigninTwoSet2-v0',
+     entry_point='graphenvironments:LigninTwoSet2',
+     max_episode_steps=1000,
+)
+
+gym.envs.register(
+     id='LigninTwoLowTempEval-v0',
+     entry_point='graphenvironments:LigninTwoLowTempEval',
+     max_episode_steps=1000,
+)
+
+gym.envs.register(
+     id='LigninThreeLowTempEval-v0',
+     entry_point='graphenvironments:LigninThreeLowTempEval',
+     max_episode_steps=1000,
+)
+
+gym.envs.register(
+     id='LigninTwoSetLowTemp-v0',
+     entry_point='graphenvironments:LigninTwoSetLowTemp',
+     max_episode_steps=1000,
+)
+
+gym.envs.register(
+     id='LigninThreeSetLowTemp-v0',
+     entry_point='graphenvironments:LigninThreeSetLowTemp',
+     max_episode_steps=1000,
+)
+
+gym.envs.register(
+     id='LigninFourSetLowTemp-v0',
+     entry_point='graphenvironments:LigninFourSetLowTemp',
+     max_episode_steps=1000,
+)
+
+gym.envs.register(
+     id='LigninThreeFourHighTempCurriculum-v0',
+     entry_point='graphenvironments:LigninThreeFourHighTempCurriculum',
+     max_episode_steps=1000,
+)
+
+gym.envs.register(
+     id='LigninThreeFourHighTempSet-v0',
+     entry_point='graphenvironments:LigninThreeFourHighTempSet',
+     max_episode_steps=1000,
+)
+
+gym.envs.register(
+     id='LigninFiveSetLowTemp-v0',
+     entry_point='graphenvironments:LigninFiveSetLowTemp',
+     max_episode_steps=1000,
+)
+
+gym.envs.register(
+     id='LigninAllSet2-v0',
+     entry_point='graphenvironments:LigninAllSet2',
+     max_episode_steps=1000,
+)
+
+gym.envs.register(
+     id='LigninAllSet-v0',
+     entry_point='graphenvironments:LigninAllSet',
+     max_episode_steps=1000,
+)
+
+gym.envs.register(
+     id='LigninAllSetAdaptive-v0',
+     entry_point='graphenvironments:LigninAllSetAdaptive',
      max_episode_steps=1000,
 )
 
@@ -168,7 +300,82 @@ gym.envs.register(
 )
 
 gym.envs.register(
-     id='TrihexylEval-v0',
-     entry_point='graphenvironments:TrihexylEval',
+     id='TrihexylUnique-v0',
+     entry_point='graphenvironments:TrihexylUnique',
      max_episode_steps=1000,
 )
+
+gym.envs.register(
+     id='ThreeSetSkeleton-v0',
+     entry_point='graphenvironments:ThreeSetSkeleton',
+     max_episode_steps=1000,
+)
+
+gym.envs.register(
+     id='LigninSevenSetSkeleton-v0',
+     entry_point='graphenvironments:LigninSevenSetSkeleton',
+     max_episode_steps=1000,
+)
+
+gym.envs.register(
+     id='LigninEightSetSkeleton-v0',
+     entry_point='graphenvironments:LigninEightSetSkeleton',
+     max_episode_steps=1000,
+)
+
+gym.envs.register(
+     id='EightLigninEval-v0',
+     entry_point='graphenvironments:EightLigninEval',
+     max_episode_steps=1000,
+)
+
+gym.envs.register(
+     id='LigninAllSetSkeletonCurriculum-v0',
+     entry_point='graphenvironments:LigninAllSetSkeletonCurriculum',
+     max_episode_steps=1000,
+)
+
+gym.envs.register(
+     id='NewLigninCurr-v0',
+     entry_point='graphenvironments:NewLigninCurr',
+     max_episode_steps=1000,
+)
+
+gym.envs.register(
+     id='NewLigninEval-v0',
+     entry_point='graphenvironments:NewLigninEval',
+     max_episode_steps=1000,
+)
+
+gym.envs.register(
+     id='NewEnergyLigninCurr-v0',
+     entry_point='graphenvironments:NewEnergyLigninCurr',
+     max_episode_steps=1000,
+)
+
+gym.envs.register(
+     id='NewEnergyLigninEval-v0',
+     entry_point='graphenvironments:NewEnergyLigninEval',
+     max_episode_steps=1000,
+)
+
+gym.envs.register(
+     id='TestBestGibbs-v0',
+     entry_point='graphenvironments:TestBestGibbs',
+     max_episode_steps=1000,
+)
+
+gym.envs.register(
+     id='TChainTrain-v0',
+     entry_point='graphenvironments:TChainTrain',
+     max_episode_steps=1000,
+)
+
+for i in range(0, 10):
+
+     gym.envs.register(
+          id=f'TChainTest-v{i}',
+          entry_point='graphenvironments:TChainTest',
+          max_episode_steps=1000,
+          kwargs={'ind_select': i}
+     )

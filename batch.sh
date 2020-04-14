@@ -5,7 +5,6 @@
 
 #SBATCH --job-name=crunching_rdkit
 #SBATCH --mail-user=tgog@umich.edu
-#SBATCH --mail-type=BEGIN,END
 #SBATCH --cpus-per-task=36
 #SBATCH --nodes=1
 #SBATCH --time=10:00:00
@@ -18,5 +17,4 @@ source deactivate my-rdkit-env
 source ~/.bashrc
 cd ~/conformer-ml/
 module load gcc
-jupyter notebook --no-browser --port=8080
-
+python t_chains.py

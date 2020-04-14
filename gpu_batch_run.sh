@@ -3,9 +3,10 @@
 
 #“#SBATCH” directives that convey submission options:
 
-#SBATCH --job-name=lignin_three
+#SBATCH --job-name=fixed_t_chain_curriculum
 #SBATCH --mail-user=tgog@umich.edu
-#SBATCH --cpus-per-task=35
+#SBATCH --cpus-per-task=1
+#SBATCH --mem-per-cpu=4096m
 #SBATCH --gres=gpu:1
 #SBATCH --nodes=1
 #SBATCH --time=10:00:00

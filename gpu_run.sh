@@ -3,13 +3,12 @@
 
 #“#SBATCH” directives that convey submission options:
 
-#SBATCH --job-name=eval
+#SBATCH --job-name=test_ppo
 #SBATCH --mail-user=tgog@umich.edu
-#SBATCH --cpus-per-task=2
-#SBATCH --mem-per-cpu=2048m
+#SBATCH --cpus-per-task=20
 #SBATCH --gres=gpu:1
 #SBATCH --nodes=1
-#SBATCH --time=10:00:00
+#SBATCH --time=00:20:00
 #SBATCH --account=tewaria1
 #SBATCH --partition=gpu
 #SBATCH --output=/home/%u/%x-%j.log
@@ -20,4 +19,4 @@ source ~/.bashrc
 cd ~/conformer-ml/
 module load cuda
 module load gcc
-python run_eval.py
+python test_ppo.py

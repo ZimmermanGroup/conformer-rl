@@ -3,13 +3,13 @@
 
 #“#SBATCH” directives that convey submission options:
 
-#SBATCH --job-name=gpu_notebook
+#SBATCH --job-name=notebook
 #SBATCH --mail-user=tgog@umich.edu
 #SBATCH --cpus-per-task=2
-#SBATCH --mem-per-cpu=2048m
+#SBATCH --mem-per-cpu=4096m
 #SBATCH --gres=gpu:1
 #SBATCH --nodes=1
-#SBATCH --time=10:00:00
+#SBATCH --time=0:30:00
 #SBATCH --account=tewaria1
 #SBATCH --partition=gpu
 #SBATCH --output=/home/%u/%x-%j.log
@@ -20,4 +20,4 @@ source ~/.bashrc
 cd ~/conformer-ml/
 module load cuda
 module load gcc
-jupyter notebook --no-browser --port=8080
+jupyter notebook --port=8080 --no-browser

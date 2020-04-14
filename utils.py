@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import nglview as nv
 import numpy as np
 from re import sub
+import bisect
 
 from rdkit import Chem, DataStructs, RDConfig, rdBase
 from rdkit import rdBase
@@ -337,6 +338,125 @@ def enumerateTorsions(mol):
                 torsionList.append((idx1, idx2, idx3, idx4))
     return torsionList
 
+def prune_last_conformer(mol, tfd_thresh, energies=None):
+    """
+    Checks that most recently added conformer meats TFD threshold.
+
+    Parameters
+    ----------
+    mol : RDKit Mol
+            Molecule.
+    tfd_thresh : TFD threshold
+    energies: energies of all conformers minus the last one
+    Returns
+    -------
+    new: A new RDKit Mol containing the chosen conformers, sorted by
+             increasing energy.
+    """
+
+    confgen = ConformerGeneratorCustom()
+
+    if tfd_thresh < 0 or mol.GetNumConformers() <= 1:
+        return mol
+
+    energyies = np.array(energies)
+
+    idx = bisect.bisect(energies[:-1], energies[-1])
+
+    tfd = Chem.TorsionFingerprints.GetTFDBetweenConformers(mol, range(0, mol.GetNumConformers() - 1), [mol.GetNumConformers() - 1], useWeights=False)
+    tfd = np.array(tfd)
+
+    if not np.all(tfd[:idx] >= tfd_thresh):
+        new_energys = list(range(0, mol.GetNumConformers() - 1))
+        mol.RemoveConformer(mol.GetNumConformers() - 1)
+
+        print('tossing conformer')
+
+        return mol, new_energys
+
+    else:
+        print('keeping conformer', idx)
+        keep = list(range(0,idx))
+        # print('keep 1', keep)
+        keep += [mol.GetNumConformers() - 1]
+        # print('keep 2', keep)
+
+        l = np.array(range(idx, len(tfd)))
+        # print('L 1', l)
+        # print('tfd', tfd)
+        l = l[tfd[idx:] >= tfd_thresh]
+        # print('L 2', l)
+
+        keep += list(l)
+        # print('keep 3', keep)
+
+        new = Chem.Mol(mol)
+        new.RemoveAllConformers()
+        conf_ids = [conf.GetId() for conf in mol.GetConformers()]
+
+        for i in keep:
+            conf = mol.GetConformer(conf_ids[i])
+            new.AddConformer(conf, assignId=True)
+
+        return new, keep
+
+
+
+def prune_conformers(mol, tfd_thresh):
+    """
+    Prune conformers from a molecule using an TFD threshold, starting
+    with the lowest energy conformer.
+
+    Parameters
+    ----------
+    mol : RDKit Mol
+            Molecule.
+    tfd_thresh : TFD threshold
+    Returns
+    -------
+    new: A new RDKit Mol containing the chosen conformers, sorted by
+             increasing energy.
+    """
+
+    confgen = ConformerGeneratorCustom()
+
+    if tfd_thresh < 0 or mol.GetNumConformers() <= 1:
+        return mol
+
+    energies = confgen.get_conformer_energies(mol)
+
+    tfd = array_to_lower_triangle(Chem.TorsionFingerprints.GetTFDMatrix(mol, useWeights=False), True)
+    sort = np.argsort(energies)  # sort by increasing energy
+    keep = []  # always keep lowest-energy conformer
+    discard = []
+
+    for i in sort:
+        # always keep lowest-energy conformer
+        if len(keep) == 0:
+            keep.append(i)
+            continue
+
+        # get RMSD to selected conformers
+        this_tfd = tfd[i][np.asarray(keep, dtype=int)]
+        # discard conformers within the RMSD threshold
+        if np.all(this_tfd >= tfd_thresh):
+            keep.append(i)
+        else:
+            discard.append(i)
+
+    # create a new molecule to hold the chosen conformers
+    # this ensures proper conformer IDs and energy-based ordering
+    new = Chem.Mol(mol)
+    new.RemoveAllConformers()
+    conf_ids = [conf.GetId() for conf in mol.GetConformers()]
+    for i in keep:
+        conf = mol.GetConformer(conf_ids[i])
+        new.AddConformer(conf, assignId=True)
+
+    return new
+
+
+
 class A2CEvalAgent(A2CAgent):
     def eval_step(self, state):
         prediction = self.network(self.config.state_normalizer(state))
@@ -383,6 +503,9 @@ class OriginalReturnWrapper(gym.Wrapper):
             info['episodic_return'] = None
         return obs, reward, done, info
 
+    # def change_level(self, level):
+    #     return self.env.change_level(level)
+
     def reset(self):
         return self.env.reset()
 
@@ -415,6 +538,12 @@ class AdaTask:
         else:
             self.env = SubprocVecEnv(envs)
         self.name = name
+
+    def change_level(self, xyz):
+        self.env_method('change_level', xyz)
+
+    def env_method(self, method_name, xyz):
+        return self.env.env_method(method_name, xyz)
 
     def reset(self):
         return self.env.reset()

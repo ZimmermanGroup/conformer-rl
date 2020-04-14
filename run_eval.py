@@ -33,24 +33,21 @@ from models import RTGNBatch
 from deep_rl import *
 import envs
 
-model = RTGNBatch(6, 128, edge_dim=1)
-model.load_state_dict(torch.load('data/A2CRecurrentEvalAgent-batch_three_set-1000000.model'))
-model.to(torch.device('cuda'))
 
+# conformer-ml/data/A2CRecurrentEvalAgent-obabel_sets_seven_energy_sum_rewardnorm-50000.model
+def loaded_policy(model, env):
+    num_envs = 1
+    single_process = (num_envs == 1)
 
-def loaded_policy(env):
-    env = gym.make(env)
-    b, nr = env.reset()
+    env = AdaTask(env, seed=random.randint(0,7e4), num_envs=num_envs, single_process=single_process)
+    state = env.reset()
     total_reward = 0
     start = True
     done = False
     step = 0
-    while not done:
-        state = [(b, nr)]
-
+    while step < 200:
         with torch.no_grad():
             if start:
-                print(state)
                 prediction, rstates = model(state)
                 start = False
             else:
@@ -58,11 +55,27 @@ def loaded_policy(env):
 
         choice = prediction['a']
         step += 1
-        print(step)
-        state, rew, done, _ = env.step(to_np(choice))
+        print('step', step)
+        state, rew, done, info = env.step(to_np(choice))
         total_reward += rew
+        print('rew', rew)
+        print('total_reward', total_reward)
 
+    if isinstance(info, tuple):
+        for i, info_ in enumerate(info):
+            print('episodic_return', info_['episodic_return'])
+    else:
+        print('episodic_return', info['episodic_return'])
     return total_reward
 
 
-loaded_policy('TrihexylEval-v0')
+if __name__ == '__main__':
+    model = RTGNBatch(6, 128, edge_dim=1)
+    model.load_state_dict(torch.load('data/A2CRecurrentEvalAgent-10_11_12_straight-70000.model'))
+    model.to(torch.device('cuda'))
+
+    outputs = []
+    for i in range(1):
+        output = loaded_policy(model, 'StraightChainTwelveEval-v0')
+        outputs.append(output)
+    print('outputs', outputs)

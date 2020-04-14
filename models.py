@@ -494,16 +494,16 @@ class ActorBatchNet(torch.nn.Module):
         return logit, (hx, cx)
 
 class RTGNBatch(torch.nn.Module):
-    def __init__(self, action_dim, dim, edge_dim=7):
+    def __init__(self, action_dim, dim, edge_dim=7, point_dim=3):
         super(RTGNBatch, self).__init__()
-        num_features = 3
+        num_features = point_dim
         self.action_dim = action_dim
         self.dim = dim
 
         self.actor = ActorBatchNet(action_dim, dim, edge_dim=edge_dim)
         self.critic = CriticBatchNet(action_dim, dim, edge_dim=edge_dim)
 
-    def forward(self, obs, states=None):
+    def forward(self, obs, states=None, action=None):
         data_list = []
         nr_list = []
         for b, nr in obs:
@@ -538,6 +538,8 @@ class RTGNBatch(torch.nn.Module):
         v, (hv, cv) = self.critic(obs, value_states)
 
         dist = torch.distributions.Categorical(logits=logits)
+        if action is None:
+            action = dist.sample()
         action = dist.sample().cuda()
         log_prob = dist.log_prob(action).unsqueeze(0).cuda()
         entropy = dist.entropy().unsqueeze(0).cuda()
