@@ -201,7 +201,7 @@ def ppo_feature(**kwargs):
     config.discount = 0.99 # gamma
     config.use_gae = True
     config.gae_tau = 0.95
-    config.entropy_weight = 0.01 #ent_coef
+    config.entropy_weight = 0.001 #ent_coef
     config.gradient_clip = 5 #max_grad_norm
     config.rollout_length = 128 # n_steps
     config.max_steps = 10000000
@@ -210,7 +210,7 @@ def ppo_feature(**kwargs):
     config.mini_batch_size = 32*10
     config.ppo_ratio_clip = 0.2
     config.hidden_size = HIDDEN_SIZE
-    config.recurrence = 4
+    config.recurrence = 2
     
     agent = PPORecurrentEvalAgent(config)
     return agent
@@ -222,7 +222,7 @@ mkdir('log')
 mkdir('tf_log')
 set_one_thread()
 select_device(0)
-tag = 'ppo_cartpole_april12_v3'
+tag = 'ppo_cartpole_april12_v4'
 agent = ppo_feature(tag=tag)
 
 run_steps(agent)
