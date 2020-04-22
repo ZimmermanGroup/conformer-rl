@@ -12,6 +12,7 @@ import pdb
 
 import envs
 
+#test
 class CriticBatchNet(torch.nn.Module):
     def __init__(self, action_dim, dim, edge_dim):
         super(CriticBatchNet, self).__init__()
