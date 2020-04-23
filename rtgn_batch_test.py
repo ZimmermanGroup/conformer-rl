@@ -75,6 +75,9 @@ class ActorBatchNet(torch.nn.Module):
     def forward(self, obs, states=None):
         data, nonring, nrbidx, torsion_list_sizes = obs
 
+        batch_size = len(torsion_list_sizes)
+
+
         if states:
             hx, cx = states
         else:
@@ -97,23 +100,23 @@ class ActorBatchNet(torch.nn.Module):
             lstm_out,
             dim=1,
             index=nrbidx
-        )
+        ).view(batch_size, 1, self.action_dim, self.dim)
+
         out = torch.index_select(
             out,
             dim=0,
             index=nonring.view(-1)
-        ).view(4, -1, self.dim)
+        ).view(batch_size, 4, self.action_dim, self.dim)
 
+        out = torch.cat([lstm_out,out], 1)   #5, num_torsions, self.dim
+        out = out.permute(0,3,2,1).reshape(-1, 5*self.dim) #num_torsions, 5*self.dim
+        out = F.relu(self.lin1(out))
+        out = self.lin2(out)
 
-        out = torch.cat([lstm_out,out],0)   #5, num_torsions, self.dim
-        # out = out.permute(2,1,0).reshape(-1, 5*self.dim) #num_torsions, 5*self.dim
-        # out = F.relu(self.lin1(out))
-        # out = self.lin2(out)
+        logit = out.split(torsion_list_sizes)
+        logit = torch.nn.utils.rnn.pad_sequence(logit).permute(1,0,2)
 
-        # logit = out.split(torsion_list_sizes)
-        # logit = torch.nn.utils.rnn.pad_sequence(logit).permute(1,0,2)
-
-        return out, (hx, cx)
+        return logit, (hx, cx)
 
 class RTGNBatch(torch.nn.Module):
     def __init__(self, action_dim, dim, edge_dim=7, point_dim=3):
@@ -178,14 +181,11 @@ class RTGNBatch(torch.nn.Module):
 env = gym.make('OneSet-v0')
 env.reset()
 observations = []
-model = RTGNBatch(10, 2, edge_dim=1)
+model = RTGNBatch(10, 32, edge_dim=1)
 
-for _ in range(2):
+for _ in range(53):
     obs, rew, done, info = env.step(torch.randn(10))
     observations.append(obs)
-
-pdb.set_trace()
-
 
 
 single_logits = []
