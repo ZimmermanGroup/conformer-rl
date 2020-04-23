@@ -12,7 +12,6 @@ import pdb
 
 import envs
 
-#test
 class CriticBatchNet(torch.nn.Module):
     def __init__(self, action_dim, dim, edge_dim):
         super(CriticBatchNet, self).__init__()
@@ -83,6 +82,7 @@ class ActorBatchNet(torch.nn.Module):
             cx = Variable(torch.zeros(1, data.num_graphs, self.dim))
 
         out = F.relu(self.lin0(data.x))
+
         h = out.unsqueeze(0)
 
         for i in range(6):
@@ -91,6 +91,7 @@ class ActorBatchNet(torch.nn.Module):
             out = out.squeeze(0)
         pool = self.set2set(out, data.batch)
         lstm_out, (hx, cx) = self.memory(pool.view(1,data.num_graphs,-1), (hx, cx))
+
 
         lstm_out = torch.index_select(
             lstm_out,
@@ -101,10 +102,10 @@ class ActorBatchNet(torch.nn.Module):
             out,
             dim=0,
             index=nonring.view(-1)
-        )#.view(4, -1, self.dim)
+        ).view(4, -1, self.dim)
 
 
-        #out = torch.cat([lstm_out,out],0)   #5, num_torsions, self.dim
+        out = torch.cat([lstm_out,out],0)   #5, num_torsions, self.dim
         # out = out.permute(2,1,0).reshape(-1, 5*self.dim) #num_torsions, 5*self.dim
         # out = F.relu(self.lin1(out))
         # out = self.lin2(out)
@@ -115,25 +116,23 @@ class ActorBatchNet(torch.nn.Module):
         return out, (hx, cx)
 
 class RTGNBatch(torch.nn.Module):
-    def __init__(self, action_dim, dim, edge_dim=7):
+    def __init__(self, action_dim, dim, edge_dim=7, point_dim=3):
         super(RTGNBatch, self).__init__()
-        num_features = 3
+        num_features = point_dim
         self.action_dim = action_dim
         self.dim = dim
 
         self.actor = ActorBatchNet(action_dim, dim, edge_dim=edge_dim)
         self.critic = CriticBatchNet(action_dim, dim, edge_dim=edge_dim)
 
-    def forward(self, obs, states=None):
+    def forward(self, obs, states=None, action=None):
         data_list = []
         nr_list = []
         for b, nr in obs:
             data_list += b.to_data_list()
             nr_list.append(torch.LongTensor(nr))
 
-
         b = Batch.from_data_list(data_list)
-
         so_far = 0
         torsion_batch_idx = []
         torsion_list_sizes = []
@@ -144,7 +143,6 @@ class RTGNBatch(torch.nn.Module):
             so_far += int((b.batch == i).sum())
             torsion_batch_idx.extend([i]*int(nr_list[i].shape[0]))
             torsion_list_sizes += [nr_list[i].shape[0]]
-
 
         nrs = torch.cat(nr_list)
         torsion_batch_idx = torch.LongTensor(torsion_batch_idx)
@@ -162,6 +160,8 @@ class RTGNBatch(torch.nn.Module):
         v, (hv, cv) = self.critic(obs, value_states)
 
         dist = torch.distributions.Categorical(logits=logits)
+        if action is None:
+            action = dist.sample()
         action = dist.sample()
         log_prob = dist.log_prob(action).unsqueeze(0)
         entropy = dist.entropy().unsqueeze(0)
@@ -178,24 +178,34 @@ class RTGNBatch(torch.nn.Module):
 env = gym.make('OneSet-v0')
 env.reset()
 observations = []
-model = RTGNBatch(10, 32)
+model = RTGNBatch(10, 2, edge_dim=1)
 
-for _ in range(3):
+for _ in range(2):
     obs, rew, done, info = env.step(torch.randn(10))
     observations.append(obs)
+
+pdb.set_trace()
+
+
 
 single_logits = []
 for observation in observations:
     single_logits.append(model([observation]))
 
+single_logits = torch.cat(single_logits)
+
 batch_logits = model(observations)
 
 torch.set_printoptions(profile="full")
 
-print("BATCH_LOGITS:")
-print(batch_logits)
-print("SINGLE_LOGITS:")
-print(single_logits)
+file_single = open("out_single.txt", "w")
+file_batch = open("out_batch.txt", "w")
 
+print("SINGLE LOGITS: ", file=file_single)
+print(single_logits, file=file_single)
+print("BATCH LOGITS: ", file=file_batch)
+print(batch_logits, file=file_batch)
 
+file_single.close()
+file_batch.close()
 

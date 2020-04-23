@@ -667,6 +667,7 @@ class SetGibbs(gym.Env):
 
         obs = self._get_obs()
 
+
         print('step time mean', np.array(self.delta_t).mean())
         print('reset called\n\n\n\n\n')
         print_torsions(self.mol)
