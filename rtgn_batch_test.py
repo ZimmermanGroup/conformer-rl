@@ -95,18 +95,19 @@ class ActorBatchNet(torch.nn.Module):
         pool = self.set2set(out, data.batch)
         lstm_out, (hx, cx) = self.memory(pool.view(1,data.num_graphs,-1), (hx, cx))
 
-
         lstm_out = torch.index_select(
             lstm_out,
             dim=1,
             index=nrbidx
         ).view(batch_size, 1, self.action_dim, self.dim)
 
+
         out = torch.index_select(
             out,
             dim=0,
             index=nonring.view(-1)
         ).view(batch_size, 4, self.action_dim, self.dim)
+
 
         out = torch.cat([lstm_out,out], 1)   #5, num_torsions, self.dim
         out = out.permute(0,3,2,1).reshape(-1, 5*self.dim) #num_torsions, 5*self.dim
@@ -175,15 +176,15 @@ class RTGNBatch(torch.nn.Module):
             'ent': entropy,
             'v': v,
         }
+        pdb.set_trace()
+        return prediction, (hp, cp, hv, cv)
 
-        return logits#prediction, (hp, cp, hv, cv)
-
-env = gym.make('OneSet-v0')
+env = gym.make('Diff-v0')
 env.reset()
 observations = []
 model = RTGNBatch(10, 32, edge_dim=1)
 
-for _ in range(53):
+for _ in range(3):
     obs, rew, done, info = env.step(torch.randn(10))
     observations.append(obs)
 
