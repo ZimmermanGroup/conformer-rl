@@ -5,7 +5,7 @@
 
 #“#SBATCH” directives that convey submission options:
 
-#SBATCH --job-name=eval-ppo-cartpole
+#SBATCH --job-name=eval-a2c-cartpole
 #SBATCH --mail-user=runxuanj@umich.edu
 #SBATCH --cpus-per-task=2
 #SBATCH --mem-per-cpu=2048m
@@ -21,7 +21,7 @@ conda activate my-rdkit-env
 cd ~/conformer-ml-testing/conformer-ml
 module load cuda
 module load gcc
-python drl-cartpole_test.py
+python drl-ppo.py
 
 #first run a2c with oneset
 #then ran ppo with diff-v0
