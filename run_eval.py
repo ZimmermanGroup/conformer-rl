@@ -29,7 +29,7 @@ torch.manual_seed(0)
 from concurrent.futures import ProcessPoolExecutor
 
 
-from models import RTGNBatch
+from models import *
 from deep_rl import *
 import envs
 
@@ -57,7 +57,7 @@ def loaded_policy(model, env):
         step += 1
         print('step', step)
         state, rew, done, info = env.step(to_np(choice))
-        total_reward += rew
+        total_reward += float(rew)
         print('rew', rew)
         print('total_reward', total_reward)
 
@@ -70,12 +70,13 @@ def loaded_policy(model, env):
 
 
 if __name__ == '__main__':
-    model = RTGNBatch(6, 128, edge_dim=1)
-    model.load_state_dict(torch.load('data/A2CRecurrentEvalAgent-10_11_12_straight-70000.model'))
+    # model = RTGNBatch(6, 128, edge_dim=1)
+    model = GraphTransformerBatch(6, 128)
+    model.load_state_dict(torch.load('data/A2CRecurrentEvalAgent-transformer_pruning_fix_curr-280000.model'))
     model.to(torch.device('cuda'))
 
     outputs = []
-    for i in range(1):
-        output = loaded_policy(model, 'StraightChainTwelveEval-v0')
+    for i in range(10):
+        output = loaded_policy(model, 'DiffUnique-v0')
         outputs.append(output)
     print('outputs', outputs)

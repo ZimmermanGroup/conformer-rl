@@ -7,6 +7,8 @@
 import torch
 from deep_rl import *
 
+from collections import deque
+
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
@@ -28,6 +30,7 @@ class A2CRecurrentCurriculumAgent(BaseAgent):
         self.smh = None
         self.choice_ind = 0
         self.good_episodes = 0
+        self.reward_buffer = deque([], maxlen=100)
 
     def step(self):
         config = self.config
@@ -53,8 +56,6 @@ class A2CRecurrentCurriculumAgent(BaseAgent):
             next_states, rewards, terminals, info = self.task.step(to_np(prediction['a']))
             end = time.time()
 
-            rew = info[0]
-
             self.logger.add_scalar('env_step_time', end-start, self.total_steps)
             print('step time', end-start)
             self.record_online_return(info)
@@ -66,15 +67,17 @@ class A2CRecurrentCurriculumAgent(BaseAgent):
             states = next_states
             self.total_steps += config.num_workers
 
-            ifs = info[0]
-            if ifs['episodic_return'] is not None:
-                rew = ifs['episodic_return']
+            for ifs in info:
+                if ifs['episodic_return'] is not None:
+                    reward_buffer.append(ifs['episodic_return'])
+            # ifs = info[0]
+            # if ifs['episodic_return'] is not None:
+            #     rew = ifs['episodic_return']
 
         if self.total_steps % (config.num_workers * 200) == 0:
             print('real rewards', rew)
             if rew > 7.5:
                 self.good_episodes += 1
-
             else:
                 self.good_episodes = 0
 
@@ -131,5 +134,3 @@ class A2CRecurrentCurriculumAgent(BaseAgent):
         self.logger.add_scalar('backwards_pass_time', end-start, self.total_steps)
         # [rs.detach_() for rs in self.recurrent_states]
         # self.recurrent_states = [rs.detach() for rs in self.recurrent_states]
-
-

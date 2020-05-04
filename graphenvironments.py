@@ -54,11 +54,9 @@ def atom_features(atom, conf):
         anum == 'C', anum == 'O',
     ]
 
-    fts = np.array(atom_feats)
-
     p = conf.GetAtomPosition(atom.GetIdx())
-
-    return fts, np.array([p.x, p.y, p.z])
+    fts = atom_feats + [p.x, p.y, p.z]
+    return np.array(fts)
 
 
 def atom_features_simple(atom, conf):
@@ -159,6 +157,7 @@ def mol2vecskeleton_features(mol):
     return data
 
 def mol2vecdense(mol):
+    mol = Chem.rdmolops.RemoveHs(mol)
     conf = mol.GetConformer(id=-1)
     atoms = mol.GetAtoms()
     bonds = mol.GetBonds()
@@ -221,6 +220,25 @@ def mol2vecbasic(mol):
 
     return data
 
+def mol2vecskeletonpoints(mol):
+    mol = Chem.rdmolops.RemoveHs(mol)
+    conf = mol.GetConformer(id=-1)
+    atoms = mol.GetAtoms()
+    bonds = mol.GetBonds()
+    node_f= [atom_features(atom, conf) for atom in atoms]
+    edge_index = get_bond_pair(mol)
+    edge_attr = [bond_features(bond, use_chirality=False, use_basic_feats=False) for bond in bonds]
+    for bond in bonds:
+        edge_attr.append(bond_features(bond, use_chirality=False, use_basic_feats=False))
+
+    data = Data(
+                x=torch.tensor(node_f, dtype=torch.float),
+                edge_index=torch.tensor(edge_index, dtype=torch.long),
+                edge_attr=torch.tensor(edge_attr,dtype=torch.float),
+                pos=torch.Tensor(conf.GetPositions())
+            )
+
+    return data
 
 # def mol2points(mol):
 #     conf = mol.GetConformer(id=-1)
@@ -252,230 +270,6 @@ confgen = ConformerGeneratorCustom(max_conformers=1,
                              rmsd_threshold=None,
                              force_field='mmff',
                              pool_multiplier=1)
-
-class BestGibbs(gym.Env):
-    metadata = {'render.modes': ['human']}
-
-    def __init__(self, folder_name, gibbs_normalize=False, temp_normal=1.0, sort_by_size=True, ind_select=None):
-        super(BestGibbs, self).__init__()
-        self.temp_normal = temp_normal
-        self.gibbs_normalize = gibbs_normalize
-        self.all_files = glob.glob(f'{folder_name}*.json')
-        self.folder_name = folder_name
-
-        self.ind_select = ind_select
-
-        if sort_by_size:
-            self.all_files.sort(key=os.path.getsize)
-        else:
-            self.all_files.sort()
-
-        self.choice = -1
-        self.episode_reward = 0
-        self.choice_ind = 1
-        self.num_good_episodes = 0
-
-        if '/' in self.folder_name:
-            self.folder_name = self.folder_name.split('/')[0]
-
-        while True:
-            obj = self.molecule_choice()
-
-            if 'inv_temp' in obj:
-                self.temp_normal = obj['inv_temp']
-
-            self.standard_energy = float(obj['standard'])
-            if 'total' in obj and self.gibbs_normalize:
-                self.total = obj['total']
-            else:
-                self.total = 1.0
-
-            if 'mol' in obj:
-                self.mol = Chem.MolFromSmiles(obj['mol'])
-                self.mol = Chem.AddHs(self.mol)
-                res = AllChem.EmbedMultipleConfs(self.mol, numConfs=1)
-                if not len(res):
-                    continue
-                res = Chem.AllChem.MMFFOptimizeMoleculeConfs(self.mol)
-                self.conf = self.mol.GetConformer(id=0)
-
-            else:
-                self.mol = Chem.MolFromMolFile(os.path.join(self.folder_name, obj['molfile']))
-                self.mol = Chem.AddHs(self.mol)
-                self.conf = self.mol.GetConformer(id=0)
-                res = Chem.AllChem.MMFFOptimizeMoleculeConfs(self.mol)
-
-            break
-
-        nonring, ring = TorsionFingerprints.CalculateTorsionLists(self.mol)
-        self.nonring = [list(atoms[0]) for atoms, ang in nonring]
-        self.delta_t = []
-        self.current_step = 0
-        self.best_seen = 999.9999
-        self.energys = []
-        self.zero_steps = 0
-        self.repeats = 0
-
-    def load(self, obj):
-        pass
-
-    def _get_reward(self):
-        current = confgen.get_conformer_energies(self.mol)[0]
-        current = current * self.temp_normal
-
-        if current >= self.best_seen:
-            print('seen better')
-        else:
-            self.best_seen = current
-            print('current', self.best_seen)
-
-        return np.exp(-1.0 * (self.best_seen - self.standard_energy)) / 20.0
-
-    def _get_obs(self):
-        data = Batch.from_data_list([mol2vecstupidsimple(self.mol)])
-        return data, self.nonring
-
-    def step(self, action):
-        # Execute one time step within the environment
-        print("action is ", action)
-        if len(action.shape) > 1:
-            self.action = action[0]
-        else:
-            self.action = action
-        self.current_step += 1
-
-        begin_step = time.process_time()
-        desired_torsions = []
-
-        for idx, tors in enumerate(self.nonring):
-            deg = Chem.rdMolTransforms.GetDihedralDeg(self.conf, *tors)
-            ang = -180.0 + 60 * self.action[idx]
-            desired_torsions.append(ang)
-            try:
-                Chem.rdMolTransforms.SetDihedralDeg(self.conf, tors[0], tors[1], tors[2], tors[3], float(ang))
-            except:
-                Chem.MolToMolFile(self.mol, 'debug.mol')
-                print('exit with debug.mol')
-                exit(0)
-
-        Chem.AllChem.MMFFOptimizeMolecule(self.mol, confId=0)
-
-        rbn = len(self.nonring)
-        if rbn == 3:
-            done = (self.current_step == 25)
-        else:
-            done = (self.current_step == 200)
-
-        self.mol_appends(done)
-
-        obs = self._get_obs()
-        rew = self._get_reward()
-        self.episode_reward += rew
-
-        print("reward is ", rew)
-        print ("new state is:")
-        print_torsions(self.mol)
-
-        end_step = time.process_time()
-
-        delta_t = end_step-begin_step
-        self.delta_t.append(delta_t)
-
-        info = {}
-        if done:
-            info['repeats'] = self.repeats
-
-        info = self.info(info)
-
-        return obs, rew, done, info
-
-    def info(self, info):
-        return info
-
-    def mol_appends(self, done):
-        pass
-
-    def change_level(self, up_or_down=True):
-        print('level', up_or_down)
-
-    def molecule_choice(self):
-        if self.ind_select is not None:
-            cjson = self.all_files[self.ind_select]
-        else:
-            cjson = np.random.choice(self.all_files)
-
-        with open(cjson) as fp:
-            obj = json.load(fp)
-        return obj
-
-    def reset(self):
-        self.best_seen = 999.9999
-        self.repeats = 0
-        self.current_step = 0
-        self.zero_steps = 0
-        self.seen = set()
-        while True:
-            obj = self.molecule_choice()
-
-            if 'inv_temp' in obj:
-                self.temp_normal = obj['inv_temp']
-
-            self.standard_energy = float(obj['standard'])
-            if 'total' in obj and self.gibbs_normalize:
-                self.total = obj['total']
-            else:
-                self.total = 1.0
-
-            if 'mol' in obj:
-                self.mol = Chem.MolFromSmiles(obj['mol'])
-                self.mol = Chem.AddHs(self.mol)
-                res = AllChem.EmbedMultipleConfs(self.mol, numConfs=1)
-                if not len(res):
-                    continue
-                res = Chem.AllChem.MMFFOptimizeMoleculeConfs(self.mol)
-                self.conf = self.mol.GetConformer(id=0)
-            else:
-                self.mol = Chem.MolFromMolFile(os.path.join(self.folder_name, obj['molfile']))
-                self.mol = Chem.AddHs(self.mol)
-                self.conf = self.mol.GetConformer(id=0)
-                res = Chem.AllChem.MMFFOptimizeMoleculeConfs(self.mol)
-            break
-
-        self.episode_reward = 0
-        nonring, ring = TorsionFingerprints.CalculateTorsionLists(self.mol)
-        self.nonring = [list(atoms[0]) for atoms, ang in nonring]
-
-        obs = self._get_obs()
-
-        print('step time mean', np.array(self.delta_t).mean())
-        print('reset called\n\n\n\n\n')
-        print_torsions(self.mol)
-        return obs
-
-    def render(self, mode='human', close=False):
-        print_torsions(self.mol)
-
-class BestTestGibbs(BestGibbs):
-    def __init__(self, **kwargs):
-        super(BestTestGibbs, self).__init__(**kwargs)
-
-    def _get_reward(self):
-        current = confgen.get_conformer_energies(self.mol)[0]
-        current = current * self.temp_normal
-
-        mol = Chem.MolFromMolFile(f'{self.folder_name}{self.ind_select}.mol')
-
-        if current <= self.best_seen:
-            print('seen better')
-        else:
-            self.best_seen = current
-            print('current', self.best_seen)
-
-        return np.exp(-1.0 * (self.best_seen - self.standard_energy)) / 20.0
-
-class TestBestGibbs(BestGibbs):
-    def __init__(self):
-        super(TestBestGibbs, self).__init__('diff/')
 
 class SetGibbs(gym.Env):
     metadata = {'render.modes': ['human']}
@@ -560,6 +354,7 @@ class SetGibbs(gym.Env):
         data = Batch.from_data_list([mol2vecskeleton(self.mol)])
         return data, self.nonring
 
+
     def step(self, action):
         # Execute one time step within the environment
         print("action is ", action)
@@ -585,11 +380,7 @@ class SetGibbs(gym.Env):
         Chem.AllChem.MMFFOptimizeMolecule(self.mol, confId=0)
 
         rbn = len(self.nonring)
-        if rbn == 3:
-            done = (self.current_step == 25)
-        else:
-            done = (self.current_step == 200)
-
+        done = self.done
         self.mol_appends(done)
 
         obs = self._get_obs()
@@ -612,6 +403,11 @@ class SetGibbs(gym.Env):
         info = self.info(info)
 
         return obs, rew, done, info
+
+    @property
+    def done(self):
+        done = (self.current_step == 200)
+        return done
 
     def info(self, info):
         return info
@@ -675,6 +471,15 @@ class SetGibbs(gym.Env):
     def render(self, mode='human', close=False):
         print_torsions(self.mol)
 
+class RandomEndingSetGibbs(SetGibbs):
+    @property
+    def done(self):
+        if self.current_step == 1:
+            self.max_steps = np.random.randint(30, 50) * 5
+
+        done = (self.current_step == self.max_steps)
+        return done
+
 class SetEnergy(SetGibbs):
     def _get_reward(self):
         if tuple(self.action) in self.seen:
@@ -695,13 +500,13 @@ class SetEval(SetGibbs):
             self.backup_mol = Chem.Mol(self.mol)
             return
 
+        c = self.mol.GetConformer(id=0)
+        self.backup_mol.AddConformer(c, assignId=True)
+
         if done:
             import pickle
             with open('test_mol.pickle', 'wb') as fp:
                 pickle.dump(self.backup_mol, fp)
-        else:
-            c = self.mol.GetConformer(id=0)
-            self.backup_mol.AddConformer(c, assignId=True)
 
 
 class SetEvalNoPrune(SetEval):
@@ -804,15 +609,12 @@ class TrihexylUnique(UniqueSetGibbs):
         super(TrihexylUnique, self).__init__('trihexyl/')
 
 
-class SetCurriculaLevels(SetGibbs):
+class SetCurriculaExtern(SetGibbs):
     def info(self, info):
-        self.choice_ind = min(self.choice_ind, len(self.all_files))
         info['choice_ind'] = self.choice_ind
         return info
 
     def molecule_choice(self):
-        self.choice_ind = min(self.choice_ind, len(self.all_files))
-
         if self.choice_ind != 1:
             p = 0.5 * np.ones(self.choice_ind) / (self.choice_ind - 1)
             p[-1] = 0.5
@@ -826,12 +628,25 @@ class SetCurriculaLevels(SetGibbs):
             obj = json.load(fp)
         return obj
 
-    def change_level(up_or_down):
+    def change_level(self, up_or_down):
         if up_or_down:
-            self.choice_ind += 1
+            self.choice_ind *= 2
 
-        elif self.choice_ind != 1:
-            self.choice_ind -= 1
+        else:
+            if self.choice_ind != 1:
+                self.choice_ind = int(self.choice_ind / 2)
+
+        self.choice_ind = min(self.choice_ind, len(self.all_files))
+
+class TestSetCurriculaExtern(SetCurriculaExtern):
+    def __init__(self):
+        super(TestSetCurriculaExtern, self).__init__('huge_hc_set/10_')
+
+
+class TestPruningSetCurriculaExtern(SetCurriculaExtern, PruningSetGibbs):
+    def __init__(self):
+        super(TestPruningSetCurriculaExtern, self).__init__('huge_hc_set/10_')
+
 
 class SetCurricula(SetGibbs):
     def info(self, info):
@@ -889,70 +704,6 @@ class SetCurriculaExp(SetGibbs):
             obj = json.load(fp)
         return obj
 
-class BestCurriculaExp(BestGibbs):
-    def info(self, info):
-        info['num_good_episodes'] = self.num_good_episodes
-        info['choice_ind'] = self.choice_ind
-        return info
-
-    def molecule_choice(self):
-        if self.episode_reward > 7.5:
-            self.num_good_episodes += 1
-        else:
-            self.num_good_episodes = 0
-
-        if self.num_good_episodes >= 10:
-            filename = f'{self.choice_ind}'
-            self.choice_ind += 1
-            self.choice_ind = min(self.choice_ind, len(self.all_files))
-            self.num_good_episodes = 0
-
-        if self.choice_ind != 1:
-            p = 0.5 * np.ones(self.choice_ind) / (self.choice_ind - 1)
-            p[-1] = 0.5
-            cjson = np.random.choice(self.all_files[0:self.choice_ind], p=p)
-
-        else:
-            cjson = self.all_files[0]
-        print(cjson, '\n\n\n\n')
-        with open(cjson) as fp:
-            obj = json.load(fp)
-        return obj
-    # def info(self, info):
-    #     info['choice_ind'] = self.choice_ind
-    #     return info
-
-    # def molecule_choice(self):
-    #     self.choice_ind = min(self.choice_ind, len(self.all_files))
-
-    #     if self.choice_ind != 1:
-    #         p = 0.5 * np.ones(self.choice_ind) / (self.choice_ind - 1)
-    #         p[-1] = 0.5
-    #         cjson = np.random.choice(self.all_files[0:self.choice_ind], p=p)
-    #     else:
-    #         cjson = self.all_files[0]
-
-    #     print(cjson, '\n\n\n\n')
-
-    #     with open(cjson) as fp:
-    #         obj = json.load(fp)
-    #     return obj
-
-    # def change_level(up_or_down):
-    #     if up_or_down:
-    #         self.choice_ind += 1
-
-    #     elif self.choice_ind != 1:
-    #         self.choice_ind -= 1
-
-class TChainTrain(BestCurriculaExp):
-    def __init__(self):
-        super(TChainTrain, self).__init__('transfer_test_t_chain/')
-
-class TChainTest(BestTestGibbs):
-    def __init__(self, **kwargs):
-        super(TChainTest, self).__init__('transfer_test_t_chain/', **kwargs)
-
 class SetEnergyCurriculaExp(SetEnergy):
     def info(self, info):
         info['num_good_episodes'] = self.num_good_episodes
@@ -983,8 +734,6 @@ class SetEnergyCurriculaExp(SetEnergy):
         with open(cjson) as fp:
             obj = json.load(fp)
         return obj
-
-
 
 class SetCurriculaForgetting(SetGibbs):
     def info(self, info):
@@ -1029,6 +778,23 @@ class SetGibbsSkeletonFeatures(SetGibbs):
     def _get_obs(self):
         data = Batch.from_data_list([mol2vecskeleton_features(self.mol)])
         return data, self.nonring
+
+class SetGibbsSkeletonPoints(SetGibbs):
+    def _get_obs(self):
+        data = Batch.from_data_list([mol2vecskeletonpoints(self.mol)])
+        return data, self.nonring
+
+class TestSetCurriculaExternPoints(SetCurriculaExtern, SetGibbsSkeletonPoints):
+    def __init__(self):
+        super(TestSetCurriculaExternPoints, self).__init__('huge_hc_set/10_')
+
+class TestSetCurriculaExternDense(SetCurriculaExtern, SetGibbsDense):
+    def __init__(self):
+        super(TestSetCurriculaExternDense, self).__init__('huge_hc_set/10_')
+
+class TestSetCurriculaExternRandomEnding(RandomEndingSetGibbs, SetCurriculaExtern):
+    def __init__(self):
+        super(TestSetCurriculaExternRandomEnding, self).__init__('huge_hc_set/10_')
 
 class StraightChainTen(SetGibbs):
     def __init__(self):
@@ -1079,6 +845,10 @@ class AllTenTorsionSet(SetGibbs):
     def __init__(self):
         super(AllTenTorsionSet, self).__init__('huge_hc_set/10_')
 
+class AllTenTorsionSetDense(SetGibbsDense):
+    def __init__(self):
+        super(AllTenTorsionSetDense, self).__init__('huge_hc_set/10_')
+
 class AllTenTorsionSetPruning(PruningSetGibbs):
     def __init__(self):
         super(AllTenTorsionSetPruning, self).__init__('huge_hc_set/10_')
@@ -1098,6 +868,10 @@ class TenTorsionSetCurriculum(SetCurricula):
     def _get_obs(self):
         data = Batch.from_data_list([mol2vecskeleton(self.mol)])
         return data, self.nonring
+
+class TenTorsionSetCurriculumDense(SetCurricula, SetGibbsDense):
+    def __init__(self):
+        super(TenTorsionSetCurriculumDense, self).__init__('huge_hc_set/10_')
 
 class TenTorsionSetCurriculumExp(SetCurriculaExp):
     def __init__(self):
@@ -1147,13 +921,25 @@ class TenTorsionSetCurriculumForgetting(SetCurriculaForgetting):
         data = Batch.from_data_list([mol2vecskeleton(self.mol)])
         return data, self.nonring
 
-class DifferentCarbonSet(SetEval):
+class Diff(SetGibbs):
     def __init__(self):
-        super(DifferentCarbonSet, self).__init__('diff/')
+        super(Diff, self).__init__('diff/')
 
-class DifferentCarbonSet11(SetEval):
+class DiffDense(SetGibbsDense):
     def __init__(self):
-        super(DifferentCarbonSet11, self).__init__('diff_11/')
+        super(DiffDense, self).__init__('diff/')
+
+class DiffPoints(SetGibbsSkeletonPoints):
+    def __init__(self):
+        super(DiffPoints, self).__init__('diff/')
+
+class Diff11(SetEval):
+    def __init__(self):
+        super(Diff11, self).__init__('diff_11/')
+
+class SmallMoleculeSet(SetGibbs):
+    def __init__(self):
+        super(SmallMoleculeSet, self).__init__('huge_hc_set/2')
 
 class Trihexyl(SetGibbs):
     def __init__(self):
@@ -1162,7 +948,6 @@ class Trihexyl(SetGibbs):
     def _get_obs(self):
         data = Batch.from_data_list([mol2vecbasic(self.mol)])
         return data, self.nonring
-
 
 class GiantSet(SetGibbs):
     def __init__(self):
@@ -1196,13 +981,9 @@ class FourSet(SetGibbs):
     def __init__(self):
         super(FourSet, self).__init__('four_set/')
 
-class DifferentCarbonSetUnique(UniqueSetGibbs):
+class DiffUnique(UniqueSetGibbs):
     def __init__(self):
-        super(DifferentCarbonSetUnique, self).__init__('diff/')
-
-    def _get_obs(self):
-        data = Batch.from_data_list([mol2vecstupidsimple(self.mol)])
-        return data, self.nonring
+        super(DiffUnique, self).__init__('diff/')
 
 class FourSetUnique(UniqueSetGibbs):
     def __init__(self):
@@ -1417,11 +1198,9 @@ class EightLigninEval(SetEval):
         data = Batch.from_data_list([mol2vecskeleton_features(self.mol)])
         return data, self.nonring
 
-class LigninAllSetSkeletonCurriculum(SetCurricula):
+class LigninAllSetSkeletonCurriculum(SetCurriculaExtern, SetGibbsSkeletonPoints):
     def __init__(self):
         super(LigninAllSetSkeletonCurriculum, self).__init__('lignins_high_temp_curriculum/', temp_normal=0.25, sort_by_size=False)
 
-    def _get_obs(self):
-        data = Batch.from_data_list([mol2vecskeleton_features(self.mol)])
-        return data, self.nonring
+
 
