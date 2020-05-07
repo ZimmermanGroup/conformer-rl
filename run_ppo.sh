@@ -5,7 +5,7 @@
 
 #“#SBATCH” directives that convey submission options:
 
-#SBATCH --job-name=eval-a2c-cartpole
+#SBATCH --job-name=eval-pporec-allten
 #SBATCH --mail-user=runxuanj@umich.edu
 #SBATCH --cpus-per-task=2
 #SBATCH --mem-per-cpu=2048m
