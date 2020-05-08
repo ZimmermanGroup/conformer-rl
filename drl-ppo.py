@@ -282,10 +282,10 @@ def ppo_feature(**kwargs):
     config.num_workers = 20
     config.rollout_length = 200 # n_steps
     config.optimization_epochs = 10
-    config.mini_batch_size = 32*5
+    config.mini_batch_size = 20*20
     config.max_steps = 10000000
     config.save_interval = 10000
-    config.eval_interval = 2000
+    config.eval_interval = 0
     config.eval_episodes = 2
     config.recurrence = 5
 
