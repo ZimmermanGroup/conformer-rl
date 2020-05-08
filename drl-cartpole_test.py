@@ -205,13 +205,13 @@ def ppo_feature(**kwargs):
     config.entropy_weight = 0.001 #ent_coef
     config.gradient_clip = 5 #max_grad_norm
     config.rollout_length = 128 # n_steps
-    config.max_steps = 10000000
+    config.max_steps = 1000000
     config.save_interval = 10000
     config.optimization_epochs = 10
     config.mini_batch_size = 32*10
     config.ppo_ratio_clip = 0.2
     config.hidden_size = HIDDEN_SIZE
-    config.recurrence = 2
+    config.recurrence = 1
     
     agent = PPORecurrentEvalAgent(config)
     return agent
