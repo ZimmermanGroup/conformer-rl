@@ -247,7 +247,7 @@ class RTGNBatch(torch.nn.Module):
         dist = torch.distributions.Categorical(logits=logits)
         if action is None:
             action = dist.sample()
-        action = dist.sample().to(device)
+
         log_prob = dist.log_prob(action).unsqueeze(0).to(device)
         entropy = dist.entropy().unsqueeze(0).to(device)
 
@@ -275,27 +275,27 @@ def ppo_feature(**kwargs):
     config.state_normalizer = DummyNormalizer()
     
     #Task
-    config.task_fn = lambda: AdaTask('Diff-v0', num_envs = config.num_workers, single_process = False, seed=random.randint(0,7e4))
+    config.task_fn = lambda: AdaTask('AllTenTorsionSet-v0', num_envs = config.num_workers, single_process = False, seed=random.randint(0,7e4))
     config.eval_env = AdaTask('Diff-v0', seed=random.randint(0,7e4))
 
     #Batch
-    config.num_workers = 20
-    config.rollout_length = 200 # n_steps
+    config.num_workers = 10
+    config.rollout_length = 20 # n_steps
     config.optimization_epochs = 10
-    config.mini_batch_size = 20*20
+    config.mini_batch_size = 40
     config.max_steps = 10000000
     config.save_interval = 10000
-    config.eval_interval = 0
+    config.eval_interval = 2000
     config.eval_episodes = 2
     config.recurrence = 5
 
     #Coefficients
-    lr = 7e-5 * np.sqrt(config.num_workers)
+    lr = 2e-4 * np.sqrt(config.num_workers)
     config.optimizer_fn = lambda params: torch.optim.RMSprop(params, lr=lr, alpha=0.99, eps=1e-5) #learning_rate #alpha #epsilon
     config.discount = 0.999 # gamma
     config.use_gae = True
     config.gae_tau = 0.95
-    config.entropy_weight = 0 #ent_coef
+    config.entropy_weight = 0.001 #ent_coef
     config.gradient_clip = 0.5 #max_grad_norm
     config.ppo_ratio_clip = 0.2
 
@@ -310,7 +310,7 @@ def ppo_feature(**kwargs):
 mkdir('log')
 mkdir('tf_log')
 set_one_thread()
-tag = "Diff-May7-V1"
+tag = "diff-may9-v15"
 agent = ppo_feature(tag=tag)
 
 run_steps(agent)

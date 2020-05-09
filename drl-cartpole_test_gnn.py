@@ -126,15 +126,15 @@ class Policy(nn.Module):
         dist = Categorical(probs)
 
         if actions != None:
-            action = actions
+            action = actions.view(1, -1)
         else:
-            action = dist.sample().squeeze(0)
+            action = dist.sample()
 
         log_prob = dist.log_prob(action).to(device)
         entropy = dist.entropy().to(device)
 
         prediction = {
-            'a': action,
+            'a': action.squeeze(0),
             'log_pi_a': log_prob.unsqueeze(-1),
             'ent': entropy.unsqueeze(-1),
             'v': v,
@@ -193,7 +193,7 @@ mkdir('log')
 mkdir('tf_log')
 set_one_thread()
 select_device(0)
-tag = "Cartpole-PPO-May8-V0"
+tag = "Cartpole-PPO-May8-V5"
 agent = ppo_feature(tag=tag)
 
 run_steps(agent)
