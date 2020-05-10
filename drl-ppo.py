@@ -298,6 +298,7 @@ def ppo_feature(**kwargs):
     config.entropy_weight = 0.001 #ent_coef
     config.gradient_clip = 0.5 #max_grad_norm
     config.ppo_ratio_clip = 0.2
+    config.value_loss_weight = 0.25 # vf_coef
 
 
     
@@ -310,7 +311,7 @@ def ppo_feature(**kwargs):
 mkdir('log')
 mkdir('tf_log')
 set_one_thread()
-tag = "diff-may9-v15"
+tag = "diff-may9-v16"
 agent = ppo_feature(tag=tag)
 
 run_steps(agent)
