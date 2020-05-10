@@ -33,7 +33,6 @@ random.seed(0)
 np.random.seed(0)
 torch.manual_seed(0)
 
-env_name = 'OneSet-v0'
 HIDDEN_SIZE = 128
 
 class PPORecurrentEvalAgent(PPORecurrentAgentGnnRecurrence):
@@ -248,7 +247,7 @@ class RTGNBatch(torch.nn.Module):
         dist = torch.distributions.Categorical(logits=logits)
         if action is None:
             action = dist.sample()
-        action = dist.sample().to(device)
+
         log_prob = dist.log_prob(action).unsqueeze(0).to(device)
         entropy = dist.entropy().unsqueeze(0).to(device)
 
@@ -270,24 +269,38 @@ def ppo_feature(**kwargs):
     config = Config()
     config.merge(kwargs)
 
-    config.num_workers = 2
-    config.task_fn = lambda: AdaTask(env_name, num_envs = config.num_workers, single_process = False, seed=random.randint(0,7e4))
-    config.eval_env = AdaTask(env_name, single_process = False, seed=random.randint(0,7e4))
-    config.optimizer_fn = lambda params: torch.optim.RMSprop(params, 0.002) #learning_rate #alpha #epsilon
+    #Constant
     config.network = model
-    config.discount = 0.99 # gamma
+    config.hidden_size = HIDDEN_SIZE
+    config.state_normalizer = DummyNormalizer()
+    
+    #Task
+    config.task_fn = lambda: AdaTask('AllTenTorsionSet-v0', num_envs = config.num_workers, single_process = False, seed=random.randint(0,7e4))
+    config.eval_env = AdaTask('Diff-v0', seed=random.randint(0,7e4))
+
+    #Batch
+    config.num_workers = 10
+    config.rollout_length = 20 # n_steps
+    config.optimization_epochs = 10
+    config.mini_batch_size = 40
+    config.max_steps = 10000000
+    config.save_interval = 10000
+    config.eval_interval = 2000
+    config.eval_episodes = 2
+    config.recurrence = 5
+
+    #Coefficients
+    lr = 2e-4 * np.sqrt(config.num_workers)
+    config.optimizer_fn = lambda params: torch.optim.RMSprop(params, lr=lr, alpha=0.99, eps=1e-5) #learning_rate #alpha #epsilon
+    config.discount = 0.999 # gamma
     config.use_gae = True
     config.gae_tau = 0.95
     config.entropy_weight = 0.001 #ent_coef
-    config.gradient_clip = 5 #max_grad_norm
-    config.rollout_length = 16 # n_steps
-    config.max_steps = 10000000
-    config.save_interval = 10000
-    config.optimization_epochs = 10
-    config.mini_batch_size = 4
+    config.gradient_clip = 0.5 #max_grad_norm
     config.ppo_ratio_clip = 0.2
-    config.hidden_size = HIDDEN_SIZE
-    config.recurrence = 2
+    config.value_loss_weight = 0.25 # vf_coef
+
+
     
     agent = PPORecurrentEvalAgent(config)
     return agent
@@ -298,7 +311,7 @@ def ppo_feature(**kwargs):
 mkdir('log')
 mkdir('tf_log')
 set_one_thread()
-tag = 'ppo_all8_april27_v0'
+tag = "diff-may9-v16"
 agent = ppo_feature(tag=tag)
 
 run_steps(agent)

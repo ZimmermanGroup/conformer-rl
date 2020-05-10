@@ -12,6 +12,9 @@ from torch.autograd import Variable
 from deep_rl import *
 
 from deep_rl.component.envs import DummyVecEnv, make_env
+from deep_rl.agent.PPO_recurrent_agent_gnn_recurrence import PPORecurrentAgentGnnRecurrence
+from deep_rl.agent.PPO_recurrent_agent_gnn import PPORecurrentAgentGnn
+
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 from stable_baselines.common.vec_env.subproc_vec_env import SubprocVecEnv, VecEnv
@@ -21,34 +24,7 @@ env_name = 'CartPole-v0'
 
 torch.manual_seed(1)
 
-
-class A2CRecurrentEvalAgent(A2CRecurrentAgent):
-    def eval_step(self, state, done, rstates):
-        with torch.no_grad():
-            if done:
-                prediction, rstates = self.network(self.config.state_normalizer(state))
-            else:
-                prediction, rstates = self.network(self.config.state_normalizer(state), rstates)
-
-            out = to_np(prediction['a'])
-            return out, rstates
-    
-    def eval_episode(self):
-        env = self.config.eval_env
-        state = env.reset()
-        done = True
-        rstates = None
-        while True:
-            action, rstates = self.eval_step(state, done, rstates)
-            
-            done = False
-            state, reward, done, info = env.step(action)
-            ret = info[0]['episodic_return']
-            if ret is not None:
-                break
-        return ret
-
-class PPORecurrentEvalAgent(PPORecurrentAgent):
+class PPORecurrentEvalAgent(PPORecurrentAgentGnnRecurrence):
     def eval_step(self, state, done, rstates):
         with torch.no_grad():
             if done:
@@ -115,78 +91,59 @@ class Policy(nn.Module):
         super(Policy, self).__init__()
         self.fc1 = nn.Linear(4, 4)
         self.relu = torch.nn.ReLU()
-        self.lstm = nn.LSTMCell(4, HIDDEN_SIZE)
+
+        self.action_memory = nn.LSTM(4, HIDDEN_SIZE)
+        self.value_memory = nn.LSTM(4, HIDDEN_SIZE)
+
         self.action_head = nn.Linear(HIDDEN_SIZE, 2)
         self.value_head = nn.Linear(HIDDEN_SIZE, 1)
-        self.rewards = []
+
 
     def forward(self, x, states = None, actions = None):
-        x = tensor(x).to(device)
+        x = tensor(x).unsqueeze(0).to(device)
+
         if states:
-            states = (states[0].detach()).to(device), (states[1].detach()).to(device)
+            hp = states[0].detach().to(device)
+            cp = states[1].detach().to(device)
+            hv = states[2].detach().to(device)
+            cv = states[3].detach().to(device)
         else:
-            states = (torch.zeros(x.shape[0], HIDDEN_SIZE).to(device), torch.zeros(x.shape[0], HIDDEN_SIZE).to(device))
+            hp = torch.zeros(1, x.shape[0], HIDDEN_SIZE).to(device)
+            cp = torch.zeros(1, x.shape[0], HIDDEN_SIZE).to(device)
+            hv = torch.zeros(1, x.shape[0], HIDDEN_SIZE).to(device)
+            cv = torch.zeros(1, x.shape[0], HIDDEN_SIZE).to(device)
+        
         x = self.fc1(x)
         x = self.relu(x)
-        rstates = self.lstm(x, states)
-        x = rstates[0]
-        x = x.squeeze(0)
 
-        v = self.value_head(x)
-        action_scores = self.action_head(x)
+        action_out, (hp, cp) = self.action_memory(x, (hp, cp))
+        value_out, (hv, cv) = self.value_memory(x, (hv, cv))
+
+        v = self.value_head(value_out)
+        action_scores = self.action_head(action_out)
 
         probs = F.softmax(action_scores, dim=-1)
         dist = Categorical(probs)
 
         if actions != None:
-            action = actions
+            action = actions.view(1, -1)
         else:
             action = dist.sample()
 
-        log_prob = dist.log_prob(action).unsqueeze(-1).to(device)
-        entropy = dist.entropy().unsqueeze(-1).to(device)
+        log_prob = dist.log_prob(action).to(device)
+        entropy = dist.entropy().to(device)
 
         prediction = {
-            'a': action,
-            'log_pi_a': log_prob,
-            'ent': entropy,
+            'a': action.squeeze(0),
+            'log_pi_a': log_prob.unsqueeze(-1),
+            'ent': entropy.unsqueeze(-1),
             'v': v,
         }
 
-        return prediction, rstates
+        return prediction, (hp, cp, hv, cv)
 
 
 model = Policy()
-
-def a2c_feature(**kwargs):
-    generate_tag(kwargs)
-    kwargs.setdefault('log_level', 0)
-    config = Config()
-    config.merge(kwargs)
-
-    config.num_workers = 5
-    config.task_fn = lambda: AdaTask(env_name, num_envs = config.num_workers, single_process=False, seed=random.randint(0,7e4))
-    config.optimizer_fn = lambda params: torch.optim.RMSprop(params, 0.001) #learning_rate #alpha #epsilon
-    config.network = model
-    config.discount = 0.99 # gamma
-    config.use_gae = True
-    config.gae_tau = 0.95
-    # config.value_loss_weight = 1 # vf_coef
-    config.entropy_weight = 0.01 #ent_coef
-    config.rollout_length = 5 # n_steps
-    config.gradient_clip = 0.5 #max_grad_norm
-    config.max_steps = 5000000
-    config.save_interval = 10000
-    config.hidden_size = HIDDEN_SIZE
-    # config.eval_interval = 2000
-    # config.eval_episodes = 2
-    # config.eval_env = AdaTask(env_name, seed=random.randint(0,7e4))
-    config.state_normalizer = DummyNormalizer()
-    # config.optimization_epochs = 4
-    # config.mini_batch_size = 32
-    
-    agent = A2CRecurrentEvalAgent(config)
-    return agent
 
 def ppo_feature(**kwargs):
     generate_tag(kwargs)
@@ -194,24 +151,37 @@ def ppo_feature(**kwargs):
     config = Config()
     config.merge(kwargs)
 
-    config.num_workers = 20
-    config.task_fn = lambda: AdaTask(env_name, num_envs = config.num_workers, single_process = False, seed=random.randint(0,7e4))
-    config.eval_env = AdaTask(env_name, single_process = False, seed=random.randint(0,7e4))
-    config.optimizer_fn = lambda params: torch.optim.RMSprop(params, 0.002) #learning_rate #alpha #epsilon
+    #Constant
     config.network = model
-    config.discount = 0.99 # gamma
+    config.hidden_size = HIDDEN_SIZE
+    config.state_normalizer = DummyNormalizer()
+    
+    #Task
+    config.task_fn = lambda: AdaTask(env_name, num_envs = config.num_workers, single_process = False, seed=random.randint(0,7e4))
+    config.eval_env = AdaTask(env_name, seed=random.randint(0,7e4))
+
+    #Batch
+    config.num_workers = 5
+    config.rollout_length = 128 # n_steps
+    config.optimization_epochs = 10
+    config.mini_batch_size = 32*5
+    config.max_steps = 10000000
+    config.save_interval = 10000
+    config.eval_interval = 2000
+    config.eval_episodes = 2
+    config.recurrence = 4
+
+    #Coefficients
+    lr = 7e-5 * np.sqrt(config.num_workers)
+    config.optimizer_fn = lambda params: torch.optim.RMSprop(params, lr=lr, alpha=0.99, eps=1e-5) #learning_rate #alpha #epsilon
+    config.discount = 0.999 # gamma
     config.use_gae = True
     config.gae_tau = 0.95
-    config.entropy_weight = 0.001 #ent_coef
-    config.gradient_clip = 5 #max_grad_norm
-    config.rollout_length = 128 # n_steps
-    config.max_steps = 1000000
-    config.save_interval = 10000
-    config.optimization_epochs = 10
-    config.mini_batch_size = 32*10
+    config.entropy_weight = 0 #ent_coef
+    config.gradient_clip = 0.5 #max_grad_norm
     config.ppo_ratio_clip = 0.2
-    config.hidden_size = HIDDEN_SIZE
-    config.recurrence = 1
+
+
     
     agent = PPORecurrentEvalAgent(config)
     return agent
@@ -223,7 +193,7 @@ mkdir('log')
 mkdir('tf_log')
 set_one_thread()
 select_device(0)
-tag = 'a2c_cartpole_april22_v6'
-agent = a2c_feature(tag=tag)
+tag = "Cartpole-PPO-May8-V5"
+agent = ppo_feature(tag=tag)
 
 run_steps(agent)
