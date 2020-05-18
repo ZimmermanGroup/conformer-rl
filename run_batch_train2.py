@@ -52,7 +52,7 @@ def a2c_feature(**kwargs):
     single_process = (config.num_workers == 1)
     # single_process = True
 
-    config.task_fn = lambda: AdaTask('TestPruningSetGibbsQuick-v0', num_envs=config.num_workers, seed=random.randint(0,1e5), single_process=single_process)
+    config.task_fn = lambda: AdaTask('TestSetCurriculaExternPoints-v0', num_envs=config.num_workers, seed=random.randint(0,1e5), single_process=single_process)
 
     # config.task_fn = lambda: AdaTask('TestPruningSetGibbsEdit-v0', num_envs=config.num_workers, seed=random.randint(0,1e5), single_process=single_process)
     # config.task_fn = lambda: AdaTask('TestPruningSetCurriculaExtern-v0', num_envs=config.num_workers, seed=random.randint(0,1e5), single_process=single_process)
@@ -78,9 +78,9 @@ def a2c_feature(**kwargs):
 
     config.curriculum = Curriculum(min_length=config.num_workers)
 
-    config.eval_interval = config.num_workers * 200 * 5
-    config.eval_episodes = 1
-    config.eval_env = AdaTask('DiffUnique-v0', seed=random.randint(0,7e4))
+    # config.eval_interval = config.num_workers * 200 * 5
+    # config.eval_episodes = 1
+    # config.eval_env = AdaTask('DiffUnique-v0', seed=random.randint(0,7e4))
     config.state_normalizer = DummyNormalizer()
     # config.reward_normalizer = MeanStdNormalizer()
 
@@ -103,7 +103,8 @@ def ppo_feature(**kwargs):
 
     config.curriculum = Curriculum(min_length=config.num_workers)
 
-    config.task_fn = lambda: AdaTask('LigninAllSetPruningLogSkeletonCurriculum-v0', num_envs=config.num_workers, seed=random.randint(0,1e5), single_process=single_process)
+    config.task_fn = lambda: AdaTask('TestLigninErrors4-v0', num_envs=config.num_workers, seed=random.randint(0,1e5), single_process=single_process) # causes error
+
     # config.optimizer_fn = lambda params: torch.optim.RMSprop(params, lr=lr, alpha=0.99, eps=1e-5)
     config.optimizer_fn = lambda params: torch.optim.Adam(params, lr=lr, eps=1e-5)
     config.network = model
@@ -121,10 +122,10 @@ def ppo_feature(**kwargs):
     # config.mini_batch_size = config.rollout_length * config.num_workers
     config.mini_batch_size = 50
     config.ppo_ratio_clip = 0.2
-    config.log_interval = 200 * config.num_workers * 5
-    config.eval_interval = config.num_workers * 200 * 5
-    config.eval_episodes = 1
-    config.eval_env = AdaTask('LigninPruningSkeletonEval-v0', seed=random.randint(0,7e4))
+    # config.save_interval = config.num_workers * 200 * 5
+    # config.eval_interval = config.num_workers * 200 * 5
+    # config.eval_episodes = 1
+    # config.eval_env = AdaTask('LigninPruningSkeletonEval-v0', seed=random.randint(0,7e4))
     config.state_normalizer = DummyNormalizer()
     run_steps(PPORecurrentEvalAgent(config))
 

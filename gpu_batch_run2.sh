@@ -3,10 +3,10 @@
 
 #“#SBATCH” directives that convey submission options:
 
-#SBATCH --job-name=ppo_rtgn_log_gibbs_mod_curr_lignin
+#SBATCH --job-name=testing_errors_lignin
 #ppo_rtgn_pruning_fix_lignin_curr
 #SBATCH --mail-user=tgog@umich.edu
-#SBATCH --cpus-per-task=35
+#SBATCH --cpus-per-task=20
 #SBATCH --gres=gpu:1
 #SBATCH --nodes=1
 #SBATCH --time=10:00:00

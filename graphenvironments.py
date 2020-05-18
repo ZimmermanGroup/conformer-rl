@@ -243,6 +243,30 @@ def mol2vecskeletonpoints(mol):
     data = Center()(data)
     data = NormalizeRotation()(data)
     data.x[:,-3:] = data.pos
+    
+    assert (data.x == data.x).all()
+    assert (data.edge_attr == data.edge_attr).all()
+    assert (data.edge_index == data.edge_index).all()
+
+    return data
+
+def mol2vecskeletonpoints_test(mol):
+    mol = Chem.rdmolops.RemoveHs(mol)
+    conf = mol.GetConformer(id=-1)
+    atoms = mol.GetAtoms()
+    bonds = mol.GetBonds()
+    node_f = [atom_features(atom, conf) for atom in atoms]
+    edge_index = get_bond_pair(mol)
+    edge_attr = [bond_features(bond, use_chirality=False, use_basic_feats=True) for bond in bonds]
+    for bond in bonds:
+        edge_attr.append(bond_features(bond, use_chirality=False, use_basic_feats=True))
+
+    data = Data(
+                x=torch.tensor(node_f, dtype=torch.float),
+                edge_index=torch.tensor(edge_index, dtype=torch.long),
+                edge_attr=torch.tensor(edge_attr,dtype=torch.float),
+                pos=torch.Tensor(conf.GetPositions())
+            )
 
     return data
 
@@ -1172,4 +1196,22 @@ class LigninAllSetPruningLogSkeletonCurriculum(SetCurriculaExtern, PruningSetLog
     def __init__(self):
         super(LigninAllSetPruningLogSkeletonCurriculum, self).__init__('lignin_hightemp/', temp_normal=0.25, sort_by_size=False)
 
+class TestLigninErrorsControl(PruningSetLogGibbs, SetGibbsSkeletonPoints):
+    def __init__(self):
+        super(TestLigninErrorsControl, self).__init__('lignin_hightemp/4', temp_normal=0.25, sort_by_size=False)
 
+class TestLigninErrors(PruningSetLogGibbs, SetGibbsSkeletonPoints):
+    def __init__(self):
+        super(TestLigninErrors, self).__init__('lignin_hightemp/6', temp_normal=0.25, sort_by_size=False)
+
+class TestLigninErrors2(PruningSetLogGibbs, SetGibbsSkeletonPoints):
+    def __init__(self):
+        super(TestLigninErrors2, self).__init__('lignin_hightemp/7', temp_normal=0.25, sort_by_size=False)
+
+class TestLigninErrors3(PruningSetLogGibbs, SetGibbsSkeletonPoints):
+    def __init__(self):
+        super(TestLigninErrors3, self).__init__('lignin_hightemp/6_8', temp_normal=0.25, sort_by_size=False)
+
+class TestLigninErrors4(PruningSetLogGibbs, SetGibbsSkeletonPoints):
+    def __init__(self):
+        super(TestLigninErrors4, self).__init__('lignin_hightemp/6_9', temp_normal=0.25, sort_by_size=False)

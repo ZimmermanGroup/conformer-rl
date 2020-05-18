@@ -632,8 +632,6 @@ class ActorBatchNet(torch.nn.Module):
             out, h = self.gru(m.unsqueeze(0), h)
             out = out.squeeze(0)
         pool = self.set2set(out, data.batch)
-        print(pool.shape)
-        print(hx.shape)
         lstm_out, (hx, cx) = self.memory(pool.view(1,data.num_graphs,-1), (hx, cx))
 
         lstm_out = torch.index_select(
