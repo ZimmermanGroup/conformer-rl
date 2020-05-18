@@ -5,7 +5,7 @@
 
 #“#SBATCH” directives that convey submission options:
 
-#SBATCH --job-name=eval
+#SBATCH --job-name=eval-pporec-allten
 #SBATCH --mail-user=runxuanj@umich.edu
 #SBATCH --cpus-per-task=2
 #SBATCH --mem-per-cpu=2048m
@@ -22,7 +22,3 @@ cd ~/conformer-ml-testing/conformer-ml
 module load cuda
 module load gcc
 python drl-ppo.py
-
-#first run a2c with oneset
-#then ran ppo with diff-v0
-#then ran ppo  (edited) with oneset

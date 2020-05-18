@@ -16,9 +16,6 @@ import envs
 
 from utils import *
 
-class CriticBatchNet(torch.nn.Module):
-    def __init__(self, action_dim, dim, edge_dim):
-        super(CriticBatchNet, self).__init__()
         num_features = 3
         self.lin0 = torch.nn.Linear(num_features, dim)
         func_ag = nn.Sequential(nn.Linear(edge_dim, dim), nn.ReLU(), nn.Linear(dim, dim * dim))
@@ -162,7 +159,6 @@ class RTGNBatch(torch.nn.Module):
             so_far += int((b.batch == i).sum())
             torsion_batch_idx.extend([i]*int(nr_list[i].shape[0]))
             torsion_list_sizes += [nr_list[i].shape[0]]
-
 
         nrs = torch.cat(nr_list)
         torsion_batch_idx = torch.LongTensor(torsion_batch_idx)
