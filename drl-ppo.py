@@ -275,14 +275,14 @@ def ppo_feature(**kwargs):
     config.state_normalizer = DummyNormalizer()
     
     #Task
-    config.task_fn = lambda: AdaTask('AllTenTorsionSet-v0', num_envs = config.num_workers, single_process = False, seed=random.randint(0,7e4))
+    config.task_fn = lambda: AdaTask('Diff-v0', num_envs = config.num_workers, single_process = False, seed=random.randint(0,7e4))
     config.eval_env = AdaTask('Diff-v0', seed=random.randint(0,7e4))
 
     #Batch
     config.num_workers = 10
     config.rollout_length = 20 # n_steps
     config.optimization_epochs = 10
-    config.mini_batch_size = 40
+    config.mini_batch_size = 20
     config.max_steps = 10000000
     config.save_interval = 10000
     config.eval_interval = 2000
@@ -291,7 +291,7 @@ def ppo_feature(**kwargs):
 
     #Coefficients
     lr = 2e-4 * np.sqrt(config.num_workers)
-    config.optimizer_fn = lambda params: torch.optim.RMSprop(params, lr=lr, alpha=0.99, eps=1e-5) #learning_rate #alpha #epsilon
+    config.optimizer_fn = lambda params: torch.optim.Adam(params, lr=lr, eps=1e-5) #learning_rate #alpha #epsilon
     config.discount = 0.999 # gamma
     config.use_gae = True
     config.gae_tau = 0.95
@@ -311,7 +311,7 @@ def ppo_feature(**kwargs):
 mkdir('log')
 mkdir('tf_log')
 set_one_thread()
-tag = "diff-may9-v16"
+tag = "diff-adam-may14-v2(20rollout20batch)"
 agent = ppo_feature(tag=tag)
 
 run_steps(agent)
