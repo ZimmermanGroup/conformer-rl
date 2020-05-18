@@ -74,9 +74,9 @@ def create_branched(i):
 
 
     confgen = ConformerGeneratorCustom(max_conformers=1,
-                     rmsd_threshold=None,
-                     force_field='mmff',
-                     pool_multiplier=1)
+                        rmsd_threshold=None,
+                        force_field='mmff',
+                        pool_multiplier=1)
 
     m = prune_conformers(confgen, m, 0.05)
 

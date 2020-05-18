@@ -24,6 +24,8 @@ from deep_rl import *
 from deep_rl.component.envs import DummyVecEnv
 # from stable_baselines.common.vec_env import DummyVecEnv
 
+import logging
+
 
 def drawit(m, p, confId=-1):
     mb = Chem.MolToMolBlock(m, confId=confId)
@@ -338,7 +340,7 @@ def enumerateTorsions(mol):
                 torsionList.append((idx1, idx2, idx3, idx4))
     return torsionList
 
-def prune_last_conformer(mol, tfd_thresh, energies=None):
+def prune_last_conformer(mol, tfd_thresh, energies=None, quick=False):
     """
     Checks that most recently added conformer meats TFD threshold.
 
@@ -359,23 +361,23 @@ def prune_last_conformer(mol, tfd_thresh, energies=None):
     if tfd_thresh < 0 or mol.GetNumConformers() <= 1:
         return mol
 
-    energyies = np.array(energies)
-
     idx = bisect.bisect(energies[:-1], energies[-1])
 
     tfd = Chem.TorsionFingerprints.GetTFDBetweenConformers(mol, range(0, mol.GetNumConformers() - 1), [mol.GetNumConformers() - 1], useWeights=False)
     tfd = np.array(tfd)
 
+    # if lower energy conformer is within threshold, drop new conf
     if not np.all(tfd[:idx] >= tfd_thresh):
         new_energys = list(range(0, mol.GetNumConformers() - 1))
         mol.RemoveConformer(mol.GetNumConformers() - 1)
 
-        print('tossing conformer')
+        logging.debug('tossing conformer')
 
         return mol, new_energys
 
+
     else:
-        print('keeping conformer', idx)
+        logging.debug('keeping conformer', idx)
         keep = list(range(0,idx))
         # print('keep 1', keep)
         keep += [mol.GetNumConformers() - 1]
@@ -399,6 +401,38 @@ def prune_last_conformer(mol, tfd_thresh, energies=None):
             new.AddConformer(conf, assignId=True)
 
         return new, keep
+
+def prune_last_conformer_quick(mol, tfd_thresh, energies=None):
+    """
+    Checks that most recently added conformer meats TFD threshold.
+
+    Parameters
+    ----------
+    mol : RDKit Mol
+            Molecule.
+    tfd_thresh : TFD threshold
+    energies: energies of all conformers minus the last one
+    Returns
+    -------
+    new: A new RDKit Mol containing the chosen conformers, sorted by
+             increasing energy.
+    """
+
+    confgen = ConformerGeneratorCustom()
+
+    if tfd_thresh < 0 or mol.GetNumConformers() <= 1:
+        return mol
+
+    tfd = Chem.TorsionFingerprints.GetTFDBetweenConformers(mol, range(0, mol.GetNumConformers() - 1), [mol.GetNumConformers() - 1], useWeights=False)
+    tfd = np.array(tfd)
+
+    if not np.all(tfd >= tfd_thresh):
+        logging.debug('tossing conformer')
+        mol.RemoveConformer(mol.GetNumConformers() - 1)
+        return mol, 0.0
+    else:
+        logging.debug('keeping conformer')
+        return mol, 1.0
 
 
 
@@ -488,7 +522,7 @@ class A2CRecurrentEvalAgent(A2CRecurrentAgent):
 
         return ret
 
-class PPORecurrentEvalAgent(PPORecurrentAgent2):
+class PPORecurrentEvalAgent(PPORecurrentAgentRecurrence):
     def eval_step(self, state, done, rstates):
         with torch.no_grad():
             if done:

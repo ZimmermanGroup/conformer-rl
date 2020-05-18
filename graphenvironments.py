@@ -16,12 +16,12 @@ import time
 import torch
 
 from torch_geometric.data import Data, Batch
-from torch_geometric.transforms import Distance, NormalizeScale
+from torch_geometric.transforms import Distance, NormalizeScale, Center, NormalizeRotation
 
 import glob
 import json
 
-def bond_features(bond, use_chirality=False, use_basic_feats=True):
+def bond_features(bond, use_chirality=False, use_basic_feats=True, null_feature=False):
     bt = bond.GetBondType()
     bond_feats = []
     if use_basic_feats:
@@ -35,6 +35,8 @@ def bond_features(bond, use_chirality=False, use_basic_feats=True):
         bond_feats = bond_feats + one_of_k_encoding_unk(
             str(bond.GetStereo()),
             ["STEREONONE", "STEREOANY", "STEREOZ", "STEREOE"])
+    if null_feature:
+        bond_feats += [0.0]
     return np.array(bond_feats)
 
 def get_bond_pair(mol):
@@ -225,11 +227,11 @@ def mol2vecskeletonpoints(mol):
     conf = mol.GetConformer(id=-1)
     atoms = mol.GetAtoms()
     bonds = mol.GetBonds()
-    node_f= [atom_features(atom, conf) for atom in atoms]
+    node_f = [atom_features(atom, conf) for atom in atoms]
     edge_index = get_bond_pair(mol)
-    edge_attr = [bond_features(bond, use_chirality=False, use_basic_feats=False) for bond in bonds]
+    edge_attr = [bond_features(bond, use_chirality=False, use_basic_feats=True) for bond in bonds]
     for bond in bonds:
-        edge_attr.append(bond_features(bond, use_chirality=False, use_basic_feats=False))
+        edge_attr.append(bond_features(bond, use_chirality=False, use_basic_feats=True))
 
     data = Data(
                 x=torch.tensor(node_f, dtype=torch.float),
@@ -238,7 +240,37 @@ def mol2vecskeletonpoints(mol):
                 pos=torch.Tensor(conf.GetPositions())
             )
 
+    data = Center()(data)
+    data = NormalizeRotation()(data)
+    data.x[:,-3:] = data.pos
+
     return data
+
+def mol2vecskeletonpointswithdistance(mol):
+    mol = Chem.rdmolops.RemoveHs(mol)
+    conf = mol.GetConformer(id=-1)
+    atoms = mol.GetAtoms()
+    bonds = mol.GetBonds()
+    node_f = [atom_features(atom, conf) for atom in atoms]
+    edge_index = get_bond_pair(mol)
+    edge_attr = [bond_features(bond, use_chirality=False, use_basic_feats=True) for bond in bonds]
+    for bond in bonds:
+        edge_attr.append(bond_features(bond, use_chirality=False, use_basic_feats=True))
+
+    data = Data(
+                x=torch.tensor(node_f, dtype=torch.float),
+                edge_index=torch.tensor(edge_index, dtype=torch.long),
+                edge_attr=torch.tensor(edge_attr,dtype=torch.float),
+                pos=torch.Tensor(conf.GetPositions())
+            )
+
+    data = Center()(data)
+    data = NormalizeRotation()(data)
+    data = Distance(norm=False)(data)
+    data.x[:,-3:] = data.pos
+
+    return data
+
 
 # def mol2points(mol):
 #     conf = mol.GetConformer(id=-1)
@@ -354,7 +386,6 @@ class SetGibbs(gym.Env):
         data = Batch.from_data_list([mol2vecskeleton(self.mol)])
         return data, self.nonring
 
-
     def step(self, action):
         # Execute one time step within the environment
         print("action is ", action)
@@ -364,7 +395,6 @@ class SetGibbs(gym.Env):
             self.action = action
         self.current_step += 1
 
-        begin_step = time.process_time()
         desired_torsions = []
 
         for idx, tors in enumerate(self.nonring):
@@ -379,9 +409,7 @@ class SetGibbs(gym.Env):
                 exit(0)
         Chem.AllChem.MMFFOptimizeMolecule(self.mol, confId=0)
 
-        rbn = len(self.nonring)
-        done = self.done
-        self.mol_appends(done)
+        self.mol_appends()
 
         obs = self._get_obs()
         rew = self._get_reward()
@@ -391,18 +419,13 @@ class SetGibbs(gym.Env):
         print ("new state is:")
         print_torsions(self.mol)
 
-        end_step = time.process_time()
-
-        delta_t = end_step-begin_step
-        self.delta_t.append(delta_t)
-
         info = {}
-        if done:
+        if self.done:
             info['repeats'] = self.repeats
 
         info = self.info(info)
 
-        return obs, rew, done, info
+        return obs, rew, self.done, info
 
     @property
     def done(self):
@@ -412,15 +435,11 @@ class SetGibbs(gym.Env):
     def info(self, info):
         return info
 
-    def mol_appends(self, done):
+    def mol_appends(self):
         pass
 
     def molecule_choice(self):
-        if self.in_order:
-            self.choice = (self.choice + 1) % len(self.all_files)
-            cjson = self.all_files[self.choice]
-        else:
-            cjson = np.random.choice(self.all_files)
+        cjson = np.random.choice(self.all_files)
         with open(cjson) as fp:
             obj = json.load(fp)
         return obj
@@ -471,6 +490,9 @@ class SetGibbs(gym.Env):
     def render(self, mode='human', close=False):
         print_torsions(self.mol)
 
+    def change_level(self, up_or_down):
+        pass
+
 class RandomEndingSetGibbs(SetGibbs):
     @property
     def done(self):
@@ -494,8 +516,54 @@ class SetEnergy(SetGibbs):
                 return 0.0
             return self.standard_energy / (20 * current)
 
+# class SetEnergyPruning(PruningSetGibbs):
+#     def _get_reward(self):
+#         self.seen.add(tuple(self.action))
+#         current = confgen.get_conformer_energies(self.mol)[0]
+#         current = current * self.temp_normal
+#         print('standard', self.standard_energy)
+#         print('current', current)
+
+#         rew = np.exp(-1.0 * (current - self.standard_energy)) / self.total
+
+#         print('current step', self.current_step)
+#         if self.current_step > 1:
+#             rew -= self.done_neg_reward()
+
+#         if self.current_step == 200:
+#             self.backup_energys = []
+
+#         return rew
+
+#     def done_neg_reward(self):
+#         before_total = np.exp(-1.0 * (confgen.get_conformer_energies(self.backup_mol) - self.standard_energy)).sum()
+
+#         self.backup_mol, energy_args = prune_last_conformer(self.backup_mol, 0.05, self.backup_energys)
+#         print(energy_args)
+#         after_total = np.exp(-1.0 * (confgen.get_conformer_energies(self.backup_mol) - self.standard_energy)).sum()
+
+#         self.backup_energys = list(np.array(self.backup_energys)[np.array(energy_args)])
+
+#         assert self.backup_mol.GetNumConformers() == len(self.backup_energys)
+
+#         diff = before_total - after_total
+#         return diff / self.total
+
+#     def _get_reward(self):
+#         if tuple(self.action) in self.seen:
+#             print('already seen')
+#             return 0.0
+#         else:
+#             self.seen.add(tuple(self.action))
+#             print('standard', self.standard_energy)
+#             current = confgen.get_conformer_energies(self.mol)[0] * self.temp_normal
+#             print('current', current )
+#             if current - self.standard_energy > 20.0:
+#                 return 0.0
+#             return self.standard_energy / (20 * current)
+
 class SetEval(SetGibbs):
-    def mol_appends(self, done):
+    def mol_appends(self):
         if self.current_step == 1:
             self.backup_mol = Chem.Mol(self.mol)
             return
@@ -503,7 +571,7 @@ class SetEval(SetGibbs):
         c = self.mol.GetConformer(id=0)
         self.backup_mol.AddConformer(c, assignId=True)
 
-        if done:
+        if self.done:
             import pickle
             with open('test_mol.pickle', 'wb') as fp:
                 pickle.dump(self.backup_mol, fp)
@@ -543,7 +611,7 @@ class UniqueSetGibbs(SetGibbs):
         print('diff is ', diff)
         return diff / self.total
 
-    def mol_appends(self, done):
+    def mol_appends(self):
         if self.current_step == 1:
             self.backup_mol = Chem.Mol(self.mol)
             return
@@ -563,29 +631,29 @@ class PruningSetGibbs(SetGibbs):
 
         print('current step', self.current_step)
         if self.current_step > 1:
-            rew -= self.done_neg_reward()
+            rew -= self.done_neg_reward(current)
 
         if self.current_step == 200:
             self.backup_energys = []
 
         return rew
 
-    def done_neg_reward(self):
-        before_total = np.exp(-1.0 * (confgen.get_conformer_energies(self.backup_mol) - self.standard_energy)).sum()
+    def done_neg_reward(self, current_energy):
+        before_total = np.exp(-1.0 * (np.array(self.backup_energys) - self.standard_energy)).sum()
 
         self.backup_mol, energy_args = prune_last_conformer(self.backup_mol, 0.05, self.backup_energys)
-        print(energy_args)
-        after_total = np.exp(-1.0 * (confgen.get_conformer_energies(self.backup_mol) - self.standard_energy)).sum()
-
         self.backup_energys = list(np.array(self.backup_energys)[np.array(energy_args)])
+
+        after_total = np.exp(-1.0 * (np.array(self.backup_energys) - self.standard_energy)).sum()
 
         assert self.backup_mol.GetNumConformers() == len(self.backup_energys)
 
         diff = before_total - after_total
         return diff / self.total
 
-    def mol_appends(self, done):
+    def mol_appends(self):
         if self.current_step == 1:
+            self.total_energy = 0
             self.backup_mol = Chem.Mol(self.mol)
             self.backup_energys = list(confgen.get_conformer_energies(self.backup_mol))
             print('num_energys', len(self.backup_energys))
@@ -595,6 +663,99 @@ class PruningSetGibbs(SetGibbs):
         self.backup_mol.AddConformer(c, assignId=True)
         self.backup_energys += list(confgen.get_conformer_energies(self.mol))
         print('num_energys', len(self.backup_energys))
+
+class TestPruningSetGibbs(PruningSetGibbs):
+    def __init__(self):
+        super(TestPruningSetGibbs, self).__init__('diff/')
+
+class PruningSetGibbsQuick(SetGibbs):
+    def _get_reward(self):
+        self.seen.add(tuple(self.action))
+        current = confgen.get_conformer_energies(self.mol)[0]
+        current = current * self.temp_normal
+        print('standard', self.standard_energy)
+        print('current', current)
+
+        rew = np.exp(-1.0 * (current - self.standard_energy)) / self.total
+        print('current step', self.current_step)
+        if self.current_step > 1:
+            #figure out keep or not keep
+            rew *= self.done_neg_reward()
+
+        return rew
+
+    def done_neg_reward(self):
+        self.backup_mol, ret_cond = prune_last_conformer_quick(self.backup_mol, 0.05)
+        return ret_cond
+
+    def mol_appends(self):
+        if self.current_step == 1:
+            self.backup_mol = Chem.Mol(self.mol)
+            return
+
+        c = self.mol.GetConformer(id=0)
+        self.backup_mol.AddConformer(c, assignId=True)
+
+class TestPruningSetGibbsQuick(PruningSetGibbsQuick):
+    def __init__(self):
+        super(TestPruningSetGibbsQuick, self).__init__('diff/')
+
+class PruningSetEnergyQuick(SetEnergy):
+    def _get_reward(self):
+        self.seen.add(tuple(self.action))
+        print('standard', self.standard_energy)
+        print('current', current)
+
+        if current - self.standard_energy > 20.0:
+            rew = 0.0
+        rew = self.standard_energy / (20 * current)
+
+        if self.current_step > 1:
+            #figure out keep or not keep
+            rew *= self.done_neg_reward()
+
+        return rew
+
+    def done_neg_reward(self):
+        self.backup_mol, ret_cond = prune_last_conformer_quick(self.backup_mol, 0.05)
+        return ret_cond
+
+    def mol_appends(self):
+        if self.current_step == 1:
+            self.backup_mol = Chem.Mol(self.mol)
+            return
+
+        c = self.mol.GetConformer(id=0)
+        self.backup_mol.AddConformer(c, assignId=True)
+
+class PruningSetLogGibbs(PruningSetGibbs):
+    def _get_reward(self):
+        self.seen.add(tuple(self.action))
+
+        if self.current_step > 1:
+            self.done_neg_reward()
+
+        energys = np.array(self.backup_energys) * self.temp_normal
+
+        now = np.log(np.sum(np.exp(-1.0 * (np.array(energys) - self.standard_energy)) / self.total))
+        rew = now - self.episode_reward
+
+        if self.current_step == 200:
+            self.backup_energys = []
+
+        return rew
+
+    def done_neg_reward(self):
+        before_total = np.exp(-1.0 * (np.array(self.backup_energys) - self.standard_energy)).sum()
+
+        self.backup_mol, energy_args = prune_last_conformer(self.backup_mol, 0.05, self.backup_energys)
+        self.backup_energys = list(np.array(self.backup_energys)[np.array(energy_args)])
+
+        assert self.backup_mol.GetNumConformers() == len(self.backup_energys)
+
+class TestPruningSetLogGibbs(PruningSetLogGibbs):
+    def __init__(self):
+        super(TestPruningSetLogGibbs, self).__init__('three_set/')
 
 class TrihexylEval(SetEval):
     def __init__(self):
@@ -704,36 +865,6 @@ class SetCurriculaExp(SetGibbs):
             obj = json.load(fp)
         return obj
 
-class SetEnergyCurriculaExp(SetEnergy):
-    def info(self, info):
-        info['num_good_episodes'] = self.num_good_episodes
-        info['choice_ind'] = self.choice_ind
-        return info
-
-    def molecule_choice(self):
-        if self.episode_reward > 6.0:
-            self.num_good_episodes += 1
-        else:
-            self.num_good_episodes = 0
-
-        if self.num_good_episodes >= 5:
-            self.choice_ind += 1
-            self.choice_ind = min(self.choice_ind, len(self.all_files))
-            self.num_good_episodes = 0
-
-        if self.choice_ind != 1:
-            p = 0.5 * np.ones(self.choice_ind) / (self.choice_ind - 1)
-            p[-1] = 0.5
-            cjson = np.random.choice(self.all_files[0:self.choice_ind], p=p)
-
-        else:
-            cjson = self.all_files[0]
-
-        print(cjson, '\n\n\n\n')
-
-        with open(cjson) as fp:
-            obj = json.load(fp)
-        return obj
 
 class SetCurriculaForgetting(SetGibbs):
     def info(self, info):
@@ -857,10 +988,6 @@ class TenTorsionSetCurriculumPruning(PruningSetGibbs, SetCurricula):
     def __init__(self):
         super(TenTorsionSetCurriculumPruning, self).__init__('huge_hc_set/10_')
 
-    def _get_obs(self):
-        data = Batch.from_data_list([mol2vecskeleton(self.mol)])
-        return data, self.nonring
-
 class TenTorsionSetCurriculum(SetCurricula):
     def __init__(self):
         super(TenTorsionSetCurriculum, self).__init__('huge_hc_set/10_')
@@ -879,38 +1006,6 @@ class TenTorsionSetCurriculumExp(SetCurriculaExp):
 
     def _get_obs(self):
         data = Batch.from_data_list([mol2vecskeleton(self.mol)])
-        return data, self.nonring
-
-class NewLigninCurr(SetCurriculaExp):
-    def __init__(self):
-        super(NewLigninCurr, self).__init__('lignin_ob_hightemp_h_fixed/', temp_normal=0.25)
-
-    def _get_obs(self):
-        data = Batch.from_data_list([mol2vecskeleton_features(self.mol)])
-        return data, self.nonring
-
-class NewLigninEval(SetGibbs):
-    def __init__(self):
-        super(NewLigninEval, self).__init__('lignin_ob_hightemp_h_fixed_eval/', temp_normal=0.25)
-
-    def _get_obs(self):
-        data = Batch.from_data_list([mol2vecskeleton_features(self.mol)])
-        return data, self.nonring
-
-class NewEnergyLigninCurr(SetEnergyCurriculaExp):
-    def __init__(self):
-        super(NewEnergyLigninCurr, self).__init__('lignin_ob_hightemp_h_fixed/', temp_normal=0.25)
-
-    def _get_obs(self):
-        data = Batch.from_data_list([mol2vecskeleton_features(self.mol)])
-        return data, self.nonring
-
-class NewEnergyLigninEval(SetEnergy):
-    def __init__(self):
-        super(NewEnergyLigninEval, self).__init__('lignin_ob_hightemp_h_fixed_eval/', temp_normal=0.25)
-
-    def _get_obs(self):
-        data = Batch.from_data_list([mol2vecskeleton_features(self.mol)])
         return data, self.nonring
 
 class TenTorsionSetCurriculumForgetting(SetCurriculaForgetting):
@@ -933,9 +1028,21 @@ class DiffPoints(SetGibbsSkeletonPoints):
     def __init__(self):
         super(DiffPoints, self).__init__('diff/')
 
+class DiffUnique(UniqueSetGibbs):
+    def __init__(self):
+        super(DiffUnique, self).__init__('diff/')
+
+class DiffPruning(PruningSetGibbs):
+    def __init__(self):
+        super(DiffPruning, self).__init__('diff/')
+
 class Diff11(SetEval):
     def __init__(self):
         super(Diff11, self).__init__('diff_11/')
+
+class Diff11Unique(UniqueSetGibbs):
+    def __init__(self):
+        super(Diff11Unique, self).__init__('diff_11/')
 
 class SmallMoleculeSet(SetGibbs):
     def __init__(self):
@@ -980,10 +1087,6 @@ class ThreeSetPruning(PruningSetGibbs):
 class FourSet(SetGibbs):
     def __init__(self):
         super(FourSet, self).__init__('four_set/')
-
-class DiffUnique(UniqueSetGibbs):
-    def __init__(self):
-        super(DiffUnique, self).__init__('diff/')
 
 class FourSetUnique(UniqueSetGibbs):
     def __init__(self):
@@ -1043,129 +1146,6 @@ class LigninAllSet2(SetGibbs):
             x = current - self.standard_energy
             return 1.0 - x/10.0
 
-class LigninTwoLowTempEval(SetEval):
-    def __init__(self):
-        super(LigninTwoLowTempEval, self).__init__('lignins_out_high_temp/2_', temp_normal=0.25)
-
-    # def _get_obs(self):
-    #     data = Batch.from_data_list([mol2vecskeleton_features(self.mol)])
-    #     return data, self.nonring
-
-class LigninThreeLowTempEval(SetEval):
-    def __init__(self):
-        super(LigninThreeLowTempEval, self).__init__('lignins_out_high_temp/3_', temp_normal=0.25)
-
-    # def _get_obs(self):
-    #     data = Batch.from_data_list([mol2vecskeleton_features(self.mol)])
-    #     return data, self.nonring
-
-class LigninTwoSet(SetGibbs):
-    def __init__(self):
-        super(LigninTwoSet, self).__init__('lignins_out/2_', temp_normal=0.5)
-
-    def _get_obs(self):
-        data = Batch.from_data_list([mol2vecskeleton_features(self.mol)])
-        return data, self.nonring
-
-class LigninThreeSet(SetGibbs):
-    def __init__(self):
-        super(LigninThreeSet, self).__init__('lignins_out/3_', temp_normal=0.5)
-
-    def _get_obs(self):
-        data = Batch.from_data_list([mol2vecskeleton_features(self.mol)])
-        return data, self.nonring
-
-
-class LigninTwoSetLowTemp(SetGibbs):
-    def __init__(self):
-        super(LigninTwoSetLowTemp, self).__init__('lignins_out_low_temp/2_', temp_normal=0.25)
-
-    def _get_obs(self):
-        data = Batch.from_data_list([mol2vecskeleton_features(self.mol)])
-        return data, self.nonring
-
-class LigninThreeSetLowTemp(SetGibbs):
-    def __init__(self):
-        super(LigninThreeSetLowTemp, self).__init__('lignins_out_low_temp/3_', temp_normal=0.25)
-
-    def _get_obs(self):
-        data = Batch.from_data_list([mol2vecskeleton_features(self.mol)])
-        return data, self.nonring
-
-class LigninFourSetLowTemp(SetGibbs):
-    def __init__(self):
-        super(LigninFourSetLowTemp, self).__init__('lignin_four_high_temp/', temp_normal=0.25)
-
-    def _get_obs(self):
-        data = Batch.from_data_list([mol2vecskeleton_features(self.mol)])
-        return data, self.nonring
-
-class LigninThreeFourHighTempCurriculum(SetCurricula):
-    def __init__(self):
-        super(LigninThreeFourHighTempCurriculum, self).__init__('lignins_out_high_temp/', temp_normal=0.25)
-
-    def _get_obs(self):
-        data = Batch.from_data_list([mol2vecskeleton_features(self.mol)])
-        return data, self.nonring
-
-class LigninThreeFourHighTempSet(SetGibbs):
-    def __init__(self):
-        super(LigninThreeFourHighTempSet, self).__init__('lignins_out_high_temp/', temp_normal=0.25)
-
-    def _get_obs(self):
-        data = Batch.from_data_list([mol2vecskeleton_features(self.mol)])
-        return data, self.nonring
-
-class LigninFiveSetLowTemp(SetGibbs):
-    def __init__(self):
-        super(LigninFiveSetLowTemp, self).__init__('lignin_five_high_temp/', temp_normal=0.25)
-
-    def _get_obs(self):
-        data = Batch.from_data_list([mol2vecskeleton_features(self.mol)])
-        return data, self.nonring
-
-class LigninTwoSet2(SetGibbs):
-    def __init__(self):
-        super(LigninTwoSet2, self).__init__('lignins_out/2_')
-
-    def _get_obs(self):
-        data = Batch.from_data_list([mol2vecskeleton_features(self.mol)])
-        return data, self.nonring
-
-    def _get_reward(self):
-        if tuple(self.action) in self.seen:
-            print('already seen')
-            return 0.0
-        else:
-            self.seen.add(tuple(self.action))
-            current = confgen.get_conformer_energies(self.mol)[0] * 0.5
-
-            print('standard', self.standard_energy)
-            print('current', current)
-
-            if current - self.standard_energy > 10.0:
-                return 0.0
-
-            x = current - self.standard_energy
-            return (1.0 - x/10.0) / 200.0
-
-
-class LigninAllSetAdaptive(SetCurricula):
-    def __init__(self):
-        super(LigninAllSetAdaptive, self).__init__('lignins_out_adaptive_temp/')
-
-    def _get_obs(self):
-        data = Batch.from_data_list([mol2vecskeleton_features(self.mol)])
-        return data, self.nonring
-
-class DifferentCarbonSkeletonEval(SetEval):
-    def __init__(self):
-        super(DifferentCarbonSkeletonEval, self).__init__('diff/')
-
-    def _get_obs(self):
-        data = Batch.from_data_list([mol2vecskeleton(self.mol)])
-        return data, self.nonring
-
 class ThreeSetSkeleton(SetGibbs):
     def __init__(self):
         super(ThreeSetSkeleton, self).__init__('three_set/')
@@ -1174,33 +1154,21 @@ class ThreeSetSkeleton(SetGibbs):
         data = Batch.from_data_list([mol2vecskeleton(self.mol)])
         return data, self.nonring
 
-class LigninSevenSetSkeleton(SetGibbs):
-    def __init__(self):
-        super(LigninSevenSetSkeleton, self).__init__('lignin_obabel_out_low_temp/7_', temp_normal=0.25)
-
-    def _get_obs(self):
-        data = Batch.from_data_list([mol2vecskeleton_features(self.mol)])
-        return data, self.nonring
-
-class LigninEightSetSkeleton(SetGibbs):
-    def __init__(self):
-        super(LigninEightSetSkeleton, self).__init__('lignin_obabel_out_low_temp/8_', temp_normal=0.25)
-
-    def _get_obs(self):
-        data = Batch.from_data_list([mol2vecskeleton_features(self.mol)])
-        return data, self.nonring
-
-class EightLigninEval(SetEval):
-    def __init__(self):
-        super(EightLigninEval, self).__init__('lignin_obabel_out_low_temp/8_3', temp_normal=0.25)
-
-    def _get_obs(self):
-        data = Batch.from_data_list([mol2vecskeleton_features(self.mol)])
-        return data, self.nonring
-
 class LigninAllSetSkeletonCurriculum(SetCurriculaExtern, SetGibbsSkeletonPoints):
     def __init__(self):
-        super(LigninAllSetSkeletonCurriculum, self).__init__('lignins_high_temp_curriculum/', temp_normal=0.25, sort_by_size=False)
+        super(LigninAllSetSkeletonCurriculum, self).__init__('lignin_hightemp/', temp_normal=0.25, sort_by_size=False)
 
+class LigninAllSetPruningSkeletonCurriculum(SetCurriculaExtern, PruningSetGibbs, SetGibbsSkeletonPoints):
+    def __init__(self):
+        super(LigninAllSetPruningSkeletonCurriculum, self).__init__('lignin_hightemp/', temp_normal=0.25, sort_by_size=False)
+
+class LigninPruningSkeletonEval(UniqueSetGibbs, SetGibbsSkeletonPoints):
+    def __init__(self):
+        super(LigninPruningSkeletonEval, self).__init__('lignin_eval_sample/', temp_normal=0.25, sort_by_size=False)
+
+
+class LigninAllSetPruningLogSkeletonCurriculum(SetCurriculaExtern, PruningSetLogGibbs, SetGibbsSkeletonPoints):
+    def __init__(self):
+        super(LigninAllSetPruningLogSkeletonCurriculum, self).__init__('lignin_hightemp/', temp_normal=0.25, sort_by_size=False)
 
 

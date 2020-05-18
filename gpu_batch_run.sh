@@ -3,9 +3,10 @@
 
 #“#SBATCH” directives that convey submission options:
 
-#SBATCH --job-name=gat_pruning_fix_curr
+#SBATCH --job-name=ppo_rtgn_pruninglog_test
+#ppo_rtgn_pruning_fix_lignin_curr
 #SBATCH --mail-user=tgog@umich.edu
-#SBATCH --cpus-per-task=35
+#SBATCH --cpus-per-task=10
 #SBATCH --gres=gpu:1
 #SBATCH --nodes=1
 #SBATCH --time=10:00:00

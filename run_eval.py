@@ -12,6 +12,7 @@ import torch_geometric.nn as gnn
 from utils import *
 
 import random
+import time
 
 import torch
 import torch.nn as nn
@@ -70,13 +71,19 @@ def loaded_policy(model, env):
 
 
 if __name__ == '__main__':
-    # model = RTGNBatch(6, 128, edge_dim=1)
-    model = GraphTransformerBatch(6, 128)
-    model.load_state_dict(torch.load('data/A2CRecurrentEvalAgent-transformer_pruning_fix_curr-280000.model'))
+    model = RTGNBatch(6, 128, edge_dim=1)
+    # model = GATBatch(6, 128)
+    # model = GraphTransformerBatch(6, 128)
+    model.load_state_dict(torch.load('data/A2CRecurrentEvalAgent-rtgn_pruning_fix_3set-2520000.model'))
     model.to(torch.device('cuda'))
 
     outputs = []
+    times = []
     for i in range(10):
-        output = loaded_policy(model, 'DiffUnique-v0')
+        start = time.time()
+        output = loaded_policy(model, 'TrihexylUnique-v0')
+        end = time.time()
         outputs.append(output)
+        times.append(end - start)
     print('outputs', outputs)
+    print('times', times)

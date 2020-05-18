@@ -33,7 +33,7 @@ np.random.seed(0)
 torch.manual_seed(0)
 
 class Curriculum():
-    def __init__(self, win_cond=0.7, success_percent=0.7, fail_percent=0.2, min_length=100):
+    def __init__(self, win_cond=0.01, success_percent=0.7, fail_percent=0.2, min_length=100):
         self.win_cond = win_cond
         self.success_percent = success_percent
         self.fail_percent = fail_percent
@@ -103,7 +103,7 @@ def ppo_feature(**kwargs):
 
     config.curriculum = Curriculum(min_length=config.num_workers)
 
-    config.task_fn = lambda: AdaTask('TestPruningSetLogGibbs-v0', num_envs=config.num_workers, seed=random.randint(0,1e5), single_process=single_process)
+    config.task_fn = lambda: AdaTask('LigninAllSetPruningLogSkeletonCurriculum-v0', num_envs=config.num_workers, seed=random.randint(0,1e5), single_process=single_process)
     # config.optimizer_fn = lambda params: torch.optim.RMSprop(params, lr=lr, alpha=0.99, eps=1e-5)
     config.optimizer_fn = lambda params: torch.optim.Adam(params, lr=lr, eps=1e-5)
     config.network = model
@@ -124,13 +124,13 @@ def ppo_feature(**kwargs):
     config.log_interval = 200 * config.num_workers * 5
     config.eval_interval = config.num_workers * 200 * 5
     config.eval_episodes = 1
-    config.eval_env = AdaTask('DiffUnique-v0', seed=random.randint(0,7e4))
+    config.eval_env = AdaTask('LigninPruningSkeletonEval-v0', seed=random.randint(0,7e4))
     config.state_normalizer = DummyNormalizer()
     run_steps(PPORecurrentEvalAgent(config))
 
 
 if __name__ == '__main__':
-    model = RTGNBatch(6, 128, edge_dim=1, point_dim=3)
+    model = RTGNBatch(6, 128, edge_dim=6, point_dim=5)
     # model = GraphTransformerBatch(6, 128, num_layers=12)
     # model = GATBatch(6, 128, num_layers=10, point_dim=5)
     # model.load_state_dict(torch.load('data/A2CRecurrentEvalAgent-StraightChainTen-210000.model'))
