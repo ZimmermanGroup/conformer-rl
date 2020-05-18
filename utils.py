@@ -22,6 +22,10 @@ from stable_baselines.common.vec_env.subproc_vec_env import SubprocVecEnv
 import py3Dmol
 from deep_rl import *
 from deep_rl.component.envs import DummyVecEnv
+# from stable_baselines.common.vec_env import DummyVecEnv
+
+import logging
+
 
 def drawit(m, p, confId=-1):
     mb = Chem.MolToMolBlock(m, confId=confId)
@@ -181,21 +185,19 @@ def get_conformer_rmsd_fast(mol, heavy_atoms_only=True):
     rmsd = np.zeros((mol.GetNumConformers(), mol.GetNumConformers()), dtype=float)
     pbar = tqdm(total=mol.GetNumConformers())
     # pct_prog = 100 / mol.GetNumConformers()
-    m2 = Chem.RemoveHs(mol)
-    num_atoms = m2.GetNumAtoms()
+
+    if heavy_atoms_only:
+        mol = Chem.RemoveHs(mol)
+
     for i, ref_conf in enumerate(mol.GetConformers()):
         pbar.set_description("Calculating RMSDs of conformer %s" % i)
         for j, fit_conf in enumerate(mol.GetConformers()):
-                if i >= j:
-                        continue
-    #           rmsd[i, j] = AllChem.GetBestRMS(mol, mol, ref_conf.GetId(),
-    #                                       fit_conf.GetId())
-                if not heavy_atoms_only:
-                    rmsd[i, j] = AllChem.GetConformerRMS(mol, ref_conf.GetId(), fit_conf.GetId())
-                else:
-                    rmsd[i, j] = AllChem.GetConformerRMS(mol, ref_conf.GetId(), fit_conf.GetId(), atomIds=range(num_atoms))
+            if i >= j:
+                    continue
+            rmsd[i, j] = AllChem.GetBestRMS(mol, mol, ref_conf.GetId(),
+                                        fit_conf.GetId())
 
-                rmsd[j, i] = rmsd[i, j]
+            rmsd[j, i] = rmsd[i, j]
         pbar.update(1)
     pbar.close()
     return rmsd
@@ -338,7 +340,7 @@ def enumerateTorsions(mol):
                 torsionList.append((idx1, idx2, idx3, idx4))
     return torsionList
 
-def prune_last_conformer(mol, tfd_thresh, energies=None):
+def prune_last_conformer(mol, tfd_thresh, energies=None, quick=False):
     """
     Checks that most recently added conformer meats TFD threshold.
 
@@ -359,23 +361,23 @@ def prune_last_conformer(mol, tfd_thresh, energies=None):
     if tfd_thresh < 0 or mol.GetNumConformers() <= 1:
         return mol
 
-    energyies = np.array(energies)
-
     idx = bisect.bisect(energies[:-1], energies[-1])
 
     tfd = Chem.TorsionFingerprints.GetTFDBetweenConformers(mol, range(0, mol.GetNumConformers() - 1), [mol.GetNumConformers() - 1], useWeights=False)
     tfd = np.array(tfd)
 
+    # if lower energy conformer is within threshold, drop new conf
     if not np.all(tfd[:idx] >= tfd_thresh):
         new_energys = list(range(0, mol.GetNumConformers() - 1))
         mol.RemoveConformer(mol.GetNumConformers() - 1)
 
-        print('tossing conformer')
+        logging.debug('tossing conformer')
 
         return mol, new_energys
 
+
     else:
-        print('keeping conformer', idx)
+        logging.debug('keeping conformer', idx)
         keep = list(range(0,idx))
         # print('keep 1', keep)
         keep += [mol.GetNumConformers() - 1]
@@ -400,11 +402,43 @@ def prune_last_conformer(mol, tfd_thresh, energies=None):
 
         return new, keep
 
-
-
-def prune_conformers(mol, tfd_thresh):
+def prune_last_conformer_quick(mol, tfd_thresh, energies=None):
     """
-    Prune conformers from a molecule using an TFD threshold, starting
+    Checks that most recently added conformer meats TFD threshold.
+
+    Parameters
+    ----------
+    mol : RDKit Mol
+            Molecule.
+    tfd_thresh : TFD threshold
+    energies: energies of all conformers minus the last one
+    Returns
+    -------
+    new: A new RDKit Mol containing the chosen conformers, sorted by
+             increasing energy.
+    """
+
+    confgen = ConformerGeneratorCustom()
+
+    if tfd_thresh < 0 or mol.GetNumConformers() <= 1:
+        return mol
+
+    tfd = Chem.TorsionFingerprints.GetTFDBetweenConformers(mol, range(0, mol.GetNumConformers() - 1), [mol.GetNumConformers() - 1], useWeights=False)
+    tfd = np.array(tfd)
+
+    if not np.all(tfd >= tfd_thresh):
+        logging.debug('tossing conformer')
+        mol.RemoveConformer(mol.GetNumConformers() - 1)
+        return mol, 0.0
+    else:
+        logging.debug('keeping conformer')
+        return mol, 1.0
+
+
+
+def prune_conformers(mol, tfd_thresh, rmsd=False):
+    """
+    Prune conformers from a molecule using an TFD/RMSD threshold, starting
     with the lowest energy conformer.
 
     Parameters
@@ -425,7 +459,10 @@ def prune_conformers(mol, tfd_thresh):
 
     energies = confgen.get_conformer_energies(mol)
 
-    tfd = array_to_lower_triangle(Chem.TorsionFingerprints.GetTFDMatrix(mol, useWeights=False), True)
+    if not rmsd:
+        tfd = array_to_lower_triangle(Chem.TorsionFingerprints.GetTFDMatrix(mol, useWeights=False), True)
+    else:
+        tfd = get_conformer_rmsd_fast(mol)
     sort = np.argsort(energies)  # sort by increasing energy
     keep = []  # always keep lowest-energy conformer
     discard = []
@@ -455,14 +492,37 @@ def prune_conformers(mol, tfd_thresh):
 
     return new
 
-
-
 class A2CEvalAgent(A2CAgent):
     def eval_step(self, state):
         prediction = self.network(self.config.state_normalizer(state))
         return prediction['a']
 
 class A2CRecurrentEvalAgent(A2CRecurrentAgent):
+    def eval_step(self, state, done, rstates):
+        with torch.no_grad():
+            if done:
+                prediction, rstates = self.network(self.config.state_normalizer(state))
+            else:
+                prediction, rstates = self.network(self.config.state_normalizer(state), rstates)
+
+            return prediction['a'], rstates
+
+    def eval_episode(self):
+        env = self.config.eval_env
+        state = env.reset()
+        done = True
+        rstates = None
+        while True:
+            action, rstates = self.eval_step(state, done, rstates)
+            done = False
+            state, reward, done, info = env.step(to_np(action))
+            ret = info[0]['episodic_return']
+            if ret is not None:
+                break
+
+        return ret
+
+class PPORecurrentEvalAgent(PPORecurrentAgentRecurrence):
     def eval_step(self, state, done, rstates):
         with torch.no_grad():
             if done:
@@ -518,6 +578,7 @@ def make_env(env_id, seed, rank, episode_life=True):
         return env
 
     return _thunk
+
 
 class AdaTask:
     def __init__(self,

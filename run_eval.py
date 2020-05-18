@@ -12,6 +12,7 @@ import torch_geometric.nn as gnn
 from utils import *
 
 import random
+import time
 
 import torch
 import torch.nn as nn
@@ -29,7 +30,7 @@ torch.manual_seed(0)
 from concurrent.futures import ProcessPoolExecutor
 
 
-from models import RTGNBatch
+from models import *
 from deep_rl import *
 import envs
 
@@ -57,7 +58,7 @@ def loaded_policy(model, env):
         step += 1
         print('step', step)
         state, rew, done, info = env.step(to_np(choice))
-        total_reward += rew
+        total_reward += float(rew)
         print('rew', rew)
         print('total_reward', total_reward)
 
@@ -71,11 +72,18 @@ def loaded_policy(model, env):
 
 if __name__ == '__main__':
     model = RTGNBatch(6, 128, edge_dim=1)
-    model.load_state_dict(torch.load('data/A2CRecurrentEvalAgent-10_11_12_straight-70000.model'))
+    # model = GATBatch(6, 128)
+    # model = GraphTransformerBatch(6, 128)
+    model.load_state_dict(torch.load('data/A2CRecurrentEvalAgent-rtgn_pruning_fix_3set-2520000.model'))
     model.to(torch.device('cuda'))
 
     outputs = []
-    for i in range(1):
-        output = loaded_policy(model, 'StraightChainTwelveEval-v0')
+    times = []
+    for i in range(10):
+        start = time.time()
+        output = loaded_policy(model, 'TrihexylUnique-v0')
+        end = time.time()
         outputs.append(output)
+        times.append(end - start)
     print('outputs', outputs)
+    print('times', times)

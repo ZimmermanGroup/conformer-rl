@@ -3,12 +3,13 @@
 
 #“#SBATCH” directives that convey submission options:
 
-#SBATCH --job-name=test_ppo
+#SBATCH --job-name=batch_Test
 #SBATCH --mail-user=tgog@umich.edu
-#SBATCH --cpus-per-task=20
+#SBATCH --cpus-per-task=1
+#SBATCH --mem-per-cpu=4096m
 #SBATCH --gres=gpu:1
 #SBATCH --nodes=1
-#SBATCH --time=00:20:00
+#SBATCH --time=00:10:00
 #SBATCH --account=tewaria1
 #SBATCH --partition=gpu
 #SBATCH --output=/home/%u/%x-%j.log
@@ -19,4 +20,6 @@ source ~/.bashrc
 cd ~/conformer-ml/
 module load cuda
 module load gcc
-python test_ppo.py
+# python transformer_test.py
+# python run_eval.py
+python obabel.py
