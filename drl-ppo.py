@@ -97,10 +97,172 @@ class DummyNormalizer(BaseNormalizer):
         return x
 
 
+# class CriticBatchNet(torch.nn.Module):
+#     def __init__(self, action_dim, dim, edge_dim):
+#         super(CriticBatchNet, self).__init__()
+#         num_features = 3
+#         self.lin0 = torch.nn.Linear(num_features, dim)
+#         func_ag = nn.Sequential(nn.Linear(edge_dim, dim), nn.ReLU(), nn.Linear(dim, dim * dim))
+#         self.conv = gnn.NNConv(dim, dim, func_ag, aggr='mean')
+#         self.gru = nn.GRU(dim, dim)
+
+#         self.set2set = gnn.Set2Set(dim, processing_steps=6)
+#         self.lin1 = torch.nn.Linear(dim, dim)
+#         self.lin3 = torch.nn.Linear(dim, 1)
+
+#         self.action_dim = action_dim
+#         self.dim = dim
+
+#         self.memory = nn.LSTM(2*dim, dim)
+
+#     def forward(self, obs, states=None):
+#         data, nonring, nrbidx, torsion_list_sizes = obs
+#         data.to(device)
+
+#         if states:
+#             hx, cx = states
+#         else:
+#             hx = Variable(torch.zeros(1, data.num_graphs, self.dim)).to(device)
+#             cx = Variable(torch.zeros(1, data.num_graphs, self.dim)).to(device)
+
+#         out = F.relu(self.lin0(data.x.to(device)))
+#         h = out.unsqueeze(0)
+
+#         for i in range(6):
+#             m = F.relu(self.conv(out, data.edge_index, data.edge_attr))
+#             out, h = self.gru(m.unsqueeze(0), h)
+#             out = out.squeeze(0)
+
+#         pool = self.set2set(out, data.batch)
+#         lstm_out, (hx, cx) = self.memory(pool.view(1,data.num_graphs,-1), (hx, cx))
+#         out = F.relu(self.lin1(lstm_out))
+#         v = self.lin3(out)
+
+#         return v, (hx, cx)
+
+# class ActorBatchNet(torch.nn.Module):
+#     def __init__(self, action_dim, dim, edge_dim):
+#         super(ActorBatchNet, self).__init__()
+#         num_features = 3
+#         self.lin0 = torch.nn.Linear(num_features, dim)
+#         func_ag = nn.Sequential(nn.Linear(edge_dim, dim), nn.ReLU(), nn.Linear(dim, dim * dim))
+#         self.conv = gnn.NNConv(dim, dim, func_ag, aggr='mean')
+#         self.gru = nn.GRU(dim, dim)
+
+#         self.set2set = gnn.Set2Set(dim, processing_steps=6)
+#         self.lin1 = torch.nn.Linear(5 * dim, dim)
+#         self.lin2 = torch.nn.Linear(dim, action_dim)
+
+#         self.memory = nn.LSTM(2*dim, dim)
+
+#         self.action_dim = action_dim
+#         self.dim = dim
+
+#     def forward(self, obs, states=None):
+#         data, nonring, nrbidx, torsion_list_sizes = obs
+#         data.to(device)
+
+#         if states:
+#             hx, cx = states
+#         else:
+#             hx = Variable(torch.zeros(1, data.num_graphs, self.dim)).to(device)
+#             cx = Variable(torch.zeros(1, data.num_graphs, self.dim)).to(device)
+
+#         out = F.relu(self.lin0(data.x.to(device)))
+#         h = out.unsqueeze(0)
+
+#         for i in range(6):
+#             m = F.relu(self.conv(out, data.edge_index, data.edge_attr))
+#             out, h = self.gru(m.unsqueeze(0), h)
+#             out = out.squeeze(0)
+#         pool = self.set2set(out, data.batch)
+#         lstm_out, (hx, cx) = self.memory(pool.view(1,data.num_graphs,-1), (hx, cx))
+
+#         lstm_out = torch.index_select(
+#             lstm_out,
+#             dim=1,
+#             index=nrbidx
+#         )
+#         out = torch.index_select(
+#             out,
+#             dim=0,
+#             index=nonring.view(-1)
+#         ).view(4, -1, self.dim)
+
+
+#         out = torch.cat([lstm_out,out],0)   #5, num_torsions, self.dim
+#         out = out.permute(2,1,0).reshape(-1, 5*self.dim) #num_torsions, 5*self.dim
+#         out = F.relu(self.lin1(out))
+#         out = self.lin2(out)
+
+#         logit = out.split(torsion_list_sizes)
+#         logit = torch.nn.utils.rnn.pad_sequence(logit).permute(1,0,2)
+
+#         return logit, (hx, cx)
+
+# class RTGNBatch(torch.nn.Module):
+#     def __init__(self, action_dim, dim, edge_dim=1, point_dim=3):
+#         super(RTGNBatch, self).__init__()
+#         num_features = point_dim
+#         self.action_dim = action_dim
+#         self.dim = dim
+
+#         self.actor = ActorBatchNet(action_dim, dim, edge_dim=edge_dim)
+#         self.critic = CriticBatchNet(action_dim, dim, edge_dim=edge_dim)
+
+#     def forward(self, obs, states=None, action=None):
+#         data_list = []
+#         nr_list = []
+#         for b, nr in obs:
+#             data_list += b.to_data_list()
+#             nr_list.append(torch.LongTensor(nr).to(device))
+
+#         b = Batch.from_data_list(data_list)
+#         so_far = 0
+#         torsion_batch_idx = []
+#         torsion_list_sizes = []
+
+#         for i in range(b.num_graphs):
+#             trues = (b.batch == i).view(1, -1)
+#             nr_list[i] += so_far
+#             so_far += int((b.batch == i).sum())
+#             torsion_batch_idx.extend([i]*int(nr_list[i].shape[0]))
+#             torsion_list_sizes += [nr_list[i].shape[0]]
+
+#         nrs = torch.cat(nr_list)
+#         torsion_batch_idx = torch.LongTensor(torsion_batch_idx).to(device)
+#         obs = (b, nrs, torsion_batch_idx, torsion_list_sizes)
+
+#         if states:
+#             hp, cp, hv, cv = states
+#             policy_states = (hp, cp)
+#             value_states = (hv, cv)
+#         else:
+#             policy_states = None
+#             value_states = None
+
+#         logits, (hp, cp) = self.actor(obs, policy_states)
+#         v, (hv, cv) = self.critic(obs, value_states)
+
+#         dist = torch.distributions.Categorical(logits=logits)
+#         if action is None:
+#             action = dist.sample()
+
+#         log_prob = dist.log_prob(action).unsqueeze(0).to(device)
+#         entropy = dist.entropy().unsqueeze(0).to(device)
+
+#         prediction = {
+#             'a': action,
+#             'log_pi_a': log_prob,
+#             'ent': entropy,
+#             'v': v,
+#         }
+
+#         return prediction, (hp, cp, hv, cv)
+
 class CriticBatchNet(torch.nn.Module):
-    def __init__(self, action_dim, dim, edge_dim):
+    def __init__(self, action_dim, dim, edge_dim=1, num_features=3):
         super(CriticBatchNet, self).__init__()
-        num_features = 3
         self.lin0 = torch.nn.Linear(num_features, dim)
         func_ag = nn.Sequential(nn.Linear(edge_dim, dim), nn.ReLU(), nn.Linear(dim, dim * dim))
         self.conv = gnn.NNConv(dim, dim, func_ag, aggr='mean')
@@ -117,7 +279,9 @@ class CriticBatchNet(torch.nn.Module):
 
     def forward(self, obs, states=None):
         data, nonring, nrbidx, torsion_list_sizes = obs
+
         data.to(device)
+        data.x = data.x.to(device)
 
         if states:
             hx, cx = states
@@ -125,7 +289,7 @@ class CriticBatchNet(torch.nn.Module):
             hx = Variable(torch.zeros(1, data.num_graphs, self.dim)).to(device)
             cx = Variable(torch.zeros(1, data.num_graphs, self.dim)).to(device)
 
-        out = F.relu(self.lin0(data.x.to(device)))
+        out = F.relu(self.lin0(data.x))
         h = out.unsqueeze(0)
 
         for i in range(6):
@@ -141,9 +305,8 @@ class CriticBatchNet(torch.nn.Module):
         return v, (hx, cx)
 
 class ActorBatchNet(torch.nn.Module):
-    def __init__(self, action_dim, dim, edge_dim):
+    def __init__(self, action_dim, dim, edge_dim=1, num_features=3):
         super(ActorBatchNet, self).__init__()
-        num_features = 3
         self.lin0 = torch.nn.Linear(num_features, dim)
         func_ag = nn.Sequential(nn.Linear(edge_dim, dim), nn.ReLU(), nn.Linear(dim, dim * dim))
         self.conv = gnn.NNConv(dim, dim, func_ag, aggr='mean')
@@ -160,7 +323,9 @@ class ActorBatchNet(torch.nn.Module):
 
     def forward(self, obs, states=None):
         data, nonring, nrbidx, torsion_list_sizes = obs
+
         data.to(device)
+        data.x = data.x.to(device)
 
         if states:
             hx, cx = states
@@ -168,7 +333,7 @@ class ActorBatchNet(torch.nn.Module):
             hx = Variable(torch.zeros(1, data.num_graphs, self.dim)).to(device)
             cx = Variable(torch.zeros(1, data.num_graphs, self.dim)).to(device)
 
-        out = F.relu(self.lin0(data.x.to(device)))
+        out = F.relu(self.lin0(data.x))
         h = out.unsqueeze(0)
 
         for i in range(6):
@@ -183,41 +348,45 @@ class ActorBatchNet(torch.nn.Module):
             dim=1,
             index=nrbidx
         )
+
+        lstm_out = lstm_out.view(-1, self.dim)
+
         out = torch.index_select(
             out,
             dim=0,
             index=nonring.view(-1)
-        ).view(4, -1, self.dim)
+        )
 
+        out = out.view(-1, self.dim * 4)
+        out = torch.cat([lstm_out,out],1)   #5, num_torsions, self.dim
 
-        out = torch.cat([lstm_out,out],0)   #5, num_torsions, self.dim
-        out = out.permute(2,1,0).reshape(-1, 5*self.dim) #num_torsions, 5*self.dim
         out = F.relu(self.lin1(out))
         out = self.lin2(out)
 
         logit = out.split(torsion_list_sizes)
-        logit = torch.nn.utils.rnn.pad_sequence(logit).permute(1,0,2)
+        logit = torch.nn.utils.rnn.pad_sequence(logit).permute(1, 0, 2)
 
         return logit, (hx, cx)
 
 class RTGNBatch(torch.nn.Module):
-    def __init__(self, action_dim, dim, edge_dim=1, point_dim=3):
+    def __init__(self, action_dim, dim, edge_dim=7, point_dim=3):
         super(RTGNBatch, self).__init__()
         num_features = point_dim
         self.action_dim = action_dim
         self.dim = dim
 
-        self.actor = ActorBatchNet(action_dim, dim, edge_dim=edge_dim)
-        self.critic = CriticBatchNet(action_dim, dim, edge_dim=edge_dim)
+        self.actor = ActorBatchNet(action_dim, dim, edge_dim=edge_dim, num_features=num_features)
+        self.critic = CriticBatchNet(action_dim, dim, edge_dim=edge_dim, num_features=num_features)
 
     def forward(self, obs, states=None, action=None):
         data_list = []
         nr_list = []
         for b, nr in obs:
             data_list += b.to_data_list()
-            nr_list.append(torch.LongTensor(nr).to(device))
+            nr_list.append(torch.LongTensor(nr))
 
         b = Batch.from_data_list(data_list)
+
         so_far = 0
         torsion_batch_idx = []
         torsion_list_sizes = []
@@ -229,7 +398,7 @@ class RTGNBatch(torch.nn.Module):
             torsion_batch_idx.extend([i]*int(nr_list[i].shape[0]))
             torsion_list_sizes += [nr_list[i].shape[0]]
 
-        nrs = torch.cat(nr_list)
+        nrs = torch.cat(nr_list).to(device)
         torsion_batch_idx = torch.LongTensor(torsion_batch_idx).to(device)
         obs = (b, nrs, torsion_batch_idx, torsion_list_sizes)
 
@@ -245,11 +414,10 @@ class RTGNBatch(torch.nn.Module):
         v, (hv, cv) = self.critic(obs, value_states)
 
         dist = torch.distributions.Categorical(logits=logits)
-        if action is None:
+        if action == None:
             action = dist.sample()
-
-        log_prob = dist.log_prob(action).unsqueeze(0).to(device)
-        entropy = dist.entropy().unsqueeze(0).to(device)
+        log_prob = dist.log_prob(action).unsqueeze(0)
+        entropy = dist.entropy().unsqueeze(0)
 
         prediction = {
             'a': action,
@@ -260,7 +428,7 @@ class RTGNBatch(torch.nn.Module):
 
         return prediction, (hp, cp, hv, cv)
 
-model = RTGNBatch(6, HIDDEN_SIZE)
+model = RTGNBatch(6, HIDDEN_SIZE, 6, 5)
 model.to(device)
 
 def ppo_feature(**kwargs):
@@ -275,17 +443,17 @@ def ppo_feature(**kwargs):
     config.state_normalizer = DummyNormalizer()
     
     #Task
-    config.task_fn = lambda: AdaTask('Diff-v0', num_envs = config.num_workers, single_process = False, seed=random.randint(0,7e4))
-    config.eval_env = AdaTask('Diff-v0', seed=random.randint(0,7e4))
+    config.task_fn = lambda: AdaTask('LigninAllSetPruningSkeletonCurriculum-v0', num_envs = config.num_workers, single_process = False, seed=random.randint(0,7e4))
+    config.eval_env = AdaTask('LigninAllSetPruningSkeletonCurriculum-v0', seed=random.randint(0,7e4))
 
     #Batch
-    config.num_workers = 10
+    config.num_workers = 20
     config.rollout_length = 20 # n_steps
-    config.optimization_epochs = 10
-    config.mini_batch_size = 20
+    config.optimization_epochs = 4
+    config.mini_batch_size = 50
     config.max_steps = 10000000
     config.save_interval = 10000
-    config.eval_interval = 2000
+    config.eval_interval = 0
     config.eval_episodes = 2
     config.recurrence = 5
 
@@ -311,7 +479,7 @@ def ppo_feature(**kwargs):
 mkdir('log')
 mkdir('tf_log')
 set_one_thread()
-tag = "diff-adam-may14-v2(20rollout20batch)"
+tag = "test_lignin_skel_prun_3_may18_v4"
 agent = ppo_feature(tag=tag)
 
 run_steps(agent)

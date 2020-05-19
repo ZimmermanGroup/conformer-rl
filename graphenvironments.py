@@ -1183,7 +1183,7 @@ class LigninAllSetSkeletonCurriculum(SetCurriculaExtern, SetGibbsSkeletonPoints)
     def __init__(self):
         super(LigninAllSetSkeletonCurriculum, self).__init__('lignin_hightemp/', temp_normal=0.25, sort_by_size=False)
 
-class LigninAllSetPruningSkeletonCurriculum(SetCurriculaExtern, PruningSetGibbs, SetGibbsSkeletonPoints):
+class LigninAllSetPruningSkeletonCurriculum(PruningSetGibbs, SetGibbsSkeletonPoints):#TODO: add SetCurriculaExtern
     def __init__(self):
         super(LigninAllSetPruningSkeletonCurriculum, self).__init__('lignin_hightemp/', temp_normal=0.25, sort_by_size=False)
 
@@ -1208,7 +1208,7 @@ class TestLigninErrors2(PruningSetLogGibbs, SetGibbsSkeletonPoints):
     def __init__(self):
         super(TestLigninErrors2, self).__init__('lignin_hightemp/7', temp_normal=0.25, sort_by_size=False)
 
-class TestLigninErrors3(PruningSetLogGibbs, SetGibbsSkeletonPoints):
+class TestLigninErrors3(PruningSetGibbs, SetGibbsSkeletonPoints):
     def __init__(self):
         super(TestLigninErrors3, self).__init__('lignin_hightemp/6_8', temp_normal=0.25, sort_by_size=False)
 
