@@ -779,11 +779,18 @@ class GATBatch(torch.nn.Module):
         self.critic = CriticGAT(action_dim, dim, num_features=num_features, num_layers=num_layers)
 
     def forward(self, obs, states=None, action=None):
+
         data_list = []
         nr_list = []
         for b, nr in obs:
             data_list += b.to_data_list()
             nr_list.append(torch.LongTensor(nr).cuda())
+
+            if torch.cuda.is_available():
+                nr_list.append(torch.LongTensor(nr).cuda())
+            else:
+                nr_list.append(torch.LongTensor(nr))
+
 
         b = Batch.from_data_list(data_list)
         so_far = 0
@@ -798,7 +805,14 @@ class GATBatch(torch.nn.Module):
             torsion_list_sizes += [nr_list[i].shape[0]]
 
         nrs = torch.cat(nr_list)
+
         torsion_batch_idx = torch.LongTensor(torsion_batch_idx).cuda()
+
+        if torch.cuda.is_available():
+            torsion_batch_idx = torch.LongTensor(torsion_batch_idx).cuda()
+        else:
+            torsion_batch_idx = torch.LongTensor(torsion_batch_idx)
+
         obs = (b, nrs, torsion_batch_idx, torsion_list_sizes)
 
 
@@ -826,7 +840,11 @@ class GATBatch(torch.nn.Module):
             logging.error(f'logits shape {dist.logits.shape}')
             raise Exception()
 
-        entropy = dist.entropy().unsqueeze(0).cuda()
+
+        if torch.cuda.is_available():
+            entropy = dist.entropy().unsqueeze(0).cuda()
+        else:
+            entropy = dist.entropy().unsqueeze(0)
 
         prediction = {
             'a': action,
