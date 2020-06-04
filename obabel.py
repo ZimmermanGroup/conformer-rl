@@ -63,7 +63,7 @@ def run_lignins_obabel(tup):
 
         start = time.time()
         subprocess.check_output('obabel testing.smi -O initial.sdf --gen3d --fast', shell=True)
-        subprocess.check_output('obabel initial.sdf -O confs.sdf --confab --conf 200 --ecutoff 100000000.0 --rcutoff 0.001', shell=True)
+        subprocess.check_output('obabel initial.sdf -O confs.sdf --confab --conf 1000 --ecutoff 100000000.0 --rcutoff 0.001', shell=True)
 
         inp = load_from_sdf('confs.sdf')
         mol = inp[0]
@@ -72,10 +72,10 @@ def run_lignins_obabel(tup):
             mol.AddConformer(c, assignId=True)
 
         res = AllChem.MMFFOptimizeMoleculeConfs(mol)
-        mol = prune_conformers(mol, 0.05)
+        mol = prune_conformers(mol, 0.10)
 
-        energys = confgen.get_conformer_energies(mol)
-        total = np.sum(np.exp(-(energys-energy_norm)))
+        energys = (confgen.get_conformer_energies(mol) - energy_norm) * (1/3.97)
+        total = np.sum(np.exp(-energys))
         total /= gibbs_norm
         end = time.time()
         os.chdir(init_dir)
@@ -86,9 +86,16 @@ if __name__ == '__main__':
     outputs = []
     times = []
 
-    diff_args = ('[H]C([H])([H])C([H])([H])C([H])([H])C([H])([H])C([H])(C([H])([H])C([H])([H])[H])C([H])([H])C([H])([H])C([H])([H])C([H])(C([H])([H])[H])C([H])([H])C([H])([H])C([H])([H])[H]', 7.668625034772399, 13.263723987526067)
-    trihexyl_args = ('[H]C([H])([H])C([H])([H])C([H])([H])C([H])([H])C([H])([H])C([H])([H])[C@]([H])(C([H])([H])C([H])([H])[H])C([H])([H])C([H])([H])[C@@]([H])(C([H])([H])C([H])([H])C([H])([H])C([H])([H])C([H])([H])C([H])([H])[H])C([H])([H])C([H])([H])[C@]([H])(C([H])([H])[H])C([H])([H])C([H])([H])C([H])([H])C([H])([H])C([H])([H])C([H])([H])[H]', 14.88278294332602, 1.2363186365185044)
-    args_list = [diff_args] * 10
+    m = Chem.MolFromMolFile('lignin_eval_final/8_0.mol', removeHs=False)
+    # minfo = {"molfile": "8_0.mol", "standard": 148.6097477747475, "total": 1.647274557813102}
+
+    smi = Chem.MolToSmiles(m)
+    standard = 525.8597421636731
+    total = 16.154879274306534
+
+    lignin_final_args = (smi, standard, total)
+
+    args_list = [lignin_final_args] * 10
     with ProcessPoolExecutor() as executor:
         out = executor.map(run_lignins_obabel, args_list)
 

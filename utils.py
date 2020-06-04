@@ -87,6 +87,10 @@ def add_conformers_to_molecule(mol, confs):
         mol.AddConformer(c, assignId=False)
     return mol
 
+# def minimize_helper(args):
+
+#     return ff.CalcEnergy()
+
 
 class ConformerGeneratorCustom(conformers.ConformerGenerator):
     # pruneRmsThresh=-1 means no pruning done here
@@ -115,6 +119,44 @@ class ConformerGeneratorCustom(conformers.ConformerGenerator):
             ff.Minimize()
             pbar.update(1)
         pbar.close()
+
+    # def get_conformer_energies(self, mol, mp=False):
+    #     """
+    #     Calculate conformer energies.
+
+    #     Parameters
+    #     ----------
+    #     mol : RDKit Mol
+    #         Molecule.
+
+    #     Returns
+    #     -------
+    #     energies : array_like
+    #         Minimized conformer energies.
+    #     """
+    #     energies = []
+    #     for conf in mol.GetConformers():
+    #         ff = self.get_molecule_force_field(mol, conf_id=conf.GetId())
+    #         energy = ff.CalcEnergy()
+    #         energies.append(energy)
+    #         energies = np.asarray(energies, dtype=float)
+    #         return energies
+        
+    #     if mp:
+    #         confs = [conf for conf in mol.GetConformers()]
+    #         ffs = [self.get_molecule_force_field(mol, conf_id=conf.GetId()) for conf in mol.GetConformers()]
+    #         args = zip(confs, ffs)
+
+    #     with ProcessPoolExecutor() as executor:
+    #         executor.map(create_branched, range(10000))
+
+
+    #     for conf in mol.GetConformers():
+    #         ff = self.get_molecule_force_field(mol, conf_id=conf.GetId())
+    #         energy = ff.CalcEnergy()
+    #         energies.append(energy)
+    #         energies = np.asarray(energies, dtype=float)
+    #         return energies
 
     def prune_conformers(self, mol, rmsd, heavy_atoms_only=True):
         """
@@ -172,6 +214,8 @@ class ConformerGeneratorCustom(conformers.ConformerGenerator):
 
         new_rmsd = get_conformer_rmsd_fast(new, heavy_atoms_only=heavy_atoms_only)
         return new, new_rmsd
+
+
 
 def get_conformer_rmsd_fast(mol, heavy_atoms_only=True):
     """
@@ -588,10 +632,11 @@ class AdaTask:
                  log_dir=None,
                  episode_life=True,
                  seed=np.random.randint(int(1e5))):
-
-        print ("seed is ", seed)
         if log_dir is not None:
             mkdir(log_dir)
+
+        logging.info(f'seed is {seed}')
+
         envs = [make_env(name, seed, i, episode_life) for i in range(num_envs)]
         if single_process:
             Wrapper = DummyVecEnv

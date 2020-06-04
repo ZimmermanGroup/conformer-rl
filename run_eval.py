@@ -46,7 +46,7 @@ def loaded_policy(model, env):
     start = True
     done = False
     step = 0
-    while step < 200:
+    while not done:
         with torch.no_grad():
             if start:
                 prediction, rstates = model(state)
@@ -57,10 +57,12 @@ def loaded_policy(model, env):
         choice = prediction['a']
         step += 1
         print('step', step)
-        state, rew, done, info = env.step(to_np(choice))
+        state, rew, done_, info = env.step(to_np(choice))
         total_reward += float(rew)
         print('rew', rew)
         print('total_reward', total_reward)
+
+        done = bool(done_)
 
     if isinstance(info, tuple):
         for i, info_ in enumerate(info):
@@ -71,17 +73,18 @@ def loaded_policy(model, env):
 
 
 if __name__ == '__main__':
-    model = RTGNBatch(6, 128, edge_dim=1)
-    # model = GATBatch(6, 128)
+    # model = RTGNBatch(6, 128, edge_dim=6, point_dim=5)
+    model = GATBatch(6, 128, num_layers=10, point_dim=5)
     # model = GraphTransformerBatch(6, 128)
-    model.load_state_dict(torch.load('data/A2CRecurrentEvalAgent-rtgn_pruning_fix_3set-2520000.model'))
+    model.load_state_dict(torch.load('data/PPORecurrentEvalAgent-ppo_gat_pruning_lignin_log_curr_long_cont-210000.model'))
     model.to(torch.device('cuda'))
 
     outputs = []
     times = []
     for i in range(10):
         start = time.time()
-        output = loaded_policy(model, 'TrihexylUnique-v0')
+        output = loaded_policy(model, 'LigninPruningSkeletonEvalFinalLongSave-v0')
+        print('output', output)
         end = time.time()
         outputs.append(output)
         times.append(end - start)

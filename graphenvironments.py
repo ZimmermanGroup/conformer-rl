@@ -20,6 +20,7 @@ from torch_geometric.transforms import Distance, NormalizeScale, Center, Normali
 
 import glob
 import json
+import logging
 
 def bond_features(bond, use_chirality=False, use_basic_feats=True, null_feature=False):
     bt = bond.GetBondType()
@@ -330,7 +331,7 @@ confgen = ConformerGeneratorCustom(max_conformers=1,
 class SetGibbs(gym.Env):
     metadata = {'render.modes': ['human']}
 
-    def __init__(self, folder_name, gibbs_normalize=True, in_order=False, temp_normal=1.0, sort_by_size=True):
+    def __init__(self, folder_name, gibbs_normalize=True, eval=False, in_order=False, temp_normal=1.0, sort_by_size=True):
         super(SetGibbs, self).__init__()
         self.gibbs_normalize = gibbs_normalize
         self.temp_normal = temp_normal
@@ -343,6 +344,7 @@ class SetGibbs(gym.Env):
             self.all_files.sort()
 
         self.in_order = in_order
+        self.eval = eval
         self.choice = -1
         self.episode_reward = 0
         self.choice_ind = 1
@@ -383,6 +385,8 @@ class SetGibbs(gym.Env):
         self.everseen = set()
         nonring, ring = TorsionFingerprints.CalculateTorsionLists(self.mol)
         self.nonring = [list(atoms[0]) for atoms, ang in nonring]
+        logging.info(f'rbn: {len(self.nonring)}')
+
         self.delta_t = []
         self.current_step = 0
         self.seen = set()
@@ -395,15 +399,12 @@ class SetGibbs(gym.Env):
 
     def _get_reward(self):
         if tuple(self.action) in self.seen:
-            print('already seen')
             self.repeats += 1
             return 0
         else:
             self.seen.add(tuple(self.action))
             current = confgen.get_conformer_energies(self.mol)[0]
             current = current * self.temp_normal
-            print('standard', self.standard_energy)
-            print('current', current)
             return np.exp(-1.0 * (current - self.standard_energy)) / self.total
 
     def _get_obs(self):
@@ -412,7 +413,6 @@ class SetGibbs(gym.Env):
 
     def step(self, action):
         # Execute one time step within the environment
-        print("action is ", action)
         if len(action.shape) > 1:
             self.action = action[0]
         else:
@@ -429,7 +429,7 @@ class SetGibbs(gym.Env):
                 Chem.rdMolTransforms.SetDihedralDeg(self.conf, tors[0], tors[1], tors[2], tors[3], float(ang))
             except:
                 Chem.MolToMolFile(self.mol, 'debug.mol')
-                print('exit with debug.mol')
+                logging.error('exit with debug.mol')
                 exit(0)
         Chem.AllChem.MMFFOptimizeMolecule(self.mol, confId=0)
 
@@ -503,6 +503,7 @@ class SetGibbs(gym.Env):
         self.episode_reward = 0
         nonring, ring = TorsionFingerprints.CalculateTorsionLists(self.mol)
         self.nonring = [list(atoms[0]) for atoms, ang in nonring]
+        logging.info(f'rbn: {len(self.nonring)}')
 
         obs = self._get_obs()
 
@@ -524,6 +525,13 @@ class RandomEndingSetGibbs(SetGibbs):
         if self.current_step == 1:
             self.max_steps = np.random.randint(30, 50) * 5
 
+        done = (self.current_step == self.max_steps)
+        return done
+
+class LongEndingSetGibbs(SetGibbs):
+    @property
+    def done(self):
+        self.max_steps = 1000
         done = (self.current_step == self.max_steps)
         return done
 
@@ -643,6 +651,17 @@ class UniqueSetGibbs(SetGibbs):
 
         c = self.mol.GetConformer(id=0)
         self.backup_mol.AddConformer(c, assignId=True)
+        if self.done and self.eval:
+            import pickle
+            i = 0
+            while True:
+                if os.path.exists(f'test_mol{i}.pickle'):
+                    i += 1
+                    continue
+                else:
+                    with open(f'test_mol{i}.pickle', 'wb') as fp:
+                        pickle.dump(self.backup_mol, fp)
+                    break
 
 class PruningSetGibbs(SetGibbs):
     def _get_reward(self):
@@ -658,7 +677,7 @@ class PruningSetGibbs(SetGibbs):
         if self.current_step > 1:
             rew -= self.done_neg_reward(current)
 
-        if self.current_step == 200:
+        if self.done:
             self.backup_energys = []
 
         return rew
@@ -763,9 +782,12 @@ class PruningSetLogGibbs(PruningSetGibbs):
         energys = np.array(self.backup_energys) * self.temp_normal
 
         now = np.log(np.sum(np.exp(-1.0 * (np.array(energys) - self.standard_energy)) / self.total))
+        if not np.isfinite(now):
+            logging.error('neg inf reward')
+            now = np.finfo(np.float32).eps
         rew = now - self.episode_reward
 
-        if self.current_step == 200:
+        if self.done:
             self.backup_energys = []
 
         return rew
@@ -1187,31 +1209,30 @@ class LigninAllSetPruningSkeletonCurriculum(SetCurriculaExtern, PruningSetGibbs,
     def __init__(self):
         super(LigninAllSetPruningSkeletonCurriculum, self).__init__('lignin_hightemp/', temp_normal=0.25, sort_by_size=False)
 
-class LigninPruningSkeletonEval(UniqueSetGibbs, SetGibbsSkeletonPoints):
-    def __init__(self):
-        super(LigninPruningSkeletonEval, self).__init__('lignin_eval_sample/', temp_normal=0.25, sort_by_size=False)
-
-
 class LigninAllSetPruningLogSkeletonCurriculum(SetCurriculaExtern, PruningSetLogGibbs, SetGibbsSkeletonPoints):
     def __init__(self):
         super(LigninAllSetPruningLogSkeletonCurriculum, self).__init__('lignin_hightemp/', temp_normal=0.25, sort_by_size=False)
 
-class TestLigninErrorsControl(PruningSetLogGibbs, SetGibbsSkeletonPoints):
+class LigninAllSetPruningLogSkeletonCurriculumLong(SetCurriculaExtern, PruningSetLogGibbs, SetGibbsSkeletonPoints, LongEndingSetGibbs):
     def __init__(self):
-        super(TestLigninErrorsControl, self).__init__('lignin_hightemp/4', temp_normal=0.25, sort_by_size=False)
+        super(LigninAllSetPruningLogSkeletonCurriculumLong, self).__init__('lignin_hightemp/', temp_normal=0.25, sort_by_size=False)
 
-class TestLigninErrors(PruningSetLogGibbs, SetGibbsSkeletonPoints):
+class LigninAllSetPruningSkeletonCurriculumLong(SetCurriculaExtern, PruningSetGibbs, SetGibbsSkeletonPoints, LongEndingSetGibbs):
     def __init__(self):
-        super(TestLigninErrors, self).__init__('lignin_hightemp/6', temp_normal=0.25, sort_by_size=False)
+        super(LigninAllSetPruningSkeletonCurriculumLong, self).__init__('lignin_hightemp/', temp_normal=0.25, sort_by_size=False)
 
-class TestLigninErrors2(PruningSetLogGibbs, SetGibbsSkeletonPoints):
+class LigninPruningSkeletonEval(UniqueSetGibbs, SetGibbsSkeletonPoints):
     def __init__(self):
-        super(TestLigninErrors2, self).__init__('lignin_hightemp/7', temp_normal=0.25, sort_by_size=False)
+        super(LigninPruningSkeletonEval, self).__init__('lignin_eval_sample/', temp_normal=0.25, sort_by_size=False)
 
-class TestLigninErrors3(PruningSetLogGibbs, SetGibbsSkeletonPoints):
+class LigninPruningSkeletonEvalFinal(UniqueSetGibbs, SetGibbsSkeletonPoints):
     def __init__(self):
-        super(TestLigninErrors3, self).__init__('lignin_hightemp/6_8', temp_normal=0.25, sort_by_size=False)
+        super(LigninPruningSkeletonEvalFinal, self).__init__('lignin_eval_final/', eval=False, temp_normal=0.25, sort_by_size=False)
 
-class TestLigninErrors4(PruningSetLogGibbs, SetGibbsSkeletonPoints):
+class LigninPruningSkeletonEvalFinalLong(UniqueSetGibbs, SetGibbsSkeletonPoints, LongEndingSetGibbs):
     def __init__(self):
-        super(TestLigninErrors4, self).__init__('lignin_hightemp/6_9', temp_normal=0.25, sort_by_size=False)
+        super(LigninPruningSkeletonEvalFinalLong, self).__init__('lignin_eval_final/', eval=False, temp_normal=0.25, sort_by_size=False)
+
+class LigninPruningSkeletonEvalFinalLongSave(UniqueSetGibbs, SetGibbsSkeletonPoints, LongEndingSetGibbs):
+    def __init__(self):
+        super(LigninPruningSkeletonEvalFinalLongSave, self).__init__('lignin_eval_final/', eval=True, temp_normal=0.25, sort_by_size=False)
