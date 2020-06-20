@@ -681,16 +681,22 @@ class ActorGAT(torch.nn.Module):
 
     def forward(self, obs, states=None):
         data, nonring, nrbidx, torsion_list_sizes = obs
-        data.to(torch.device(0))
-        data.x = data.x.cuda()
+        
+        if torch.cuda.is_available():
+            data.to(torch.device(0))
+            data.x = data.x.cuda()
 
         out = F.relu(self.lin0(data.x))
 
         if states:
             hx, cx = states
         else:
-            hx = Variable(torch.zeros(1, data.num_graphs, self.dim)).cuda()
-            cx = Variable(torch.zeros(1, data.num_graphs, self.dim)).cuda()
+            if torch.cuda.is_available():
+                hx = Variable(torch.zeros(1, data.num_graphs, self.dim)).cuda()
+                cx = Variable(torch.zeros(1, data.num_graphs, self.dim)).cuda()
+            else:
+                hx = Variable(torch.zeros(1, data.num_graphs, self.dim))
+                cx = Variable(torch.zeros(1, data.num_graphs, self.dim))    
 
         for layer in self.conv_layers:
             out = layer(out, data.edge_index)
@@ -747,16 +753,22 @@ class CriticGAT(torch.nn.Module):
 
     def forward(self, obs, states=None):
         data, nonring, nrbidx, torsion_list_sizes = obs
-        data.to(torch.device(0))
-        data.x = data.x.cuda()
+
+        if torch.cuda.is_available():
+            data.to(torch.device(0))
+            data.x = data.x.cuda()
 
         out = F.relu(self.lin0(data.x))
 
         if states:
             hx, cx = states
         else:
-            hx = Variable(torch.zeros(1, data.num_graphs, self.dim)).cuda()
-            cx = Variable(torch.zeros(1, data.num_graphs, self.dim)).cuda()
+            if torch.cuda.is_available():
+                hx = Variable(torch.zeros(1, data.num_graphs, self.dim)).cuda()
+                cx = Variable(torch.zeros(1, data.num_graphs, self.dim)).cuda()
+            else:
+                hx = Variable(torch.zeros(1, data.num_graphs, self.dim))
+                cx = Variable(torch.zeros(1, data.num_graphs, self.dim))               
 
         for layer in self.conv_layers:
             out = layer(out, data.edge_index)
@@ -784,7 +796,6 @@ class GATBatch(torch.nn.Module):
         nr_list = []
         for b, nr in obs:
             data_list += b.to_data_list()
-            nr_list.append(torch.LongTensor(nr).cuda())
 
             if torch.cuda.is_available():
                 nr_list.append(torch.LongTensor(nr).cuda())
@@ -805,8 +816,6 @@ class GATBatch(torch.nn.Module):
             torsion_list_sizes += [nr_list[i].shape[0]]
 
         nrs = torch.cat(nr_list)
-
-        torsion_batch_idx = torch.LongTensor(torsion_batch_idx).cuda()
 
         if torch.cuda.is_available():
             torsion_batch_idx = torch.LongTensor(torsion_batch_idx).cuda()

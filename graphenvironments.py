@@ -408,7 +408,7 @@ class SetGibbs(gym.Env):
             return np.exp(-1.0 * (current - self.standard_energy)) / self.total
 
     def _get_obs(self):
-        data = Batch.from_data_list([mol2vecskeleton(self.mol)])
+        data = Batch.from_data_list([mol2vecskeletonpoints(self.mol)])
         return data, self.nonring
 
     def step(self, action):
@@ -1010,7 +1010,6 @@ class AllEightTorsionSet(SetGibbs):
     def __init__(self):
         super(AllEightTorsionSet, self).__init__('huge_hc_set/8_')
 
-
 class AllEightTorsionSetStupid(SetGibbsStupid):
     def __init__(self):
         super(AllEightTorsionSetStupid, self).__init__('huge_hc_set/8_')
@@ -1046,6 +1045,22 @@ class TenTorsionSetCurriculum(SetCurricula):
 class TenTorsionSetCurriculumDense(SetCurricula, SetGibbsDense):
     def __init__(self):
         super(TenTorsionSetCurriculumDense, self).__init__('huge_hc_set/10_')
+
+class TenTorsionSetCurriculumPoints(SetCurriculaExtern, SetGibbsSkeletonPoints, PruningSetGibbs):
+    def __init__(self):
+        super(TenTorsionSetCurriculumPoints, self).__init__('huge_hc_set/10_')        
+
+class TenTorsionSetLogGibbsCurriculumPoints(SetCurriculaExtern, SetGibbsSkeletonPoints, PruningSetLogGibbs):
+    def __init__(self):
+        super(TenTorsionSetLogGibbsCurriculumPoints, self).__init__('huge_hc_set/10_')
+
+class TenTorsionSetLogGibbsPoints(SetGibbsSkeletonPoints, PruningSetLogGibbs):
+    def __init__(self):
+        super(TenTorsionSetLogGibbsPoints, self).__init__('huge_hc_set/10_')
+
+class TenTorsionSetGibbsPoints(SetGibbsSkeletonPoints, PruningSetGibbs):
+    def __init__(self):
+        super(TenTorsionSetGibbsPoints, self).__init__('huge_hc_set/10_')
 
 class TenTorsionSetCurriculumExp(SetCurriculaExp):
     def __init__(self):

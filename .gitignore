@@ -24,3 +24,5 @@ lignin_two/
 pickles/
 db*.json
 transfer_test_t_chain/
+pickle_outputs/
+good_models/
