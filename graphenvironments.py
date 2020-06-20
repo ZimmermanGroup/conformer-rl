@@ -331,7 +331,16 @@ confgen = ConformerGeneratorCustom(max_conformers=1,
 class SetGibbs(gym.Env):
     metadata = {'render.modes': ['human']}
 
-    def __init__(self, folder_name, gibbs_normalize=True, eval=False, in_order=False, temp_normal=1.0, sort_by_size=True):
+    def __init__(
+            self, 
+            folder_name, 
+            gibbs_normalize=True, 
+            eval=False, 
+            in_order=False, 
+            temp_normal=1.0, 
+            sort_by_size=True,
+            pruning_thresh=0.05,
+        ):
         super(SetGibbs, self).__init__()
         self.gibbs_normalize = gibbs_normalize
         self.temp_normal = temp_normal
@@ -345,6 +354,8 @@ class SetGibbs(gym.Env):
 
         self.in_order = in_order
         self.eval = eval
+        self.pruning_thresh = pruning_thresh
+        
         self.choice = -1
         self.episode_reward = 0
         self.choice_ind = 1
@@ -549,52 +560,6 @@ class SetEnergy(SetGibbs):
                 return 0.0
             return self.standard_energy / (20 * current)
 
-# class SetEnergyPruning(PruningSetGibbs):
-#     def _get_reward(self):
-#         self.seen.add(tuple(self.action))
-#         current = confgen.get_conformer_energies(self.mol)[0]
-#         current = current * self.temp_normal
-#         print('standard', self.standard_energy)
-#         print('current', current)
-
-#         rew = np.exp(-1.0 * (current - self.standard_energy)) / self.total
-
-#         print('current step', self.current_step)
-#         if self.current_step > 1:
-#             rew -= self.done_neg_reward()
-
-#         if self.current_step == 200:
-#             self.backup_energys = []
-
-#         return rew
-
-#     def done_neg_reward(self):
-#         before_total = np.exp(-1.0 * (confgen.get_conformer_energies(self.backup_mol) - self.standard_energy)).sum()
-
-#         self.backup_mol, energy_args = prune_last_conformer(self.backup_mol, 0.05, self.backup_energys)
-#         print(energy_args)
-#         after_total = np.exp(-1.0 * (confgen.get_conformer_energies(self.backup_mol) - self.standard_energy)).sum()
-
-#         self.backup_energys = list(np.array(self.backup_energys)[np.array(energy_args)])
-
-#         assert self.backup_mol.GetNumConformers() == len(self.backup_energys)
-
-#         diff = before_total - after_total
-#         return diff / self.total
-
-#     def _get_reward(self):
-#         if tuple(self.action) in self.seen:
-#             print('already seen')
-#             return 0.0
-#         else:
-#             self.seen.add(tuple(self.action))
-#             print('standard', self.standard_energy)
-#             current = confgen.get_conformer_energies(self.mol)[0] * self.temp_normal
-#             print('current', current )
-#             if current - self.standard_energy > 20.0:
-#                 return 0.0
-#             return self.standard_energy / (20 * current)
-
 class SetEval(SetGibbs):
     def mol_appends(self):
         if self.current_step == 1:
@@ -685,7 +650,7 @@ class PruningSetGibbs(SetGibbs):
     def done_neg_reward(self, current_energy):
         before_total = np.exp(-1.0 * (np.array(self.backup_energys) - self.standard_energy)).sum()
 
-        self.backup_mol, energy_args = prune_last_conformer(self.backup_mol, 0.05, self.backup_energys)
+        self.backup_mol, energy_args = prune_last_conformer(self.backup_mol, self.pruning_thresh, self.backup_energys)
         self.backup_energys = list(np.array(self.backup_energys)[np.array(energy_args)])
 
         after_total = np.exp(-1.0 * (np.array(self.backup_energys) - self.standard_energy)).sum()
@@ -729,7 +694,7 @@ class PruningSetGibbsQuick(SetGibbs):
         return rew
 
     def done_neg_reward(self):
-        self.backup_mol, ret_cond = prune_last_conformer_quick(self.backup_mol, 0.05)
+        self.backup_mol, ret_cond = prune_last_conformer_quick(self.backup_mol, self.pruning_thresh)
         return ret_cond
 
     def mol_appends(self):
@@ -761,7 +726,7 @@ class PruningSetEnergyQuick(SetEnergy):
         return rew
 
     def done_neg_reward(self):
-        self.backup_mol, ret_cond = prune_last_conformer_quick(self.backup_mol, 0.05)
+        self.backup_mol, ret_cond = prune_last_conformer_quick(self.backup_mol, self.pruning_thresh)
         return ret_cond
 
     def mol_appends(self):
@@ -795,7 +760,7 @@ class PruningSetLogGibbs(PruningSetGibbs):
     def done_neg_reward(self):
         before_total = np.exp(-1.0 * (np.array(self.backup_energys) - self.standard_energy)).sum()
 
-        self.backup_mol, energy_args = prune_last_conformer(self.backup_mol, 0.05, self.backup_energys)
+        self.backup_mol, energy_args = prune_last_conformer(self.backup_mol, self.pruning_thresh, self.backup_energys)
         self.backup_energys = list(np.array(self.backup_energys)[np.array(energy_args)])
 
         assert self.backup_mol.GetNumConformers() == len(self.backup_energys)
