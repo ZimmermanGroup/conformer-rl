@@ -3,21 +3,22 @@
 
 #“#SBATCH” directives that convey submission options:
 
-#SBATCH --job-name=ppo_rtgn_pruning_lignin_curr_long
-#ppo_rtgn_pruning_fix_lignin_curr
+#SBATCH --job-name=eval_lignin_cpu_timing
 #SBATCH --mail-user=tgog@umich.edu
-#SBATCH --cpus-per-task=35
-#SBATCH --gres=gpu:1
+#SBATCH --cpus-per-task=1
+#SBATCH --mem-per-cpu=4096m
 #SBATCH --nodes=1
-#SBATCH --time=20:00:00
+#SBATCH --time=10:00:00
 #SBATCH --account=tewaria1
-#SBATCH --partition=gpu
+#SBATCH --partition=standard
 #SBATCH --output=/home/%u/%x-%j.log
 #SBATCH --get-user-env
 # The application(s) to execute along with its input arguments and options:
 source deactivate my-rdkit-env
 source ~/.bashrc
 cd ~/conformer-ml/
-module load cuda
 module load gcc
-python run_batch_train.py
+# python transformer_test.py
+# python run_eval.py
+# python obabel.py
+python run_eval_cpu.py

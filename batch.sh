@@ -3,7 +3,7 @@
 
 #“#SBATCH” directives that convey submission options:
 
-#SBATCH --job-name=crunching_rdkit
+#SBATCH --job-name=lignin_final_many_runs_second_variant
 #SBATCH --mail-user=tgog@umich.edu
 #SBATCH --cpus-per-task=36
 #SBATCH --nodes=1
@@ -17,4 +17,4 @@ source deactivate my-rdkit-env
 source ~/.bashrc
 cd ~/conformer-ml/
 module load gcc
-python t_chains.py
+python obabel.py

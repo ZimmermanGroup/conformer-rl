@@ -4,7 +4,6 @@ import gym
 
 class BestGibbs(gym.Env):
     metadata = {'render.modes': ['human']}
-
     def __init__(self, folder_name, gibbs_normalize=False, temp_normal=1.0, sort_by_size=True, ind_select=None):
         super(BestGibbs, self).__init__()
         self.temp_normal = temp_normal
@@ -259,8 +258,6 @@ class BestTestGibbs2(BestGibbs):
             return self.best_seen
         else:
             return 0
-
-
 
 class BestCurriculaExp(BestGibbs):
     def info(self, info):

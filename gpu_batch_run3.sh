@@ -3,13 +3,12 @@
 
 #“#SBATCH” directives that convey submission options:
 
-#SBATCH --job-name=ppo_rtgn_pruning_lignin_curr_long
-#ppo_rtgn_pruning_fix_lignin_curr
+#SBATCH --job-name=test_series_0_rtgn_log_alkane_ppo_curr
 #SBATCH --mail-user=tgog@umich.edu
 #SBATCH --cpus-per-task=35
 #SBATCH --gres=gpu:1
 #SBATCH --nodes=1
-#SBATCH --time=20:00:00
+#SBATCH --time=10:00:00
 #SBATCH --account=tewaria1
 #SBATCH --partition=gpu
 #SBATCH --output=/home/%u/%x-%j.log
@@ -20,4 +19,4 @@ source ~/.bashrc
 cd ~/conformer-ml/
 module load cuda
 module load gcc
-python run_batch_train.py
+python run_batch_train3.py --rtgn --ppo --curr --log

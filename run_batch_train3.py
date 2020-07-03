@@ -14,6 +14,8 @@ import torch_geometric.nn as gnn
 from utils import *
 
 import random
+import logging
+import argparse
 
 import torch
 import torch.nn as nn
@@ -33,7 +35,7 @@ np.random.seed(0)
 torch.manual_seed(0)
 
 class Curriculum():
-    def __init__(self, win_cond=0.01, success_percent=0.7, fail_percent=0.2, min_length=100):
+    def __init__(self, win_cond=0.5, success_percent=0.7, fail_percent=0.2, min_length=100):
         self.win_cond = win_cond
         self.success_percent = success_percent
         self.fail_percent = fail_percent
@@ -42,7 +44,7 @@ class Curriculum():
     def return_win_cond():
         return self.win_cond
 
-def a2c_feature(**kwargs):
+def a2c_feature(args, **kwargs):
     generate_tag(kwargs)
     kwargs.setdefault('log_level', 0)
     config = Config()
@@ -52,11 +54,8 @@ def a2c_feature(**kwargs):
     single_process = (config.num_workers == 1)
     # single_process = True
 
-    config.task_fn = lambda: AdaTask('TestPruningSetGibbsQuick-v0', num_envs=config.num_workers, seed=random.randint(0,1e5), single_process=single_process)
+    config.task_fn = lambda: AdaTask(config.env_name, num_envs=config.num_workers, seed=random.randint(0,1e5), single_process=single_process)
 
-    # config.task_fn = lambda: AdaTask('TestPruningSetGibbsEdit-v0', num_envs=config.num_workers, seed=random.randint(0,1e5), single_process=single_process)
-    # config.task_fn = lambda: AdaTask('TestPruningSetCurriculaExtern-v0', num_envs=config.num_workers, seed=random.randint(0,1e5), single_process=single_process)
-    # config.task_fn = lambda: AdaTask('AllTenTorsionSetPruning-v0', num_envs=config.num_workers, seed=random.randint(0,1e5), single_process=single_process)
     config.linear_lr_scale = False
     if config.linear_lr_scale:
         lr = 7e-5 * config.num_workers
@@ -76,8 +75,11 @@ def a2c_feature(**kwargs):
     config.max_steps = 10000000
     config.save_interval = config.num_workers * 200 * 5
 
-    config.curriculum = Curriculum(min_length=config.num_workers)
-
+    if args.log:
+        config.curriculum = Curriculum(min_length=config.num_workers, win_cond=-0.7)
+    else:
+        config.curriculum = Curriculum(min_length=config.num_workers, win_cond=0.5)
+        
     config.eval_interval = config.num_workers * 200 * 5
     config.eval_episodes = 1
     config.eval_env = AdaTask('DiffUnique-v0', seed=random.randint(0,7e4))
@@ -87,7 +89,7 @@ def a2c_feature(**kwargs):
     agent = A2CRecurrentEvalAgent(config)
     return agent
 
-def ppo_feature(**kwargs):
+def ppo_feature(args, **kwargs):
     generate_tag(kwargs)
     kwargs.setdefault('log_level', 0)
     config = Config()
@@ -101,11 +103,13 @@ def ppo_feature(**kwargs):
     else:
         lr = 2e-5 * np.sqrt(config.num_workers)
 
-    config.curriculum = Curriculum(min_length=config.num_workers)
+    if args.log:
+        config.curriculum = Curriculum(min_length=config.num_workers, win_cond=-0.7)
+    else:
+        config.curriculum = Curriculum(min_length=config.num_workers, win_cond=0.5)
 
-    config.task_fn = lambda: AdaTask('LigninAllSetPruningSkeletonCurriculumLong-v0', num_envs=config.num_workers, seed=random.randint(0,1e5), single_process=single_process) # causes error
+    config.task_fn = lambda: AdaTask(config.env_name, num_envs=config.num_workers, seed=random.randint(0,1e5), single_process=single_process) # causes error
 
-    # config.optimizer_fn = lambda params: torch.optim.RMSprop(params, lr=lr, alpha=0.99, eps=1e-5)
     config.optimizer_fn = lambda params: torch.optim.Adam(params, lr=lr, eps=1e-5)
     config.network = model
     config.hidden_size = model.dim
@@ -119,29 +123,73 @@ def ppo_feature(**kwargs):
     config.rollout_length = 20
     config.recurrence = 5
     config.optimization_epochs = 4
-    # config.mini_batch_size = config.rollout_length * config.num_workers
-    config.mini_batch_size = 25
+    config.mini_batch_size = 5 * config.num_workers
+    # config.mini_batch_size = 25
     config.ppo_ratio_clip = 0.2
     config.save_interval = config.num_workers * 200 * 5
     config.eval_interval = config.num_workers * 200 * 5
     config.eval_episodes = 1
-    config.eval_env = AdaTask('LigninPruningSkeletonEvalFinalLong-v0', seed=random.randint(0,7e4))
+    config.eval_env = AdaTask('DiffUnique-v0', seed=random.randint(0,7e4))
     config.state_normalizer = DummyNormalizer()
     run_steps(PPORecurrentEvalAgent(config))
 
 
 if __name__ == '__main__':
-    model = RTGNBatch(6, 128, edge_dim=6, point_dim=5)
-    # model = GraphTransformerBatch(6, 128, num_layers=12)
-    # model = GATBatch(6, 128, num_layers=10, point_dim=5)
-    # model.load_state_dict(torch.load('data/A2CRecurrentEvalAgent-StraightChainTen-210000.model'))
-    model.to(torch.device('cuda'))
+    parser = argparse.ArgumentParser(description='Run batch training')
+    parser.add_argument('-g', '--gat', action='store_true')
+    parser.add_argument('-t', '--trans', action='store_true')
+    parser.add_argument('-r', '--rtgn', action='store_true')
+
+    parser.add_argument('-p', '--ppo', action='store_true')
+    parser.add_argument('-a', '--a2c', action='store_true')
+
+    parser.add_argument('-c', '--curr', action='store_true')
+    parser.add_argument('-l', '--log', action='store_true')
+
+    # parser.add_argument('--high_ent', action='store_true')
+    # parser.add_argument('--large', action='store_true')
+
+
+    args = parser.parse_args()
+
     mkdir('log')
     mkdir('tf_log')
+
+   
+
+    if args.trans:
+        model = GraphTransformerBatch(6, 128, num_layers=12, point_dim=5)
+        logging.info('transformer')
+    elif args.gat:
+        model = GATBatch(6, 256, num_layers=20, point_dim=5)
+        logging.info('gat')
+    else:
+        model = RTGNBatch(6, 256, edge_dim=6, point_dim=5)
+        logging.info('rtgn')
+
+
+    # model.load_state_dict(torch.load('data/PPORecurrentEvalAgent-ppo_gat_pruning_lignin_log_curr_long-175000.model'))
+
+    model.to(torch.device('cuda'))
     set_one_thread()
     select_device(0)
     tag = environ['SLURM_JOB_NAME']
-    agent = ppo_feature(tag=tag)
-    # agent = a2c_feature(tag=tag)
+    
+    if args.curr and args.log:
+        env_name = 'TenTorsionSetLogGibbsCurriculumPoints-v0'
+    elif args.curr:
+        env_name = 'TenTorsionSetCurriculumPoints-v0'
+    elif args.log:
+        env_name = 'TenTorsionSetLogGibbsPoints-v0'
+    else:
+        env_name = 'TenTorsionSetGibbsPoints-v0'
+
+    if args.ppo:
+        agent = ppo_feature(args, tag=tag, env_name=env_name)
+        logging.info('using ppo')
+    else:
+        agent = a2c_feature(args, tag=tag, env_name=env_name)
+        logging.info('using a2c')
+
     logging.info(tag)
     run_steps(agent)

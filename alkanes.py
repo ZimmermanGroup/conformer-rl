@@ -48,7 +48,6 @@ for mol in mols:
 
     atoms = m.GetNumAtoms()
     rbn = Chem.rdMolDescriptors.CalcNumRotatableBonds(m) - 2
-    print(rbn)
     mols_by_rbn[rbn] = m
 
 confgen = ConformerGeneratorCustom(max_conformers=1,
@@ -368,7 +367,6 @@ class AlkaneDecoderEnv(AlkaneWithoutReplacementEnv):
 
         return obs, rew, done, {}
 
-print('glug glug')
 class AlkaneConvolutionEnv(AlkaneDecoderEnv):
     def _get_reward(self):
         obs = tuple(get_torsions(self.mol))
