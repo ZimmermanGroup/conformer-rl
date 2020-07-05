@@ -2,7 +2,7 @@
 ## Installation 
 
 The libraries needed are included as a conda environment file, and can be installed via 
->`conda env create -f deepchem.yml`
+>`conda env create -f environment.yml`
 
 This repo must be used in conjunction with the agent library [DeepRL](https://github.com/tarungog/DeepRL). Install via cloning and run command inside directory: 
 >`pip install -e .`
