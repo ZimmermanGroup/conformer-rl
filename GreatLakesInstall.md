@@ -4,7 +4,7 @@
 1. SSH into the Great Lakes cluster:
     - `ssh <username>@greatlakes.arc-ts.umich.edu`
 2. Load dependencies:
-    -`module load gcc opencv cuda`
+    - `module load gcc opencv cuda`
 3. Install conda on Great Lakes if not already installed:
     - `wget https://repo.anaconda.com/archive/Anaconda3-2020.02-Linux-x86_64.sh`
     - `chmod u+x Anaconda3-2020.02-Linux-x86_64.sh`
