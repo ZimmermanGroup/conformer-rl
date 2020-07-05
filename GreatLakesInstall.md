@@ -20,7 +20,7 @@
 **Part 2: Install missing dependencies**
 1. Install DeepRL:
     - Make sure the my-rdkit-env environment is activated
-    - Clone the DeepRL repository from this link: https://github.com/tarungog/DeepRL
+    - Clone the DeepRL repository from this link: https://github.com/runxuanjiang/DeepRL
     - Navigate into the DeepRl repository and run the following command:
         > pip install -e .
 2. Install PyTorch Geometric:
