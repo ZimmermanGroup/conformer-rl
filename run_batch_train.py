@@ -1,31 +1,26 @@
 from os import environ
-
-import numpy as np
-from rdkit import Chem
-from rdkit.Chem import AllChem
 import multiprocessing
 import logging
-import torch
-import pandas as pd
-from torch_geometric.data import Data, Batch
-from torch_geometric.transforms import Distance
-import torch_geometric.nn as gnn
-
-from utils import *
-
 import random
+
+import numpy as np
+import pandas as pd
+from rdkit import Chem
+from rdkit.Chem import AllChem
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torch_geometric.data import Data, Batch
+from torch_geometric.transforms import Distance
+import torch_geometric.nn as gnn
 
 from deep_rl import *
-
 from deep_rl.component.envs import DummyVecEnv, make_env
 
 import envs
+from utils import *
 from models import *
-
 from a2crecurrentziping import A2CRecurrentCurriculumAgent
 
 random.seed(0)

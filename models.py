@@ -1,13 +1,13 @@
-from torch.autograd import Variable
-from torch import nn
-import torch.nn.functional as F
+import logging
+import numpy as np
+
 import torch
+from torch import nn
+import torch.nn.functional as f
+from torch.autograd import Variable
 from torch_geometric.data import Data, Batch
 from torch_geometric.transforms import Distance
 import torch_geometric.nn as gnn
-
-import logging
-import numpy as np
 
 class TorsionGraphNet(torch.nn.Module):
     def __init__(self, action_dim, dim):

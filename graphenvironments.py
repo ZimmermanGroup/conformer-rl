@@ -1,26 +1,22 @@
-from utils import *
+import time
+import os.path
+import multiprocessing
+import logging
+import glob
+import json
 
 import numpy as np
+import pandas as pd
 import scipy
 
 from rdkit import Chem
 from rdkit.Chem import AllChem
 
-import os.path
-import multiprocessing
-import logging
 import torch
-import pandas as pd
-import time
-
-import torch
-
 from torch_geometric.data import Data, Batch
 from torch_geometric.transforms import Distance, NormalizeScale, Center, NormalizeRotation
 
-import glob
-import json
-import logging
+from utils import *
 
 def bond_features(bond, use_chirality=False, use_basic_feats=True, null_feature=False):
     bt = bond.GetBondType()
