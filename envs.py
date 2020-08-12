@@ -1,6 +1,5 @@
 import graphenvironments
 import zipingenvs
-import gymspace
 import gym
 import sys
 import inspect

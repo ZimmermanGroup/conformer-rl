@@ -19,6 +19,8 @@ from torch import nn
 
 from deep_rl import *
 
+from utils import *
+
 from deep_rl.component.envs import DummyVecEnv, make_env
 from deep_rl.agent.PPO_recurrent_agent_gnn_recurrence import PPORecurrentAgentGnnRecurrence
 from deep_rl.agent.PPO_recurrent_agent_gnn import PPORecurrentAgentGnn
