@@ -9,8 +9,6 @@ from torch_geometric.data import Data, Batch
 from torch_geometric.transforms import Distance
 import torch_geometric.nn as gnn
 
-from alkanes import *
-
 import random
 
 import torch
