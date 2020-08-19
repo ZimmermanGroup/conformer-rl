@@ -16,7 +16,7 @@ import torch
 from torch_geometric.data import Data, Batch
 from torch_geometric.transforms import Distance, NormalizeScale, Center, NormalizeRotation
 
-from utils import *
+from utils.utils import *
 
 def bond_features(bond, use_chirality=False, use_basic_feats=True, null_feature=False):
     bt = bond.GetBondType()

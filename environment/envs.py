@@ -1,8 +1,9 @@
-import graphenvironments
-import zipingenvs
 import gym
 import sys
 import inspect
+
+import environment.graphenvironments
+import zipingenvs
 
 clsmembers = inspect.getmembers(sys.modules['graphenvironments'], inspect.isclass)
 for i, j in clsmembers:

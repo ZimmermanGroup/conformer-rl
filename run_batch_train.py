@@ -18,7 +18,7 @@ import torch_geometric.nn as gnn
 from deep_rl import *
 from deep_rl.component.envs import DummyVecEnv, make_env
 
-import envs
+from environment import envs
 from utils import *
 from models import *
 from a2crecurrentziping import A2CRecurrentCurriculumAgent
