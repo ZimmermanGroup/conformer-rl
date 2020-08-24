@@ -1,4 +1,4 @@
-from graphenvironments import *
+from environment.graphenvironments import *
 from rdkit import Chem
 import gym
 

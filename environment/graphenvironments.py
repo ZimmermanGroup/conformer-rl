@@ -1041,7 +1041,7 @@ class TenTorsionSetCurriculumForgetting(SetCurriculaForgetting):
 
 class Diff(SetGibbs):
     def __init__(self):
-        super(Diff, self).__init__('diff/')
+        super(Diff, self).__init__('molecules/diff/')
 
 class DiffDense(SetGibbsDense):
     def __init__(self):

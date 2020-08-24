@@ -6,6 +6,7 @@ import nglview as nv
 import numpy as np
 from re import sub
 import bisect
+import logging
 
 from rdkit import Chem, DataStructs, RDConfig, rdBase
 from rdkit import rdBase
@@ -23,9 +24,6 @@ import py3Dmol
 from deep_rl import *
 from deep_rl.component.envs import DummyVecEnv
 # from stable_baselines.common.vec_env import DummyVecEnv
-
-import logging
-
 
 def drawit(m, p, confId=-1):
     mb = Chem.MolToMolBlock(m, confId=confId)

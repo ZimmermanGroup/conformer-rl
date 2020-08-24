@@ -2,15 +2,15 @@ import gym
 import sys
 import inspect
 
-import environment.graphenvironments
-import zipingenvs
+from environment import graphenvironments
+from environment import zipingenvs
 
-clsmembers = inspect.getmembers(sys.modules['graphenvironments'], inspect.isclass)
+clsmembers = inspect.getmembers(sys.modules['environment.graphenvironments'], inspect.isclass)
 for i, j in clsmembers:
      if issubclass(j, gym.Env):
           gym.envs.register(
                id=f'{i}-v0',
-               entry_point=f'graphenvironments:{i}',
+               entry_point=f'environment.graphenvironments:{i}',
                max_episode_steps=1000,
           )
 

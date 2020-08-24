@@ -3,11 +3,13 @@ import numpy as np
 
 import torch
 from torch import nn
-import torch.nn.functional as f
+import torch.nn.functional as F
 from torch.autograd import Variable
 from torch_geometric.data import Data, Batch
 from torch_geometric.transforms import Distance
 import torch_geometric.nn as gnn
+
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 class TorsionGraphNet(torch.nn.Module):
     def __init__(self, action_dim, dim):
@@ -491,14 +493,14 @@ class CriticBatchNet(torch.nn.Module):
     def forward(self, obs, states=None):
         data, nonring, nrbidx, torsion_list_sizes = obs
 
-        data.to(torch.device(0))
-        data.x = data.x.cuda()
+        data.to(device)
+        data.to(device)
 
         if states:
             hx, cx = states
         else:
-            hx = Variable(torch.zeros(1, data.num_graphs, self.dim)).cuda()
-            cx = Variable(torch.zeros(1, data.num_graphs, self.dim)).cuda()
+            hx = Variable(torch.zeros(1, data.num_graphs, self.dim)).to(device)
+            cx = Variable(torch.zeros(1, data.num_graphs, self.dim)).to(device)
 
         out = F.relu(self.lin0(data.x))
         h = out.unsqueeze(0)
@@ -535,14 +537,14 @@ class ActorBatchNet(torch.nn.Module):
     def forward(self, obs, states=None):
         data, nonring, nrbidx, torsion_list_sizes = obs
 
-        data.to(torch.device(0))
-        data.x = data.x.cuda()
+        data.to(device)
+        data.x.to(device)
 
         if states:
             hx, cx = states
         else:
-            hx = Variable(torch.zeros(1, data.num_graphs, self.dim)).cuda()
-            cx = Variable(torch.zeros(1, data.num_graphs, self.dim)).cuda()
+            hx = Variable(torch.zeros(1, data.num_graphs, self.dim)).to(device)
+            cx = Variable(torch.zeros(1, data.num_graphs, self.dim)).to(device)
 
         out = F.relu(self.lin0(data.x))
         h = out.unsqueeze(0)
@@ -609,13 +611,13 @@ class RTGNBatch(torch.nn.Module):
             torsion_batch_idx.extend([i]*int(nr_list[i].shape[0]))
             torsion_list_sizes += [nr_list[i].shape[0]]
 
-        nrs = torch.cat(nr_list).cuda()
-        torsion_batch_idx = torch.LongTensor(torsion_batch_idx).cuda()
+        nrs = torch.cat(nr_list).to(device)
+        torsion_batch_idx = torch.LongTensor(torsion_batch_idx).to(device)
         obs = (b, nrs, torsion_batch_idx, torsion_list_sizes)
 
         if states:
             hp, cp, hv, cv = states
-            hp, cp, hv, cv = hp.cuda(), cp.cuda(), hv.cuda(), cv.cuda()
+            hp, cp, hv, cv = hp.to(device), cp.to(device), hv.to(device), cv.to(device)
             policy_states = (hp, cp)
             value_states = (hv, cv)
         else:
@@ -629,7 +631,7 @@ class RTGNBatch(torch.nn.Module):
         if action == None:
             action = dist.sample()
 
-        action = action.cuda()
+        action = action.to(device)
 
         try:
             tls_max = np.array(torsion_list_sizes).max()

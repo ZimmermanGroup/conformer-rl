@@ -19,9 +19,11 @@ from deep_rl import *
 from deep_rl.component.envs import DummyVecEnv, make_env
 
 from environment import envs
-from utils import *
-from models import *
+from utils.utils import *
+from models.models import *
 from a2crecurrentziping import A2CRecurrentCurriculumAgent
+
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 random.seed(0)
 np.random.seed(0)
@@ -43,11 +45,11 @@ def a2c_feature(**kwargs):
     config = Config()
     config.merge(kwargs)
 
-    config.num_workers = int(environ['SLURM_CPUS_PER_TASK'])
+    config.num_workers = 1#int(environ['SLURM_CPUS_PER_TASK'])
     single_process = (config.num_workers == 1)
     # single_process = True
 
-    config.task_fn = lambda: AdaTask('TestPruningSetGibbsQuick-v0', num_envs=config.num_workers, seed=random.randint(0,1e5), single_process=single_process)
+    config.task_fn = lambda: AdaTask('Diff-v0', num_envs=config.num_workers, seed=random.randint(0,1e5), single_process=single_process)
 
     # config.task_fn = lambda: AdaTask('TestPruningSetGibbsEdit-v0', num_envs=config.num_workers, seed=random.randint(0,1e5), single_process=single_process)
     # config.task_fn = lambda: AdaTask('TestPruningSetCurriculaExtern-v0', num_envs=config.num_workers, seed=random.randint(0,1e5), single_process=single_process)
@@ -75,7 +77,7 @@ def a2c_feature(**kwargs):
 
     config.eval_interval = config.num_workers * 200 * 5
     config.eval_episodes = 1
-    config.eval_env = AdaTask('DiffUnique-v0', seed=random.randint(0,7e4))
+    config.eval_env = AdaTask('Diff-v0', seed=random.randint(0,7e4))
     config.state_normalizer = DummyNormalizer()
     # config.reward_normalizer = MeanStdNormalizer()
 
@@ -88,7 +90,7 @@ def ppo_feature(**kwargs):
     config = Config()
     config.merge(kwargs)
 
-    config.num_workers = int(environ['SLURM_CPUS_PER_TASK'])
+    config.num_workers = 1#int(environ['SLURM_CPUS_PER_TASK'])
     single_process = (config.num_workers == 1)
     config.linear_lr_scale = False
     if config.linear_lr_scale:
@@ -98,7 +100,7 @@ def ppo_feature(**kwargs):
 
     config.curriculum = Curriculum(min_length=config.num_workers)
 
-    config.task_fn = lambda: AdaTask('LigninAllSetPruningSkeletonCurriculumLong-v0', num_envs=config.num_workers, seed=random.randint(0,1e5), single_process=single_process) # causes error
+    config.task_fn = lambda: AdaTask('Diff-v0', num_envs=config.num_workers, seed=random.randint(0,1e5), single_process=single_process) # causes error
 
     # config.optimizer_fn = lambda params: torch.optim.RMSprop(params, lr=lr, alpha=0.99, eps=1e-5)
     config.optimizer_fn = lambda params: torch.optim.Adam(params, lr=lr, eps=1e-5)
@@ -120,7 +122,7 @@ def ppo_feature(**kwargs):
     config.save_interval = config.num_workers * 200 * 5
     config.eval_interval = config.num_workers * 200 * 5
     config.eval_episodes = 1
-    config.eval_env = AdaTask('LigninPruningSkeletonEvalFinalLong-v0', seed=random.randint(0,7e4))
+    config.eval_env = AdaTask('Diff-v0', seed=random.randint(0,7e4))
     config.state_normalizer = DummyNormalizer()
     run_steps(PPORecurrentEvalAgent(config))
 
@@ -130,13 +132,14 @@ if __name__ == '__main__':
     # model = GraphTransformerBatch(6, 128, num_layers=12)
     # model = GATBatch(6, 128, num_layers=10, point_dim=5)
     # model.load_state_dict(torch.load('data/A2CRecurrentEvalAgent-StraightChainTen-210000.model'))
-    model.to(torch.device('cuda'))
+    model.to(device)
     mkdir('log')
     mkdir('tf_log')
-    set_one_thread()
-    select_device(0)
-    tag = environ['SLURM_JOB_NAME']
-    agent = ppo_feature(tag=tag)
-    # agent = a2c_feature(tag=tag)
+    # set_one_thread()
+    # select_device(0)
+    # tag = environ['SLURM_JOB_NAME']
+    tag = "test";
+    # agent = ppo_feature(tag=tag)
+    agent = a2c_feature(tag=tag)
     logging.info(tag)
     run_steps(agent)
