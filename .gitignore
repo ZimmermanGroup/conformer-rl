@@ -1,31 +1,11 @@
+# log files
 tf_log/
 log/
-__pycache__//
+data/*
+
+#input files
+
+#python utility files
 __pycache__/
 .ipynb_checkpoints/
-huge_hc_set/
-data/
-lignin_five_high_temp/
-lignin_five_six_high_temp/
-lignin_four_high_temp/
-lignin_large/
-lignin_obabel_out_low_temp/
-lignin_ob_hightemp_h_fixed/
-lignin_ob_hightemp_h_fixed_eval/
-lignin_random_out_low_temp/
-ligninsavedir/
-lignins_high_temp_curriculum/
-lignin_six_high_temp/
-lignins_out/
-lignins_out_adaptive_temp/
-lignins_out_high_temp/
-lignin_ten/
-lignin_two/
-pickles/
-db*.json
-transfer_test_t_chain/
-pickle_outputs/
-good_models/
-data
-*.pkl
-*.csv
+*/__pycache__/
