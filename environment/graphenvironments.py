@@ -4,6 +4,7 @@ import multiprocessing
 import logging
 import glob
 import json
+import gym
 
 import numpy as np
 import pandas as pd
@@ -16,307 +17,7 @@ import torch
 from torch_geometric.data import Data, Batch
 from torch_geometric.transforms import Distance, NormalizeScale, Center, NormalizeRotation
 
-from utils.utils import *
-
-def bond_features(bond, use_chirality=False, use_basic_feats=True, null_feature=False):
-    bt = bond.GetBondType()
-    bond_feats = []
-    if use_basic_feats:
-        bond_feats = bond_feats + [
-            bt == Chem.rdchem.BondType.SINGLE, bt == Chem.rdchem.BondType.DOUBLE,
-            bt == Chem.rdchem.BondType.TRIPLE, bt == Chem.rdchem.BondType.AROMATIC,
-            bond.GetIsConjugated(),
-            bond.IsInRing()
-        ]
-    if use_chirality:
-        bond_feats = bond_feats + one_of_k_encoding_unk(
-            str(bond.GetStereo()),
-            ["STEREONONE", "STEREOANY", "STEREOZ", "STEREOE"])
-    if null_feature:
-        bond_feats += [0.0]
-    return np.array(bond_feats)
-
-def get_bond_pair(mol):
-    bonds = mol.GetBonds()
-    res = [[],[]]
-    for bond in bonds:
-        res[0] += [bond.GetBeginAtomIdx(), bond.GetEndAtomIdx()]
-        res[1] += [bond.GetEndAtomIdx(), bond.GetBeginAtomIdx()]
-    return res
-
-def atom_features(atom, conf):
-
-    anum = atom.GetSymbol()
-    atom_feats = []
-
-    atom_feats = atom_feats + [
-        anum == 'C', anum == 'O',
-    ]
-
-    p = conf.GetAtomPosition(atom.GetIdx())
-    fts = atom_feats + [p.x, p.y, p.z]
-    return np.array(fts)
-
-
-def atom_features_simple(atom, conf):
-    p = conf.GetAtomPosition(atom.GetIdx())
-    return np.array([p.x, p.y, p.z])
-
-def mol2vecsimple(mol):
-    conf = mol.GetConformer(id=-1)
-    atoms = mol.GetAtoms()
-    bonds = mol.GetBonds()
-    node_f= [atom_features_simple(atom, conf) for atom in atoms]
-    edge_index = get_bond_pair(mol)
-    edge_attr = [bond_features(bond, use_chirality=False) for bond in bonds]
-    for bond in bonds:
-        edge_attr.append(bond_features(bond))
-    data = Data(
-                x=torch.tensor(node_f, dtype=torch.float),
-                edge_index=torch.tensor(edge_index, dtype=torch.long),
-                edge_attr=torch.tensor(edge_attr,dtype=torch.float),
-                pos=torch.Tensor(conf.GetPositions())
-            )
-    data = Distance()(data)
-    return data
-
-def mol2vecstupidsimple(mol):
-    conf = mol.GetConformer(id=-1)
-    atoms = mol.GetAtoms()
-    bonds = mol.GetBonds()
-    node_f= [[] for atom in atoms]
-    edge_index = get_bond_pair(mol)
-    edge_attr = [bond_features(bond, use_chirality=False, use_basic_feats=False) for bond in bonds]
-    for bond in bonds:
-        edge_attr.append(bond_features(bond, use_chirality=False, use_basic_feats=False))
-    data = Data(
-                x=torch.tensor(node_f, dtype=torch.float),
-                edge_index=torch.tensor(edge_index, dtype=torch.long),
-                edge_attr=torch.tensor(edge_attr,dtype=torch.float),
-                pos=torch.Tensor(conf.GetPositions())
-            )
-
-    data = NormalizeScale()(data)
-    data = Distance(norm=False)(data)
-    data.x = data.pos
-
-    e = data.edge_attr
-    new_e = -1 + ((e - e.min())*2)/(e.max() - e.min())
-    data.edge_attr = new_e
-
-    return data
-
-def mol2vecskeleton(mol):
-    mol = Chem.rdmolops.RemoveHs(mol)
-    conf = mol.GetConformer(id=-1)
-    atoms = mol.GetAtoms()
-    bonds = mol.GetBonds()
-    node_f = [[] for atom in atoms]
-    edge_index = get_bond_pair(mol)
-    edge_attr = [bond_features(bond, use_chirality=False, use_basic_feats=False) for bond in bonds]
-
-    for bond in bonds:
-        edge_attr.append(bond_features(bond, use_chirality=False, use_basic_feats=False))
-
-    data = Data(
-                x=torch.tensor(node_f, dtype=torch.float),
-                edge_index=torch.tensor(edge_index, dtype=torch.long),
-                edge_attr=torch.tensor(edge_attr,dtype=torch.float),
-                pos=torch.Tensor(conf.GetPositions())
-            )
-
-    data = NormalizeScale()(data)
-    data = Distance(norm=False)(data)
-    data.x = data.pos
-
-    return data
-
-def mol2vecskeleton_features(mol):
-    mol = Chem.rdmolops.RemoveHs(mol)
-    conf = mol.GetConformer(id=-1)
-    atoms = mol.GetAtoms()
-    bonds = mol.GetBonds()
-    node_f= [[] for atom in atoms]
-    edge_index = get_bond_pair(mol)
-    edge_attr = [bond_features(bond, use_chirality=False, use_basic_feats=True) for bond in bonds]
-    for bond in bonds:
-        edge_attr.append(bond_features(bond, use_chirality=False, use_basic_feats=True))
-
-    data = Data(
-                x=torch.tensor(node_f, dtype=torch.float),
-                edge_index=torch.tensor(edge_index, dtype=torch.long),
-                edge_attr=torch.tensor(edge_attr,dtype=torch.float),
-                pos=torch.Tensor(conf.GetPositions())
-            )
-
-    data = NormalizeScale()(data)
-    data = Distance(norm=False)(data)
-    data.x = data.pos
-
-    return data
-
-def mol2vecdense(mol):
-    mol = Chem.rdmolops.RemoveHs(mol)
-    conf = mol.GetConformer(id=-1)
-    atoms = mol.GetAtoms()
-    bonds = mol.GetBonds()
-
-    adj = Chem.rdmolops.GetAdjacencyMatrix(mol)
-    n = len(atoms)
-
-    edge_index = []
-    edge_attr = []
-
-
-    for i in range(n):
-        for j in range(n):
-            if i == j:
-                continue
-            edge_index.append([i, j])
-            edge_attr.append(adj[i][j])
-
-
-    node_f= [[] for atom in atoms]
-
-    data = Data(
-                x=torch.tensor(node_f, dtype=torch.float),
-                edge_index=torch.tensor(edge_index, dtype=torch.long).T,
-                edge_attr=torch.tensor(edge_attr,dtype=torch.float),
-                pos=torch.Tensor(conf.GetPositions())
-            )
-
-    data = NormalizeScale()(data)
-    data = Distance(norm=False)(data)
-    data.x = data.pos
-
-    return data
-
-def mol2vecbasic(mol):
-    mol = Chem.rdmolops.RemoveHs(mol)
-    conf = mol.GetConformer(id=-1)
-    atoms = mol.GetAtoms()
-    bonds = mol.GetBonds()
-    node_f= [[] for atom in atoms]
-    edge_index = get_bond_pair(mol)
-    edge_attr = [bond_features(bond, use_chirality=False, use_basic_feats=False) for bond in bonds]
-    for bond in bonds:
-        edge_attr.append(bond_features(bond, use_chirality=False, use_basic_feats=False))
-
-    data = Data(
-                x=torch.tensor(node_f, dtype=torch.float),
-                edge_index=torch.tensor(edge_index, dtype=torch.long),
-                edge_attr=torch.tensor(edge_attr,dtype=torch.float),
-                pos=torch.Tensor(conf.GetPositions())
-            )
-
-    data = NormalizeScale()(data)
-    data = Distance(norm=False)(data)
-    data.x = data.pos
-
-    e = data.edge_attr
-    new_e = -1 + ((e - e.min())*2)/(e.max() - e.min())
-    data.edge_attr = new_e
-
-    return data
-
-def mol2vecskeletonpoints(mol):
-    mol = Chem.rdmolops.RemoveHs(mol)
-    conf = mol.GetConformer(id=-1)
-    atoms = mol.GetAtoms()
-    bonds = mol.GetBonds()
-    node_f = [atom_features(atom, conf) for atom in atoms]
-    edge_index = get_bond_pair(mol)
-    edge_attr = [bond_features(bond, use_chirality=False, use_basic_feats=True) for bond in bonds]
-    for bond in bonds:
-        edge_attr.append(bond_features(bond, use_chirality=False, use_basic_feats=True))
-
-    data = Data(
-                x=torch.tensor(node_f, dtype=torch.float),
-                edge_index=torch.tensor(edge_index, dtype=torch.long),
-                edge_attr=torch.tensor(edge_attr,dtype=torch.float),
-                pos=torch.Tensor(conf.GetPositions())
-            )
-
-    data = Center()(data)
-    data = NormalizeRotation()(data)
-    data.x[:,-3:] = data.pos
-    
-    assert (data.x == data.x).all()
-    assert (data.edge_attr == data.edge_attr).all()
-    assert (data.edge_index == data.edge_index).all()
-
-    return data
-
-def mol2vecskeletonpoints_test(mol):
-    mol = Chem.rdmolops.RemoveHs(mol)
-    conf = mol.GetConformer(id=-1)
-    atoms = mol.GetAtoms()
-    bonds = mol.GetBonds()
-    node_f = [atom_features(atom, conf) for atom in atoms]
-    edge_index = get_bond_pair(mol)
-    edge_attr = [bond_features(bond, use_chirality=False, use_basic_feats=True) for bond in bonds]
-    for bond in bonds:
-        edge_attr.append(bond_features(bond, use_chirality=False, use_basic_feats=True))
-
-    data = Data(
-                x=torch.tensor(node_f, dtype=torch.float),
-                edge_index=torch.tensor(edge_index, dtype=torch.long),
-                edge_attr=torch.tensor(edge_attr,dtype=torch.float),
-                pos=torch.Tensor(conf.GetPositions())
-            )
-
-    return data
-
-def mol2vecskeletonpointswithdistance(mol):
-    mol = Chem.rdmolops.RemoveHs(mol)
-    conf = mol.GetConformer(id=-1)
-    atoms = mol.GetAtoms()
-    bonds = mol.GetBonds()
-    node_f = [atom_features(atom, conf) for atom in atoms]
-    edge_index = get_bond_pair(mol)
-    edge_attr = [bond_features(bond, use_chirality=False, use_basic_feats=True) for bond in bonds]
-    for bond in bonds:
-        edge_attr.append(bond_features(bond, use_chirality=False, use_basic_feats=True))
-
-    data = Data(
-                x=torch.tensor(node_f, dtype=torch.float),
-                edge_index=torch.tensor(edge_index, dtype=torch.long),
-                edge_attr=torch.tensor(edge_attr,dtype=torch.float),
-                pos=torch.Tensor(conf.GetPositions())
-            )
-
-    data = Center()(data)
-    data = NormalizeRotation()(data)
-    data = Distance(norm=False)(data)
-    data.x[:,-3:] = data.pos
-
-    return data
-
-
-# def mol2points(mol):
-#     conf = mol.GetConformer(id=-1)
-#     atoms = mol.GetAtoms()
-#     bonds = mol.GetBonds()
-#     node_f= [atom_features_simple(atom, conf) for atom in atoms]
-
-#     data = Data(
-#                 x=torch.tensor(node_f, dtype=torch.float),
-#             )
-#     data = Distance()(data)
-#     return data
-
-def sort_func(x, y):
-        if x < y:
-            return -1
-        elif y < x:
-            return 1
-        else:
-            if os.path.getsize(x) < os.path.getsize(y):
-                return -1
-            elif os.path.getsize(y) < os.path.getsize(x):
-                return 1
-            else:
-                return 0
+from utils.moleculeToVector import *
 
 
 confgen = ConformerGeneratorCustom(max_conformers=1,
@@ -337,9 +38,13 @@ class SetGibbs(gym.Env):
             sort_by_size=True,
             pruning_thresh=0.05,
         ):
-        super(SetGibbs, self).__init__()
+        super().__init__()
+
         self.gibbs_normalize = gibbs_normalize
+        self.eval = eval
+        self.in_order = in_order
         self.temp_normal = temp_normal
+        self.pruning_thresh = pruning_thresh
         self.all_files = glob.glob(f'{folder_name}*.json')
         self.folder_name = folder_name
 
@@ -347,18 +52,11 @@ class SetGibbs(gym.Env):
             self.all_files.sort(key=os.path.getsize)
         else:
             self.all_files.sort()
-
-        self.in_order = in_order
-        self.eval = eval
-        self.pruning_thresh = pruning_thresh
         
         self.choice = -1
         self.episode_reward = 0
         self.choice_ind = 1
         self.num_good_episodes = 0
-
-        if '/' in self.folder_name:
-            self.folder_name = self.folder_name.split('/')[0]
 
         while True:
             obj = self.molecule_choice()
@@ -669,10 +367,6 @@ class PruningSetGibbs(SetGibbs):
         self.backup_energys += list(confgen.get_conformer_energies(self.mol))
         print('num_energys', len(self.backup_energys))
 
-class TestPruningSetGibbs(PruningSetGibbs):
-    def __init__(self):
-        super(TestPruningSetGibbs, self).__init__('diff/')
-
 class PruningSetGibbsQuick(SetGibbs):
     def _get_reward(self):
         self.seen.add(tuple(self.action))
@@ -700,10 +394,6 @@ class PruningSetGibbsQuick(SetGibbs):
 
         c = self.mol.GetConformer(id=0)
         self.backup_mol.AddConformer(c, assignId=True)
-
-class TestPruningSetGibbsQuick(PruningSetGibbsQuick):
-    def __init__(self):
-        super(TestPruningSetGibbsQuick, self).__init__('diff/')
 
 class PruningSetEnergyQuick(SetEnergy):
     def _get_reward(self):
@@ -761,23 +451,6 @@ class PruningSetLogGibbs(PruningSetGibbs):
 
         assert self.backup_mol.GetNumConformers() == len(self.backup_energys)
 
-class TestPruningSetLogGibbs(PruningSetLogGibbs):
-    def __init__(self):
-        super(TestPruningSetLogGibbs, self).__init__('three_set/')
-
-class TrihexylEval(SetEval):
-    def __init__(self):
-        super(TrihexylEval, self).__init__('trihexyl/')
-
-    def _get_obs(self):
-        data = Batch.from_data_list([mol2vecstupidsimple(self.mol)])
-        return data, self.nonring
-
-class TrihexylUnique(UniqueSetGibbs):
-    def __init__(self):
-        super(TrihexylUnique, self).__init__('trihexyl/')
-
-
 class SetCurriculaExtern(SetGibbs):
     def info(self, info):
         info['choice_ind'] = self.choice_ind
@@ -806,16 +479,6 @@ class SetCurriculaExtern(SetGibbs):
                 self.choice_ind = int(self.choice_ind / 2)
 
         self.choice_ind = min(self.choice_ind, len(self.all_files))
-
-class TestSetCurriculaExtern(SetCurriculaExtern):
-    def __init__(self):
-        super(TestSetCurriculaExtern, self).__init__('huge_hc_set/10_')
-
-
-class TestPruningSetCurriculaExtern(SetCurriculaExtern, PruningSetGibbs):
-    def __init__(self):
-        super(TestPruningSetCurriculaExtern, self).__init__('huge_hc_set/10_')
-
 
 class SetCurricula(SetGibbs):
     def info(self, info):
@@ -923,292 +586,7 @@ class SetGibbsSkeletonPoints(SetGibbs):
         data = Batch.from_data_list([mol2vecskeletonpoints(self.mol)])
         return data, self.nonring
 
-class TestSetCurriculaExternPoints(SetCurriculaExtern, SetGibbsSkeletonPoints):
-    def __init__(self):
-        super(TestSetCurriculaExternPoints, self).__init__('huge_hc_set/10_')
-
-class TestSetCurriculaExternDense(SetCurriculaExtern, SetGibbsDense):
-    def __init__(self):
-        super(TestSetCurriculaExternDense, self).__init__('huge_hc_set/10_')
-
-class TestSetCurriculaExternRandomEnding(RandomEndingSetGibbs, SetCurriculaExtern):
-    def __init__(self):
-        super(TestSetCurriculaExternRandomEnding, self).__init__('huge_hc_set/10_')
-
-class StraightChainTen(SetGibbs):
-    def __init__(self):
-        super(StraightChainTen, self).__init__('straight_chain_10/')
-
-class StraightChainTenEval(SetEval):
-    def __init__(self):
-        super(StraightChainTenEval, self).__init__('straight_chain_10/')
-
-class StraightChainTenEleven(SetGibbs):
-    def __init__(self):
-        super(StraightChainTenEleven, self).__init__('straight_chain_10_11/')
-
-class StraightChainElevenEval(SetEval):
-    def __init__(self):
-        super(StraightChainElevenEval, self).__init__('straight_chain_11/')
-
-class StraightChainTenElevenTwelve(SetGibbs):
-    def __init__(self):
-        super(StraightChainTenElevenTwelve, self).__init__('straight_chain_10_11_12/')
-
-class StraightChainTwelveEval(SetEval):
-    def __init__(self):
-        super(StraightChainTwelveEval, self).__init__('straight_chain_12/')
-
-class AllThreeTorsionSet(SetGibbs):
-    def __init__(self):
-        super(AllThreeTorsionSet, self).__init__('huge_hc_set/3_')
-
-class AllFiveTorsionSet(SetGibbs):
-    def __init__(self):
-        super(AllFiveTorsionSet, self).__init__('huge_hc_set/5_')
-
-class AllEightTorsionSet(SetGibbs):
-    def __init__(self):
-        super(AllEightTorsionSet, self).__init__('huge_hc_set/8_')
-
-class AllEightTorsionSetStupid(SetGibbsStupid):
-    def __init__(self):
-        super(AllEightTorsionSetStupid, self).__init__('huge_hc_set/8_')
-
-class AllEightTorsionSetDense(SetGibbsDense):
-    def __init__(self):
-        super(AllEightTorsionSetDense, self).__init__('huge_hc_set/8_')
-
-class AllTenTorsionSet(SetGibbs):
-    def __init__(self):
-        super(AllTenTorsionSet, self).__init__('huge_hc_set/10_')
-
-class AllTenTorsionSetDense(SetGibbsDense):
-    def __init__(self):
-        super(AllTenTorsionSetDense, self).__init__('huge_hc_set/10_')
-
-class AllTenTorsionSetPruning(PruningSetGibbs):
-    def __init__(self):
-        super(AllTenTorsionSetPruning, self).__init__('huge_hc_set/10_')
-
-class TenTorsionSetCurriculumPruning(PruningSetGibbs, SetCurricula):
-    def __init__(self):
-        super(TenTorsionSetCurriculumPruning, self).__init__('huge_hc_set/10_')
-
-class TenTorsionSetCurriculum(SetCurricula):
-    def __init__(self):
-        super(TenTorsionSetCurriculum, self).__init__('huge_hc_set/10_')
-
-    def _get_obs(self):
-        data = Batch.from_data_list([mol2vecskeleton(self.mol)])
-        return data, self.nonring
-
-class TenTorsionSetCurriculumDense(SetCurricula, SetGibbsDense):
-    def __init__(self):
-        super(TenTorsionSetCurriculumDense, self).__init__('huge_hc_set/10_')
-
-class TenTorsionSetCurriculumPoints(SetCurriculaExtern, SetGibbsSkeletonPoints, PruningSetGibbs):
-    def __init__(self):
-        super(TenTorsionSetCurriculumPoints, self).__init__('huge_hc_set/10_')        
-
-class TenTorsionSetLogGibbsCurriculumPoints(SetCurriculaExtern, SetGibbsSkeletonPoints, PruningSetLogGibbs):
-    def __init__(self):
-        super(TenTorsionSetLogGibbsCurriculumPoints, self).__init__('huge_hc_set/10_')
-
-class TenTorsionSetLogGibbsPoints(SetGibbsSkeletonPoints, PruningSetLogGibbs):
-    def __init__(self):
-        super(TenTorsionSetLogGibbsPoints, self).__init__('huge_hc_set/10_')
-
-class TenTorsionSetGibbsPoints(SetGibbsSkeletonPoints, PruningSetGibbs):
-    def __init__(self):
-        super(TenTorsionSetGibbsPoints, self).__init__('huge_hc_set/10_')
-
-class TenTorsionSetCurriculumExp(SetCurriculaExp):
-    def __init__(self):
-        super(TenTorsionSetCurriculumExp, self).__init__('huge_hc_set/10_')
-
-    def _get_obs(self):
-        data = Batch.from_data_list([mol2vecskeleton(self.mol)])
-        return data, self.nonring
-
-class TenTorsionSetCurriculumForgetting(SetCurriculaForgetting):
-    def __init__(self):
-        super(TenTorsionSetCurriculumForgetting, self).__init__('huge_hc_set/10_')
-
-    def _get_obs(self):
-        data = Batch.from_data_list([mol2vecskeleton(self.mol)])
-        return data, self.nonring
-
 class Diff(SetGibbs):
     def __init__(self):
         super(Diff, self).__init__('molecules/diff/')
 
-class DiffDense(SetGibbsDense):
-    def __init__(self):
-        super(DiffDense, self).__init__('diff/')
-
-class DiffPoints(SetGibbsSkeletonPoints):
-    def __init__(self):
-        super(DiffPoints, self).__init__('diff/')
-
-class DiffUnique(UniqueSetGibbs):
-    def __init__(self):
-        super(DiffUnique, self).__init__('diff/')
-
-class DiffPruning(PruningSetGibbs):
-    def __init__(self):
-        super(DiffPruning, self).__init__('diff/')
-
-class Diff11(SetEval):
-    def __init__(self):
-        super(Diff11, self).__init__('diff_11/')
-
-class Diff11Unique(UniqueSetGibbs):
-    def __init__(self):
-        super(Diff11Unique, self).__init__('diff_11/')
-
-class SmallMoleculeSet(SetGibbs):
-    def __init__(self):
-        super(SmallMoleculeSet, self).__init__('huge_hc_set/2')
-
-class Trihexyl(SetGibbs):
-    def __init__(self):
-        super(Trihexyl, self).__init__('trihexyl/')
-
-    def _get_obs(self):
-        data = Batch.from_data_list([mol2vecbasic(self.mol)])
-        return data, self.nonring
-
-class GiantSet(SetGibbs):
-    def __init__(self):
-        super(GiantSet, self).__init__('giant_hc_set/')
-
-class OneSet(SetGibbs):
-    def __init__(self):
-        super(OneSet, self).__init__('one_set/')
-
-    def _get_obs(self):
-        data = Batch.from_data_list([mol2vecskeleton(self.mol)])
-        return data, self.nonring
-
-class TwoSet(SetGibbs):
-    def __init__(self):
-        super(TwoSet, self).__init__('two_set/')
-
-class ThreeSet(SetGibbs):
-    def __init__(self):
-        super(ThreeSet, self).__init__('three_set/')
-
-class ThreeSetPruning(PruningSetGibbs):
-    def __init__(self):
-        super(ThreeSetPruning, self).__init__('three_set/')
-
-    def _get_obs(self):
-        data = Batch.from_data_list([mol2vecskeleton(self.mol)])
-        return data, self.nonring
-
-class FourSet(SetGibbs):
-    def __init__(self):
-        super(FourSet, self).__init__('four_set/')
-
-class FourSetUnique(UniqueSetGibbs):
-    def __init__(self):
-        super(FourSetUnique, self).__init__('four_set/')
-
-    def _get_obs(self):
-        data = Batch.from_data_list([mol2vecstupidsimple(self.mol)])
-        return data, self.nonring
-
-class OneSetUnique(UniqueSetGibbs):
-    def __init__(self):
-        super(OneSetUnique, self).__init__('one_set/')
-
-    def _get_obs(self):
-        data = Batch.from_data_list([mol2vecskeleton(self.mol)])
-        return data, self.nonring
-
-class OneSetPruning(PruningSetGibbs):
-    def __init__(self):
-        super(OneSetPruning, self).__init__('one_set/')
-
-    def _get_obs(self):
-        data = Batch.from_data_list([mol2vecskeleton(self.mol)])
-        return data, self.nonring
-
-class LigninAllSet(SetGibbs):
-    def __init__(self):
-        super(LigninAllSet, self).__init__('lignins_out/')
-
-    def _get_obs(self):
-        data = Batch.from_data_list([mol2vecskeleton_features(self.mol)])
-        return data, self.nonring
-
-
-class LigninAllSet2(SetGibbs):
-    def __init__(self):
-        super(LigninAllSet2, self).__init__('lignins_out/')
-
-    def _get_obs(self):
-        data = Batch.from_data_list([mol2vecskeleton_features(self.mol)])
-        return data, self.nonring
-
-    def _get_reward(self):
-        if tuple(self.action) in self.seen:
-            print('already seen')
-            return 0.0
-        else:
-            self.seen.add(tuple(self.action))
-            current = confgen.get_conformer_energies(self.mol)[0] * 0.5
-
-            print('standard', self.standard_energy)
-            print('current', current)
-
-            if current - self.standard_energy > 10.0:
-                return 0.0
-
-            x = current - self.standard_energy
-            return 1.0 - x/10.0
-
-class ThreeSetSkeleton(SetGibbs):
-    def __init__(self):
-        super(ThreeSetSkeleton, self).__init__('three_set/')
-
-    def _get_obs(self):
-        data = Batch.from_data_list([mol2vecskeleton(self.mol)])
-        return data, self.nonring
-
-class LigninAllSetSkeletonCurriculum(SetCurriculaExtern, SetGibbsSkeletonPoints):
-    def __init__(self):
-        super(LigninAllSetSkeletonCurriculum, self).__init__('lignin_hightemp/', temp_normal=0.25, sort_by_size=False)
-
-class LigninAllSetPruningSkeletonCurriculum(PruningSetGibbs, SetGibbsSkeletonPoints):#TODO: add SetCurriculaExtern
-    def __init__(self):
-        super(LigninAllSetPruningSkeletonCurriculum, self).__init__('lignin_hightemp/', temp_normal=0.25, sort_by_size=False)
-
-class LigninAllSetPruningLogSkeletonCurriculum(SetCurriculaExtern, PruningSetLogGibbs, SetGibbsSkeletonPoints):
-    def __init__(self):
-        super(LigninAllSetPruningLogSkeletonCurriculum, self).__init__('lignin_hightemp/', temp_normal=0.25, sort_by_size=False)
-
-class LigninAllSetPruningLogSkeletonCurriculumLong(SetCurriculaExtern, PruningSetLogGibbs, SetGibbsSkeletonPoints, LongEndingSetGibbs):
-    def __init__(self):
-        super(LigninAllSetPruningLogSkeletonCurriculumLong, self).__init__('lignin_hightemp/', temp_normal=0.25, sort_by_size=False)
-
-class LigninAllSetPruningSkeletonCurriculumLong(SetCurriculaExtern, PruningSetGibbs, SetGibbsSkeletonPoints, LongEndingSetGibbs):
-    def __init__(self):
-        super(LigninAllSetPruningSkeletonCurriculumLong, self).__init__('lignin_hightemp/', temp_normal=0.25, sort_by_size=False)
-
-class LigninPruningSkeletonEval(UniqueSetGibbs, SetGibbsSkeletonPoints):
-    def __init__(self):
-        super(LigninPruningSkeletonEval, self).__init__('lignin_eval_sample/', temp_normal=0.25, sort_by_size=False)
-
-class LigninPruningSkeletonEvalFinal(UniqueSetGibbs, SetGibbsSkeletonPoints):
-    def __init__(self):
-        super(LigninPruningSkeletonEvalFinal, self).__init__('lignin_eval_final/', eval=False, temp_normal=0.25, sort_by_size=False)
-
-class LigninPruningSkeletonEvalFinalLong(UniqueSetGibbs, SetGibbsSkeletonPoints, LongEndingSetGibbs):
-    def __init__(self):
-        super(LigninPruningSkeletonEvalFinalLong, self).__init__('lignin_eval_final/', eval=False, temp_normal=0.25, sort_by_size=False)
-
-class LigninPruningSkeletonEvalFinalLongSave(UniqueSetGibbs, SetGibbsSkeletonPoints, LongEndingSetGibbs):
-    def __init__(self):
-        super(LigninPruningSkeletonEvalFinalLongSave, self).__init__('lignin_eval_final/', eval=True, temp_normal=0.25, sort_by_size=False)

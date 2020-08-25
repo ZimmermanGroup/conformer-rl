@@ -4,6 +4,7 @@ log/
 data/*
 
 #input files
+#molecules/
 
 #python utility files
 __pycache__/

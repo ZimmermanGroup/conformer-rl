@@ -19,8 +19,8 @@ from deep_rl import *
 from deep_rl.component.envs import DummyVecEnv, make_env
 
 from environment import envs
-from utils.utils import *
-from models.models import *
+from utils.agentUtilities import *
+from models.recurrentTorsionGraphNetBatch import RTGNBatch
 from a2crecurrentziping import A2CRecurrentCurriculumAgent
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
