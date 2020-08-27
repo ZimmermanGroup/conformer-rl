@@ -73,20 +73,26 @@ Example:
 **agents**
 - Contains implementations dependent on DeepRL library for different reinforcement learning agents modified to accomodate molecule graph structures (GNN's) and recurrent neural networks (RNN's).
 - *Implementations for PPO and A2C to be added.*
+
 **environment**
 - graphEnvironments.py contains the gym environment used for conformer generation.
+
 **generateMolecule**
 - contains files for generating molecule JSON files for an environment.
 - *Additional implementations and more robust options to be added.*
+
 **models**
 - recurrentTorsionGraphNetBatch.py contains the neural network used for training.
+
 **notebooks**
 - contains miscellaneous notebooks for testing and training for TorsionNet paper.
 - testing.ipynb contains experiments with rdkit and molecule editing/visualization.
 - zeke_oligomers.ipynb contains experiments for lignin mol file generation.
+
 **utils**
 - agentUtilities.py contains tools for interacting with deepRl agent implementations.
 - moleculeToVector.py contains functions for converting a rdkit mol representation to a graph data structure input for graph neural nets for PyTorch Geometric.
 - moleculeUtilites.py contains functions for modifying and visualizing molecules.
+
 **run_batch_train.py**
 - main executable file that trains the model based on selected environments. Contains hyperparameters for agent.
