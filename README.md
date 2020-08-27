@@ -39,7 +39,7 @@ Deep Reinforcement Learning for Conformer Generation
 1. Check that the current directory is the conformer-ml directory and the my-rdkit-env environment is active.
 2. Run `run_batch_train.py` for around a minute and see that no import errors occur.
 3. Run a job on Great Lakes:
-    - `sbatch run_ppo.sh`
+    - `sbatch gpu_batch_run.sh`
     - verify that no import errors occur after running the job for a few minutes
     - make sure to delete the job after verifying on greatlakes.arc-ts.umich.edu
 
