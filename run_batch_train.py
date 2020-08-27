@@ -2,6 +2,7 @@ from os import environ
 import multiprocessing
 import logging
 import random
+import gym
 
 import numpy as np
 import pandas as pd
@@ -15,19 +16,38 @@ from torch_geometric.data import Data, Batch
 from torch_geometric.transforms import Distance
 import torch_geometric.nn as gnn
 
-from deep_rl import *
+import deep_rl
 from deep_rl.component.envs import DummyVecEnv, make_env
+from deep_rl.utils.misc import mkdir, generate_tag, run_steps
+from deep_rl.utils.torch_utils import select_device, set_one_thread
+from deep_rl.utils.config import Config
 
-from environment import envs
+from environment import graphenvironments
+from environment import zipingenvs
 from utils.agentUtilities import *
 from models.recurrentTorsionGraphNetBatch import RTGNBatch
-from a2crecurrentziping import A2CRecurrentCurriculumAgent
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 random.seed(0)
 np.random.seed(0)
 torch.manual_seed(0)
+
+ENV_FOLDER = "molecules/trihexyl/"
+EVAL_FOLDER = "molecules/diff/"
+
+gym.envs.register(
+     id='MolTaskEnv-v0',
+     entry_point='environment.graphenvironments:PruningSetGibbs',
+     max_episode_steps=1000,
+     kwargs = {"folder" : ENV_FOLDER}
+)
+gym.envs.register(
+    id='MolEvalEnv-v0',
+    entry_point='environment.graphenvironments:PruningSetGibbs',
+    max_episode_steps=1000,
+    kwargs= {"folder" : EVAL_FOLDER}
+)
 
 class Curriculum():
     def __init__(self, win_cond=0.01, success_percent=0.7, fail_percent=0.2, min_length=100):
@@ -49,7 +69,7 @@ def a2c_feature(**kwargs):
     single_process = (config.num_workers == 1)
     # single_process = True
 
-    config.task_fn = lambda: AdaTask('Diff-v0', num_envs=config.num_workers, seed=random.randint(0,1e5), single_process=single_process)
+    config.task_fn = lambda: AdaTask('MolTaskEnv-v0', num_envs=config.num_workers, seed=random.randint(0,1e5), single_process=single_process)
 
     # config.task_fn = lambda: AdaTask('TestPruningSetGibbsEdit-v0', num_envs=config.num_workers, seed=random.randint(0,1e5), single_process=single_process)
     # config.task_fn = lambda: AdaTask('TestPruningSetCurriculaExtern-v0', num_envs=config.num_workers, seed=random.randint(0,1e5), single_process=single_process)
@@ -77,7 +97,7 @@ def a2c_feature(**kwargs):
 
     config.eval_interval = config.num_workers * 200 * 5
     config.eval_episodes = 1
-    config.eval_env = AdaTask('Diff-v0', seed=random.randint(0,7e4))
+    config.eval_env = AdaTask('MolEvalEnv-v0', seed=random.randint(0,7e4))
     config.state_normalizer = DummyNormalizer()
     # config.reward_normalizer = MeanStdNormalizer()
 
@@ -100,7 +120,7 @@ def ppo_feature(**kwargs):
 
     config.curriculum = Curriculum(min_length=config.num_workers)
 
-    config.task_fn = lambda: AdaTask('Diff-v0', num_envs=config.num_workers, seed=random.randint(0,1e5), single_process=single_process) # causes error
+    config.task_fn = lambda: AdaTask('MolTaskEnv-v0', num_envs=config.num_workers, seed=random.randint(0,1e5), single_process=single_process) # causes error
 
     # config.optimizer_fn = lambda params: torch.optim.RMSprop(params, lr=lr, alpha=0.99, eps=1e-5)
     config.optimizer_fn = lambda params: torch.optim.Adam(params, lr=lr, eps=1e-5)
@@ -122,7 +142,7 @@ def ppo_feature(**kwargs):
     config.save_interval = config.num_workers * 200 * 5
     config.eval_interval = config.num_workers * 200 * 5
     config.eval_episodes = 1
-    config.eval_env = AdaTask('Diff-v0', seed=random.randint(0,7e4))
+    config.eval_env = AdaTask('MolEvalEnv-v0', seed=random.randint(0,7e4))
     config.state_normalizer = DummyNormalizer()
     run_steps(PPORecurrentEvalAgent(config))
 
@@ -135,11 +155,11 @@ if __name__ == '__main__':
     model.to(device)
     mkdir('log')
     mkdir('tf_log')
-    # set_one_thread()
+    set_one_thread()
     # select_device(0)
     # tag = environ['SLURM_JOB_NAME']
     tag = "test";
     # agent = ppo_feature(tag=tag)
-    agent = a2c_feature(tag=tag)
+    agent = ppo_feature(tag=tag)
     logging.info(tag)
     run_steps(agent)

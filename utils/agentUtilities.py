@@ -2,18 +2,18 @@ import gym
 from gym import spaces
 from gym.envs.registration import registry, register, make, spec
 from stable_baselines.common.vec_env.subproc_vec_env import SubprocVecEnv
+import numpy as np
+import logging
+import torch
 
 import py3Dmol
-from deep_rl import *
+from deep_rl.utils.torch_utils import random_seed, to_np
+from deep_rl.utils.normalizer import BaseNormalizer
+from deep_rl.agent.A2C_recurrent_agent_Tarun import A2CRecurrentAgentTarun
+from deep_rl.agent.PPO_recurrent_agent_gnn_tarun import PPORecurrentAgentRecurrenceTarun
 from deep_rl.component.envs import DummyVecEnv
 
-
-class A2CEvalAgent(A2CAgent):
-    def eval_step(self, state):
-        prediction = self.network(self.config.state_normalizer(state))
-        return prediction['a']
-
-class A2CRecurrentEvalAgent(A2CRecurrentAgent):
+class A2CRecurrentEvalAgent(A2CRecurrentAgentTarun):
     def eval_step(self, state, done, rstates):
         with torch.no_grad():
             if done:
@@ -38,7 +38,7 @@ class A2CRecurrentEvalAgent(A2CRecurrentAgent):
 
         return ret
 
-class PPORecurrentEvalAgent(PPORecurrentAgentRecurrence):
+class PPORecurrentEvalAgent(PPORecurrentAgentRecurrenceTarun):
     def eval_step(self, state, done, rstates):
         with torch.no_grad():
             if done:
