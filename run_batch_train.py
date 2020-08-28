@@ -33,19 +33,6 @@ random.seed(0)
 np.random.seed(0)
 torch.manual_seed(0)
 
-gym.envs.register(
-     id='MolTaskEnv-v0',
-     entry_point='environment.graphenvironments:PruningSetGibbs',
-     max_episode_steps=1000,
-     kwargs = {"folder" : ENV_FOLDER}
-)
-gym.envs.register(
-    id='MolEvalEnv-v0',
-    entry_point='environment.graphenvironments:PruningSetGibbs',
-    max_episode_steps=1000,
-    kwargs= {"folder" : EVAL_FOLDER}
-)
-
 class Curriculum():
     def __init__(self, win_cond=0.01, success_percent=0.7, fail_percent=0.2, min_length=100):
         self.win_cond = win_cond
@@ -106,22 +93,17 @@ def ppo_feature(**kwargs):
     config.network = model
     config.hidden_size = model.dim
     config.state_normalizer = DummyNormalizer()
-    
-    #Task Settings
-    config.task_fn = lambda: AdaTask('MolTaskEnv-v0', num_envs=config.num_workers, seed=random.randint(0,1e5), single_process=single_process) # causes error
-    config.eval_env = AdaTask('MolEvalEnv-v0', seed=random.randint(0,7e4))
 
     #Batch Hyperparameters
-    config.num_workers = 1#int(environ['SLURM_CPUS_PER_TASK'])
-    single_process = (config.num_workers == 1)
+    config.num_workers = 10#int(environ['SLURM_CPUS_PER_TASK'])
     config.save_interval = config.num_workers * 200 * 5
     config.eval_interval = config.num_workers * 200 * 5
     config.rollout_length = 20
     config.recurrence = 5
     config.optimization_epochs = 4
-    config.eval_episodes = 1
+    config.eval_episodes = 2
     # config.mini_batch_size = config.rollout_length * config.num_workers
-    config.mini_batch_size = 25
+    config.mini_batch_size = 50
 
     #Coefficient Hyperparameters
     config.linear_lr_scale = False
@@ -137,6 +119,10 @@ def ppo_feature(**kwargs):
     config.gradient_clip = 0.5
     config.ppo_ratio_clip = 0.2
 
+    #Task Settings
+    config.task_fn = lambda: AdaTask('MolTaskEnv-v0', num_envs=config.num_workers, seed=random.randint(0,1e5), single_process=(config.num_workers == 1)) # causes error
+    config.eval_env = AdaTask('MolEvalEnv-v0', seed=random.randint(0,7e4))
+
     run_steps(PPORecurrentEvalAgent(config))
 
 
@@ -144,6 +130,18 @@ if __name__ == '__main__':
     model = RTGNBatch(6, 128, edge_dim=6, point_dim=5)
     ENV_FOLDER = "molecules/trihexyl/"
     EVAL_FOLDER = "molecules/diff/"
+    gym.envs.register(
+        id='MolTaskEnv-v0',
+        entry_point='environment.graphenvironments:PruningSetGibbs',
+        max_episode_steps=1000,
+        kwargs = {"folder" : ENV_FOLDER}
+    )
+    gym.envs.register(
+        id='MolEvalEnv-v0',
+        entry_point='environment.graphenvironments:PruningSetGibbs',
+        max_episode_steps=1000,
+        kwargs= {"folder" : EVAL_FOLDER}
+    )
     # model = GraphTransformerBatch(6, 128, num_layers=12)
     # model = GATBatch(6, 128, num_layers=10, point_dim=5)
     # model.load_state_dict(torch.load('data/A2CRecurrentEvalAgent-StraightChainTen-210000.model'))
@@ -153,7 +151,7 @@ if __name__ == '__main__':
     set_one_thread()
     # select_device(0)
     # tag = environ['SLURM_JOB_NAME']
-    tag = "test";
+    tag = "";
     agent = ppo_feature(tag=tag)
     logging.info(tag)
     run_steps(agent)
