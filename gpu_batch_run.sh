@@ -3,7 +3,7 @@
 
 #“#SBATCH” directives that convey submission options:
 
-#SBATCH --job-name=ppo_rtgn_pruning_lignin_curr_long
+#SBATCH --job-name=conformer_generation
 #ppo_rtgn_pruning_fix_lignin_curr
 #SBATCH --mail-user=runxuanj@umich.edu
 #SBATCH --cpus-per-task=20
