@@ -95,14 +95,26 @@ def ppo_feature(**kwargs):
     config.state_normalizer = DummyNormalizer()
 
     #Batch Hyperparameters
-    config.num_workers = 10#int(environ['SLURM_CPUS_PER_TASK'])
+    #For every agent step, each worker steps rollout_length times for a total of num_workers*rollout_length environment steps
+    if 'SLURM_CPUS_PER_TASK' in environ: #Number of parallel environments
+        config.num_workers = int(environ['SLURM_CPUS_PER_TASK'])
+    else:
+        config.num_workers = 1
+    #Number of agent steps between saving a checkpoint of the model parameters
     config.save_interval = config.num_workers * 200 * 5
+    #Number of agent steps between evaluating model generalization to test environment
     config.eval_interval = config.num_workers * 200 * 5
+    #Number of environment steps run per worker per agent step
     config.rollout_length = 20
+    #Number of consecutive environment steps for training impact of LSTM memory
     config.recurrence = 5
+    #Number of times to recycle the same set of environment steps for training model parameters
+    #before advancing to the next agent step with new environment steps
     config.optimization_epochs = 4
+    #Number of times you run through the environment every time you evaluate
     config.eval_episodes = 2
     # config.mini_batch_size = config.rollout_length * config.num_workers
+    #Number of samples of size recurrence for each update of model parameters
     config.mini_batch_size = 50
 
     #Coefficient Hyperparameters
@@ -128,8 +140,10 @@ def ppo_feature(**kwargs):
 
 if __name__ == '__main__':
     model = RTGNBatch(6, 128, edge_dim=6, point_dim=5)
-    ENV_FOLDER = "molecules/trihexyl/"
-    EVAL_FOLDER = "molecules/diff/"
+    # ENV_FOLDER = "molecules/trihexyl/"
+    ENV_FOLDER = "molecules/xor_gate/"
+    # EVAL_FOLDER = "molecules/diff/"
+    EVAL_FOLDER = "molecules/xor_gate/"
     gym.envs.register(
         id='MolTaskEnv-v0',
         entry_point='environment.graphenvironments:PruningSetGibbs',
