@@ -6,14 +6,24 @@ import nglview as nv
 import numpy as np
 from re import sub
 import bisect
-import logging
 
 from rdkit import Chem, DataStructs, RDConfig, rdBase
 from rdkit import rdBase
 from rdkit.Chem import AllChem, TorsionFingerprints
 from rdkit.Chem import Draw,PyMol,rdFMCS
 from rdkit.Chem.Draw import IPythonConsole
-# %alias_magic t timeit
+
+import gym
+from gym import spaces
+from gym.envs.registration import registry, register, make, spec
+from stable_baselines.common.vec_env.subproc_vec_env import SubprocVecEnv
+
+import py3Dmol
+from ..agents.algorithms.PPO_recurrent_agent import PPORecurrentAgentRecurrence
+from ..environments.env_utils import DummyVecEnv
+from .torch_utils import *
+
+import logging
 
 def drawit(m, p, confId=-1):
     mb = Chem.MolToMolBlock(m, confId=confId)
@@ -75,11 +85,17 @@ def add_conformers_to_molecule(mol, confs):
         mol.AddConformer(c, assignId=False)
     return mol
 
+# def minimize_helper(args):
+
+#     return ff.CalcEnergy()
+
+
 class ConformerGeneratorCustom(conformers.ConformerGenerator):
     # pruneRmsThresh=-1 means no pruning done here
     # I don't use embed_molecule() because it does AddHs() & EmbedMultipleConfs()
     def __init__(self, *args, **kwargs):
         super(ConformerGeneratorCustom, self).__init__(*args, **kwargs)
+
 
     # add progress bar
     def minimize_conformers(self, mol):
@@ -92,53 +108,11 @@ class ConformerGeneratorCustom(conformers.ConformerGenerator):
                 Molecule.
         """
         pbar = tqdm(total=mol.GetNumConformers())
-        # pct_prog = 100 / mol.GetNumConformers()
-    # #     i = 0
         for conf in mol.GetConformers():
-    #       i += 1
-            # pbar.set_description("Minimizing %s" % i)
             ff = self.get_molecule_force_field(mol, conf_id=conf.GetId())
             ff.Minimize()
             pbar.update(1)
         pbar.close()
-
-    def get_conformer_energies(self, mol, mp=False):
-        """
-        Calculate conformer energies.
-
-        Parameters
-        ----------
-        mol : RDKit Mol
-            Molecule.
-
-        Returns
-        -------
-        energies : array_like
-            Minimized conformer energies.
-        """
-        energies = []
-        for conf in mol.GetConformers():
-            ff = self.get_molecule_force_field(mol, conf_id=conf.GetId())
-            energy = ff.CalcEnergy()
-            energies.append(energy)
-            energies = np.asarray(energies, dtype=float)
-            return energies
-        
-        if mp:
-            confs = [conf for conf in mol.GetConformers()]
-            ffs = [self.get_molecule_force_field(mol, conf_id=conf.GetId()) for conf in mol.GetConformers()]
-            args = zip(confs, ffs)
-
-        with ProcessPoolExecutor() as executor:
-            executor.map(create_branched, range(10000))
-
-
-        for conf in mol.GetConformers():
-            ff = self.get_molecule_force_field(mol, conf_id=conf.GetId())
-            energy = ff.CalcEnergy()
-            energies.append(energy)
-            energies = np.asarray(energies, dtype=float)
-            return energies
 
     def prune_conformers(self, mol, rmsd, heavy_atoms_only=True):
         """
@@ -517,3 +491,124 @@ def prune_conformers(mol, tfd_thresh, rmsd=False):
         new.AddConformer(conf, assignId=True)
 
     return new
+
+# class A2CEvalAgent(A2CAgent):
+#     def eval_step(self, state):
+#         prediction = self.network(self.config.state_normalizer(state))
+#         return prediction['a']
+
+# class A2CRecurrentEvalAgent(A2CRecurrentAgent):
+#     def eval_step(self, state, done, rstates):
+#         with torch.no_grad():
+#             if done:
+#                 prediction, rstates = self.network(self.config.state_normalizer(state))
+#             else:
+#                 prediction, rstates = self.network(self.config.state_normalizer(state), rstates)
+
+#             return prediction['a'], rstates
+
+#     def eval_episode(self):
+#         env = self.config.eval_env
+#         state = env.reset()
+#         done = True
+#         rstates = None
+#         while True:
+#             action, rstates = self.eval_step(state, done, rstates)
+#             done = False
+#             state, reward, done, info = env.step(to_np(action))
+#             ret = info[0]['episodic_return']
+#             if ret is not None:
+#                 break
+
+#         return ret
+
+class PPORecurrentEvalAgent(PPORecurrentAgentRecurrence):
+    def eval_step(self, state, done, rstates):
+        with torch.no_grad():
+            if done:
+                prediction, rstates = self.network(state)
+            else:
+                prediction, rstates = self.network(state, rstates)
+
+            return prediction['a'], rstates
+
+    def eval_episode(self):
+        env = self.config.eval_env
+        state = env.reset()
+        done = True
+        rstates = None
+        while True:
+            action, rstates = self.eval_step(state, done, rstates)
+            done = False
+            state, reward, done, info = env.step(to_np(action))
+            ret = info[0]['episodic_return']
+            if ret is not None:
+                break
+
+        return ret
+
+
+class OriginalReturnWrapper(gym.Wrapper):
+    def __init__(self, env):
+        gym.Wrapper.__init__(self, env)
+        self.total_rewards = 0
+
+    def step(self, action):
+        obs, reward, done, info = self.env.step(action)
+        self.total_rewards += reward
+        if done:
+            info['episodic_return'] = self.total_rewards
+            self.total_rewards = 0
+        else:
+            info['episodic_return'] = None
+        return obs, reward, done, info
+
+    # def change_level(self, level):
+    #     return self.env.change_level(level)
+
+    def reset(self):
+        return self.env.reset()
+
+
+def make_env(env_id, seed, rank, episode_life=True):
+    def _thunk():
+        random_seed(seed + rank)
+        env = gym.make(env_id)
+        env = OriginalReturnWrapper(env)
+        return env
+
+    return _thunk
+
+
+class AdaTask:
+    def __init__(self,
+                 name,
+                 num_envs=1,
+                 single_process=True,
+                 log_dir=None,
+                 episode_life=True,
+                 seed=np.random.randint(int(1e5))):
+        if log_dir is not None:
+            mkdir(log_dir)
+
+        logging.info(f'seed is {seed}')
+
+        envs = [make_env(name, seed, i, episode_life) for i in range(num_envs)]
+        if single_process:
+            Wrapper = DummyVecEnv
+            self.env = DummyVecEnv(envs)
+        else:
+            self.env = SubprocVecEnv(envs)
+        self.name = name
+
+    def change_level(self, xyz):
+        self.env_method('change_level', xyz)
+
+    def env_method(self, method_name, xyz):
+        return self.env.env_method(method_name, xyz)
+
+    def reset(self):
+        return self.env.reset()
+
+    def step(self, actions):
+        return self.env.step(actions)
