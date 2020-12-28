@@ -1,12 +1,11 @@
 # To add a new cell, type '# %%'
 # To add a new markdown cell, type '# %% [markdown]'
 # %%
-from pathlib import Path
 import sys
+from pathlib import Path
+
 sys.path.append(str(Path(sys.path[0]).parent))
 print(sys.path)
-
-from utils.moleculeUtilities import get_torsions_degs
 
 import nglview
 from rdkit import Chem
@@ -16,36 +15,15 @@ from rdkit.Chem.rdForceFieldHelpers import MMFFOptimizeMolecule
 from rdkit.Chem.rdmolfiles import MolFromSmiles, MolToSmiles
 from rdkit.Chem.rdmolops import Kekulize, SanitizeFlags, SanitizeMol
 from rdkit.Chem.rdMolTransforms import SetDihedralDeg
-# import stk
-# from stk.utilities.utilities import get_plane_normal
+
+import stk
+from stk.utilities.utilities import get_plane_normal
 
 
 def mol_with_atom_index(mol):
     for atom in mol.GetAtoms():
         atom.SetAtomMapNum(atom.GetIdx())
     return mol
-
-
-# %%
-
-# file = Path.cwd().parent / 'molecules' / 'xor_gate_8' / 'XORgateNo8.mol'
-# file = Path.cwd().parent / 'molecules' / 'xor3_gate_6' / 'XOR3gate6.mol'
-# file = Path.home() / 'conformer-ml' / 'debug_silly.mol'
-file = Path.home() / 'conformer-ml' / 'debug.mol'
-# file = Path.home() / 'conformer-ml' / 'polymer.mol'
-mol = Chem.MolFromMolFile(str(file))
-# mol = Chem.rdmolops.AddHs(mol, addCoords=True)
-AllChem.MMFFOptimizeMolecule(mol, confId=0, maxIters=20000)
-# Chem.rdMolTransforms.SetDihedralDeg(mol.GetConformer(id=0),5,12,14,15, 180.0)
-
-display(Draw.MolToImage(mol_with_atom_index(mol),size=(900,900)))
-# mol = Chem.MolFromSmiles('CC(=O)c1ccc(C(C)=O)c2c(C(C)=O)c3c(C(C)=O)c4cc5cc6c(C(C)=O)c7c(C(C)=O)c8c(C(C)=O)c9cc%10cc%11c(C(C)=O)c%12c(C(C)=O)c%13c(C(C)=O)ccc(C(C)=O)c%13c(C(C)=O)c%12c(C(C)=O)c%11cc%10cc9c(C(C)=O)c8c(C(C)=O)c7c(C(C)=O)c6cc5cc4c(C(C)=O)c3c(C(C)=O)c12')
-# mol = Chem.MolFromSmiles('CC(=O)c1cccc2cccc(C(C)=O)c12')
-# mol = Chem.MolFromSmiles('c')
-print(Chem.MolToSmiles(mol))
-# Chem.Draw.MolToImage(mol)
-nglview.show_rdkit(mol)
-
 
 # %%
 file = Path.cwd().parent / 'molecules' / 'xor_gate_cache' / 'XORgateNo.mol'
@@ -104,14 +82,12 @@ nglview.show_rdkit(mol)
 
 # %%
 
+# JOSH - after creating XorGate class, this cell should no longer be needed
+
 def init_building_block(smiles):
     'construct a building block with hydrogens removed'
     mol = stk.BuildingBlock(smiles=smiles)
     mol = Chem.rdmolops.RemoveHs(mol.to_rdkit_mol(), sanitize=True)
-    # for atom in mol.GetAtoms():
-    #     print(atom.GetAtomicNum(),  atom.GetNumImplicitHs(),
-    #         atom.GetNumExplicitHs(),  atom.GetNumRadicalElectrons(),
-    #         atom.GetExplicitValence())
     Kekulize(mol) # convert rdkit aromatic bonds to single and double bonds for portability
     return stk.BuildingBlock.init_from_rdkit_mol(mol)
 
@@ -119,7 +95,6 @@ def make_xor_monomer(position=0):
     # initialize building blocks
     benzene = init_building_block(smiles='C1=CC=CC=C1')
     acetaldehyde = init_building_block(smiles='CC=O')
-    # acetaldehyde = init_building_block(smiles='C=CF')
     benzene = benzene.with_functional_groups([stk.SingleAtom(stk.C(position))])
     acetaldehyde = acetaldehyde.with_functional_groups([stk.SingleAtom(stk.C(1))])
 
@@ -188,11 +163,38 @@ Chem.MolToMolFile(mol, str(file))
 nglview.show_rdkit(mol)
 
 # %%
-# Stuff from working with Troy
+import ipywidgets as ipw
+import nglview as nv
+import py3Dmol
+from ipywidgets import interact
+from rdkit import Chem
+from rdkit.Chem import AllChem
 
-mol = Chem.MolFromSmiles('C=C')
-mol = Chem.rdmolops.AddHs(mol)
-print(Chem.MolToSmiles(mol))
-print(Chem.rdmolops.GetAdjacencyMatrix(mol,useBO=False))
-# mol = mol.add
-# nglview.show_rdkit(mol)
+print("Hello world")
+# %%
+# eval, ep and step is hard coded here. Feel free to change those to what actually fit the specification.
+path = Path.home() / 'ConformerML' / 'conformer-ml' / 'log'
+
+@interact(eval=(2), ep=(0, 1), step=(0, 199))
+def show_mol(eval, ep, step):
+    file = path / ('xor_gates/eval' + str(eval) + '/ep' + str(ep) + '/step' + str(step) + '.mol')
+    print(file)
+    mol = Chem.MolFromMolFile(str(file))
+    m = Chem.MolToMolBlock(mol)
+    p = py3Dmol.view(width=600, height=600)
+    p.removeAllModels()
+    p.addModel(m)
+    p.setStyle({'stick':{}})
+    p.zoomTo()
+    # p.show()
+    display(nv.show_rdkit(mol,gui=False))
+# %%
+
+# playing with using stk to get which building blocks a given torsion comes from
+for atom_info in polymer.get_atom_infos():
+    atom = atom_info.get_atom()
+    # If the atom was added during construction, these will return None.
+    building_block = atom_info.get_building_block()
+    building_block_id = atom_info.get_building_block_id()
+    pass
+# %%
