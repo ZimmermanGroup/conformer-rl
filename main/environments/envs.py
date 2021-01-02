@@ -53,5 +53,3 @@ gym.envs.register(
 #           max_episode_steps=1000,
 #           kwargs={'ind_select': i}
 #      )
-
-

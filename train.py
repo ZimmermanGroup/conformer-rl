@@ -4,9 +4,9 @@ import argparse
 import torch
 
 from main.utils.misc import mkdir
-from main.agents.BaseAgent import run_steps
+from main.agents import PPORecurrentEvalAgent, run_steps
 from main.utils.config import Config
-from main.utils.utils import PPORecurrentEvalAgent, AdaTask
+from main.utils.utils import AdaTask
 import main.environments.envs
 from main.models.models import RTGNBatch
 
@@ -23,8 +23,9 @@ class Curriculum():
 def ppo_feature(tag, model):
     config = Config()
     config.tag = tag
+    
 
-    config.num_workers = 1
+    config.num_workers = 2
     single_process = (config.num_workers == 1)
     lr = 5e-6 * np.sqrt(config.num_workers)
 
@@ -59,6 +60,7 @@ if __name__ == '__main__':
     # model.to(torch.device('cuda'))
     mkdir('log')
     mkdir('tf_log')
+    mkdir('data')
     # set_one_thread()
     # select_device(0)
     tag = 'train_lignins'

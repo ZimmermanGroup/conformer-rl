@@ -7,6 +7,9 @@ import numpy as np
 from re import sub
 import bisect
 
+import torch
+import os
+
 from rdkit import Chem, DataStructs, RDConfig, rdBase
 from rdkit import rdBase
 from rdkit.Chem import AllChem, TorsionFingerprints
@@ -19,11 +22,19 @@ from gym.envs.registration import registry, register, make, spec
 from stable_baselines.common.vec_env.subproc_vec_env import SubprocVecEnv
 
 import py3Dmol
-from ..agents.algorithms.PPO_recurrent_agent import PPORecurrentAgentRecurrence
 from ..environments.env_utils import DummyVecEnv
-from .torch_utils import *
 
 import logging
+
+def random_seed(seed=None):
+    np.random.seed(seed)
+    torch.manual_seed(np.random.randint(int(1e6)))
+
+
+def set_one_thread():
+    os.environ['OMP_NUM_THREADS'] = '1'
+    os.environ['MKL_NUM_THREADS'] = '1'
+    torch.set_num_threads(1)
 
 def drawit(m, p, confId=-1):
     mb = Chem.MolToMolBlock(m, confId=confId)
@@ -492,60 +503,7 @@ def prune_conformers(mol, tfd_thresh, rmsd=False):
 
     return new
 
-# class A2CEvalAgent(A2CAgent):
-#     def eval_step(self, state):
-#         prediction = self.network(self.config.state_normalizer(state))
-#         return prediction['a']
 
-# class A2CRecurrentEvalAgent(A2CRecurrentAgent):
-#     def eval_step(self, state, done, rstates):
-#         with torch.no_grad():
-#             if done:
-#                 prediction, rstates = self.network(self.config.state_normalizer(state))
-#             else:
-#                 prediction, rstates = self.network(self.config.state_normalizer(state), rstates)
-
-#             return prediction['a'], rstates
-
-#     def eval_episode(self):
-#         env = self.config.eval_env
-#         state = env.reset()
-#         done = True
-#         rstates = None
-#         while True:
-#             action, rstates = self.eval_step(state, done, rstates)
-#             done = False
-#             state, reward, done, info = env.step(to_np(action))
-#             ret = info[0]['episodic_return']
-#             if ret is not None:
-#                 break
-
-#         return ret
-
-class PPORecurrentEvalAgent(PPORecurrentAgentRecurrence):
-    def eval_step(self, state, done, rstates):
-        with torch.no_grad():
-            if done:
-                prediction, rstates = self.network(state)
-            else:
-                prediction, rstates = self.network(state, rstates)
-
-            return prediction['a'], rstates
-
-    def eval_episode(self):
-        env = self.config.eval_env
-        state = env.reset()
-        done = True
-        rstates = None
-        while True:
-            action, rstates = self.eval_step(state, done, rstates)
-            done = False
-            state, reward, done, info = env.step(to_np(action))
-            ret = info[0]['episodic_return']
-            if ret is not None:
-                break
-
-        return ret
 
 
 class OriginalReturnWrapper(gym.Wrapper):
@@ -612,3 +570,5 @@ class AdaTask:
 
     def step(self, actions):
         return self.env.step(actions)
+
+
