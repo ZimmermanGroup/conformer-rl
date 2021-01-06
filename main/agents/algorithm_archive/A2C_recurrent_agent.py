@@ -141,3 +141,32 @@ class A2CRecurrentAgent(BaseAgent):
 
 
 
+# class A2CEvalAgent(A2CAgent):
+#     def eval_step(self, state):
+#         prediction = self.network(self.config.state_normalizer(state))
+#         return prediction['a']
+
+# class A2CRecurrentEvalAgent(A2CRecurrentAgent):
+#     def eval_step(self, state, done, rstates):
+#         with torch.no_grad():
+#             if done:
+#                 prediction, rstates = self.network(self.config.state_normalizer(state))
+#             else:
+#                 prediction, rstates = self.network(self.config.state_normalizer(state), rstates)
+
+#             return prediction['a'], rstates
+
+#     def eval_episode(self):
+#         env = self.config.eval_env
+#         state = env.reset()
+#         done = True
+#         rstates = None
+#         while True:
+#             action, rstates = self.eval_step(state, done, rstates)
+#             done = False
+#             state, reward, done, info = env.step(to_np(action))
+#             ret = info[0]['episodic_return']
+#             if ret is not None:
+#                 break
+
+#         return ret

@@ -3,12 +3,12 @@ import random
 import argparse
 import torch
 
-from main.utils.misc import mkdir
-from main.agents import PPORecurrentEvalAgent, run_steps
-from main.utils.config import Config
-from main.utils.utils import AdaTask
-import main.environments.envs
-from main.models.models import RTGNBatch
+from main import mkdir
+from main import PPORecurrentAgent
+from main import Config
+from main import register_environment
+from main import Task
+from main import RTGNBatch
 
 class Curriculum():
     def __init__(self, win_cond=0.7, success_percent=0.7, fail_percent=0.2, min_length=100):
@@ -25,13 +25,13 @@ def ppo_feature(tag, model):
     config.tag = tag
     
 
-    config.num_workers = 2
-    single_process = (config.num_workers == 1)
+    config.num_workers = 1
+    single_process = False
     lr = 5e-6 * np.sqrt(config.num_workers)
 
     config.curriculum = Curriculum(min_length=config.num_workers)
 
-    config.task_fn = lambda: AdaTask('Diff-v0', num_envs=config.num_workers, seed=random.randint(0,1e5), single_process=single_process) # causes error
+    config.train_env = Task('Diff-v0', num_envs=config.num_workers, seed=random.randint(0,1e5)) # causes error
 
     config.optimizer_fn = lambda params: torch.optim.Adam(params, lr=lr, eps=1e-5)
     config.network = model
@@ -51,8 +51,8 @@ def ppo_feature(tag, model):
     config.save_interval = 3
     config.eval_interval = 3
     config.eval_episodes = 1
-    config.eval_env = AdaTask('Diff-v0', seed=random.randint(0,7e4))
-    return PPORecurrentEvalAgent(config)
+    config.eval_env = Task('Diff-v0', seed=random.randint(0,7e4))
+    return PPORecurrentAgent(config)
 
 
 if __name__ == '__main__':
@@ -65,4 +65,4 @@ if __name__ == '__main__':
     # select_device(0)
     tag = 'train_lignins'
     agent = ppo_feature(tag=tag, model=nnet)
-    run_steps(agent)
+    agent.run_steps()

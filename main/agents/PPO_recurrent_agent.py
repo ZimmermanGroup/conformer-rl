@@ -1,6 +1,6 @@
-from ..utils.replay import Storage
+from .agent_utils import Storage
 from .base_agent import BaseAgent
-from ..utils.utils import to_np, tensor
+from ..utils import to_np, tensor
 import time
 from torch_geometric.data import Data, Batch
 from torch_geometric.transforms import Distance
@@ -9,23 +9,19 @@ from collections import deque
 import numpy as np
 import numpy.random
 
-import pdb
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-class PPORecurrentAgentRecurrence(BaseAgent):
+class PPORecurrentAgent(BaseAgent):
     def __init__(self, config):
         BaseAgent.__init__(self, config)
         self.config = config #config file, contains hyperparameters and other info
-        self.task = config.task_fn() #gym environment wrapper
+        self.task = config.train_env #gym environment wrapper
         self.hidden_size = config.hidden_size
 
-        if config.network: #nnet used
-            self.network = config.network
-        else:
-            self.network = config.network_fn()
+        self.network = config.network
         self.network.to(device)
 
         self.optimizer = config.optimizer_fn(self.network.parameters()) #optimization function
@@ -47,6 +43,30 @@ class PPORecurrentAgentRecurrence(BaseAgent):
         self.curr = config.curriculum
         if self.curr:
             self.reward_buffer = deque([], maxlen=(config.num_workers + self.curr.min_length))
+
+    def eval_step(self, state, done, rstates):
+        with torch.no_grad():
+            if done:
+                prediction, rstates = self.network(state)
+            else:
+                prediction, rstates = self.network(state, rstates)
+
+            return prediction['a'], rstates
+
+    def eval_episode(self):
+        env = self.config.eval_env
+        state = env.reset()
+        done = True
+        rstates = None
+        while True:
+            action, rstates = self.eval_step(state, done, rstates)
+            done = False
+            state, reward, done, info = env.step(to_np(action))
+            ret = info[0]['episodic_return']
+            if ret is not None:
+                break
+
+        return ret
 
 
     def step(self):
@@ -126,11 +146,11 @@ class PPORecurrentAgentRecurrence(BaseAgent):
                     # self.logger.add_scalar('win_percent', conds.mean(), self.total_steps)
 
                     if conds.mean() > self.curr.success_percent:
-                        self.task.change_level(True)
+                        self.task.env_method('change_level', True)
                         self.reward_buffer.clear()
 
                     if conds.mean() < self.curr.fail_percent:
-                        self.task.change_level(False)
+                        self.task.env_method('change_level', False)
                         self.reward_buffer.clear()
 
             self.states = states

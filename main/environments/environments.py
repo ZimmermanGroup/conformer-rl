@@ -24,7 +24,7 @@ import glob
 import json
 import logging
 
-from ..utils.utils import ConformerGeneratorCustom, print_torsions, prune_conformers, prune_last_conformer, prune_last_conformer_quick
+from ..utils import ConformerGeneratorCustom, print_torsions, prune_conformers, prune_last_conformer, prune_last_conformer_quick
 
 def bond_features(bond, use_chirality=False, use_basic_feats=True, null_feature=False):
     bt = bond.GetBondType()
