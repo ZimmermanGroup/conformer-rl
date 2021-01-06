@@ -31,7 +31,7 @@ class BaseAgent:
             self.step()
 
     def close(self):
-        close_obj(self.task)
+        self.task.close()
 
     def save(self, filename):
         torch.save(self.network.state_dict(), '%s.model' % (filename))

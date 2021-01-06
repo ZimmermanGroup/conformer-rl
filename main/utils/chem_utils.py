@@ -2,7 +2,7 @@ import numpy as np
 import bisect
 import torch
 import logging
-from deepchem.utils import conformers, rdkit_util
+from deepchem.utils import conformers
 from tqdm import tqdm
 import mdtraj as md
 from rdkit import Chem, rdBase

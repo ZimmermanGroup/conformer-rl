@@ -11,7 +11,7 @@ class Config:
         self.entropy_weight = 0
         self.use_gae = False
         self.gae_tau = 1.0
-        self.max_steps = 0
+        self.max_steps = 20
         self.rollout_length = None
         self.value_loss_weight = 1.0
         self.optimization_epochs = 4

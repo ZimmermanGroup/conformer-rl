@@ -1,175 +1,148 @@
 name: my-rdkit-env
 channels:
   - rdkit
+  - pytorch
   - defaults
 dependencies:
   - _libgcc_mutex=0.1=main
   - blas=1.0=mkl
-  - boost=1.63.0=py36h415b752_1
   - bzip2=1.0.8=h7b6447c_0
-  - ca-certificates=2020.6.24=0
+  - ca-certificates=2020.12.8=h06a4308_0
   - cairo=1.14.12=h8948797_3
-  - certifi=2020.6.20=py36_0
+  - certifi=2020.12.5=py37h06a4308_0
+  - cudatoolkit=11.0.221=h6bb024c_0
   - fontconfig=2.13.0=h9420a91_0
-  - freetype=2.10.2=h5ab3b9f_0
-  - glib=2.65.0=h3eb4bd4_0
+  - freetype=2.10.4=h5ab3b9f_0
+  - glib=2.66.1=h92f7085_0
   - icu=58.2=he6710b0_3
-  - intel-openmp=2020.1=217
+  - intel-openmp=2020.2=254
   - jpeg=9b=h024ee3a_2
+  - lcms2=2.11=h396b838_0
   - ld_impl_linux-64=2.33.1=h53a641e_7
-  - libedit=3.1.20191231=h7b6447c_0
-  - libffi=3.3=he6710b0_1
+  - libboost=1.73.0=hf484d3e_11
+  - libedit=3.1.20191231=h14c3975_1
+  - libffi=3.3=he6710b0_2
   - libgcc-ng=9.1.0=hdf63c60_0
-  - libgfortran-ng=7.3.0=hdf63c60_0
   - libpng=1.6.37=hbc83047_0
   - libstdcxx-ng=9.1.0=hdf63c60_0
   - libtiff=4.1.0=h2733197_1
   - libuuid=1.0.3=h1bed415_2
+  - libuv=1.40.0=h7b6447c_0
   - libxcb=1.14=h7b6447c_0
-  - libxml2=2.9.10=he19cac6_1
-  - lz4-c=1.9.2=he6710b0_0
-  - mkl=2020.1=217
-  - mkl-service=2.3.0=py36he904b0f_0
-  - mkl_fft=1.1.0=py36h23d657b_0
-  - mkl_random=1.1.1=py36h0573a6f_0
-  - mpi=1.0=mpich
-  - mpi4py=3.0.3=py36h028fd6f_0
-  - mpich=3.3.2=hc856adb_0
+  - libxml2=2.9.10=hb55368b_3
+  - lz4-c=1.9.2=heb0550a_3
+  - mkl=2020.2=256
+  - mkl-service=2.3.0=py37he8ac12f_0
+  - mkl_fft=1.2.0=py37h23d657b_0
+  - mkl_random=1.1.1=py37h0573a6f_0
   - ncurses=6.2=he6710b0_1
-  - numpy=1.18.5=py36ha1c710e_0
-  - numpy-base=1.18.5=py36hde5b4d6_0
-  - olefile=0.46=py36_0
-  - openssl=1.1.1g=h7b6447c_0
-  - pandas=1.0.5=py36h0573a6f_0
+  - ninja=1.10.2=py37hff7bd54_0
+  - numpy=1.19.2=py37h54aff64_0
+  - numpy-base=1.19.2=py37hfa32c7d_0
+  - olefile=0.46=py37_0
+  - openssl=1.1.1i=h27cfd23_0
+  - pandas=1.2.0=py37ha9443f7_0
   - pcre=8.44=he6710b0_0
-  - pillow=7.1.2=py36hb39fc2d_0
-  - pip=20.1.1=py36_1
+  - pip=20.3.3=py37h06a4308_0
   - pixman=0.40.0=h7b6447c_0
-  - python=3.6.10=h7579374_2
+  - py-boost=1.73.0=py37h04863e7_11
+  - python=3.7.9=h7579374_0
   - python-dateutil=2.8.1=py_0
-  - pytz=2020.1=py_0
-  - rdkit=2017.09.1=py36_1
+  - pytorch=1.7.1=py3.7_cuda11.0.221_cudnn8.0.5_0
+  - pytz=2020.5=pyhd3eb1b0_0
+  - rdkit=2020.09.1.0=py37hd50e099_1
   - readline=8.0=h7b6447c_0
-  - setuptools=47.3.1=py36_0
-  - six=1.15.0=py_0
-  - sqlite=3.32.3=h62c20be_0
+  - setuptools=51.0.0=py37h06a4308_2
+  - six=1.15.0=py37h06a4308_0
+  - sqlite=3.33.0=h62c20be_0
   - tk=8.6.10=hbc83047_0
-  - wheel=0.34.2=py36_0
+  - torchaudio=0.7.2=py37
+  - torchvision=0.8.2=py37_cu110
+  - typing_extensions=3.7.4.3=py_0
+  - wheel=0.36.2=pyhd3eb1b0_0
   - xz=5.2.5=h7b6447c_0
   - zlib=1.2.11=h7b6447c_3
-  - zstd=1.4.4=h0b5b093_3
+  - zstd=1.4.5=h9ceee32_0
   - pip:
-    - absl-py==0.9.0
-    - ase==3.19.1
+    - absl-py==0.11.0
+    - ase==3.20.1
     - astor==0.8.1
     - astunparse==1.6.3
     - atari-py==0.2.6
-    - attrs==19.3.0
     - backcall==0.2.0
-    - bleach==3.1.5
-    - cachetools==4.1.1
-    - chardet==3.0.4
-    - cloudpickle==1.3.0
+    - cached-property==1.5.2
+    - cachetools==4.2.0
+    - chardet==4.0.0
+    - cloudpickle==1.6.0
     - cycler==0.10.0
     - decorator==4.4.2
-    - deepchem==2.2.1.dev54
-    - defusedxml==0.6.0
-    - entrypoints==0.3
+    - deepchem==2.4.0rc1.dev20201229035111
     - future==0.18.2
     - gast==0.3.3
-    - google-auth==1.18.0
-    - google-auth-oauthlib==0.4.1
+    - google-auth==1.24.0
+    - google-auth-oauthlib==0.4.2
     - google-pasta==0.2.0
     - googledrivedownloader==0.4
-    - grpcio==1.30.0
-    - gym==0.17.2
+    - grpcio==1.34.0
+    - gym==0.18.0
     - h5py==2.10.0
-    - idisplay==0.1.2
     - idna==2.10
-    - imageio==2.8.0
-    - importlib-metadata==1.7.0
-    - ipykernel==5.3.0
-    - ipython==7.16.1
+    - importlib-metadata==3.3.0
+    - ipython==7.19.0
     - ipython-genutils==0.2.0
-    - ipywidgets==7.5.1
     - isodate==0.6.0
-    - jedi==0.17.1
+    - jedi==0.18.0
     - jinja2==2.11.2
-    - joblib==0.16.0
-    - jsonschema==3.2.0
-    - jupyter==1.0.0
-    - jupyter-client==6.1.5
-    - jupyter-console==6.1.0
-    - jupyter-core==4.6.3
+    - joblib==1.0.0
     - keras-applications==1.0.8
     - keras-preprocessing==1.1.2
-    - kiwisolver==1.2.0
-    - llvmlite==0.33.0
-    - markdown==3.2.2
+    - kiwisolver==1.3.1
+    - llvmlite==0.35.0
+    - markdown==3.3.3
     - markupsafe==1.1.1
-    - matplotlib==3.2.2
-    - mdtraj==1.9.4
-    - mistune==0.8.4
-    - nbconvert==5.6.1
-    - nbformat==5.0.7
-    - networkx==2.4
-    - nglview==2.7.7
-    - notebook==6.0.3
-    - numba==0.50.1
+    - matplotlib==3.3.3
+    - mdtraj==1.9.5
+    - networkx==2.5
+    - numba==0.52.0
     - oauthlib==3.1.0
-    - opencv-python==4.2.0.34
-    - opt-einsum==3.2.1
-    - packaging==20.4
-    - pandocfilters==1.4.2
-    - parso==0.7.0
+    - opencv-python==4.5.1.48
+    - opt-einsum==3.3.0
+    - parso==0.8.1
     - pexpect==4.8.0
     - pickleshare==0.7.5
-    - plyfile==0.7.2
-    - prometheus-client==0.8.0
-    - prompt-toolkit==3.0.5
-    - protobuf==3.12.2
-    - ptyprocess==0.6.0
-    - py3dmol==0.8.0
+    - pillow==7.2.0
+    - prompt-toolkit==3.0.9
+    - protobuf==3.14.0
+    - ptyprocess==0.7.0
     - pyasn1==0.4.8
     - pyasn1-modules==0.2.8
-    - pycairo==1.19.1
     - pyglet==1.5.0
-    - pygments==2.6.1
+    - pygments==2.7.3
     - pyparsing==2.4.7
-    - pyrsistent==0.16.0
-    - pywavelets==1.1.1
-    - pyzmq==19.0.1
-    - qtconsole==4.7.5
-    - qtpy==1.9.0
+    - python-louvain==0.15
     - rdflib==5.0.0
-    - requests==2.24.0
+    - requests==2.25.1
     - requests-oauthlib==1.3.0
     - rsa==4.6
-    - scikit-image==0.17.2
-    - scikit-learn==0.22
+    - scikit-learn==0.24.0
     - scipy==1.4.1
-    - send2trash==1.5.0
-    - stable-baselines==2.7.0
-    - tensorboard==1.14.0
+    - stable-baselines3==0.10.0
+    - tensorboard==2.2.2
     - tensorboard-plugin-wit==1.7.0
-    - tensorboardx==2.0
-    - tensorflow==1.14.0
-    - tensorflow-estimator==1.14.0
+    - tensorflow==2.2.0
+    - tensorflow-estimator==2.2.0
     - termcolor==1.1.0
-    - terminado==0.8.3
-    - testpath==0.4.4
-    - tifffile==2020.7.4
-    - torch==1.5.1
-    - torchvision==0.6.1
-    - tornado==6.0.4
-    - tqdm==4.47.0
-    - traitlets==4.3.3
-    - urllib3==1.25.9
+    - threadpoolctl==2.1.0
+    - torch-cluster==1.5.8
+    - torch-geometric==1.6.3
+    - torch-scatter==2.0.5
+    - torch-sparse==0.6.8
+    - torch-spline-conv==1.2.0
+    - tqdm==4.55.1
+    - traitlets==5.0.5
+    - urllib3==1.26.2
     - wcwidth==0.2.5
-    - webencodings==0.5.1
     - werkzeug==1.0.1
-    - widgetsnbextension==3.5.1
     - wrapt==1.12.1
-    - zipp==3.1.0
+    - zipp==3.4.0
 prefix: /home/runxuanj/anaconda3/envs/my-rdkit-env
-

@@ -4,8 +4,8 @@ import torch
 import os
 
 
-# documentation for SubprocVecEnv: https://stable-baselines.readthedocs.io/en/v2.5.0/guide/vec_envs.html
-from stable_baselines.common.vec_env.subproc_vec_env import SubprocVecEnv
+# documentation for SubprocVecEnv: https://github.com/DLR-RM/stable-baselines3/blob/master/stable_baselines3/common/vec_env/subproc_vec_env.py
+from stable_baselines3.common.vec_env.subproc_vec_env import SubprocVecEnv
 
 from ..utils import mkdir, random_seed
 
