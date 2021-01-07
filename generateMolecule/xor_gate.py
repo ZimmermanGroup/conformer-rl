@@ -1,27 +1,28 @@
 # %%
 
 from rdkit import Chem
+from rdkit.Chem import Draw
 import stk
 from itertools import cycle, islice
 
-"""
->>> xor_gate = XorGate(gate_complexity=2, num_gates=3)
->>> xor_gate.get_torsions()
-[[1, 0, 7, 8],
- [10, 9, 14, 15],
- [17, 16, 21, 22],
- [25, 26, 28, 29],
- [32, 33, 35, 36],
- [39, 40, 42, 43]]
->>> xor_gate.num_torsions == xor_gate.num_gates * xor_gate.gate_complexity
-True
->>> xor_gate.get_individual_gate().num_gates
-1
->>> xor_gate.get_individual_gate().gate_complexity
-2
-"""
 
 class XorGate:
+    """
+    >>> xor_gate = XorGate(gate_complexity=2, num_gates=3)
+    >>> xor_gate.get_torsions()
+    [[1, 0, 7, 8],
+    [10, 9, 14, 15],
+    [17, 16, 21, 22],
+    [25, 26, 28, 29],
+    [32, 33, 35, 36],
+    [39, 40, 42, 43]]
+    >>> xor_gate.num_torsions == xor_gate.num_gates * xor_gate.gate_complexity
+    True
+    >>> xor_gate.get_individual_gate().num_gates
+    1
+    >>> xor_gate.get_individual_gate().gate_complexity
+    2
+    """
     def __init__(self, gate_complexity, num_gates):
         # use stk to construct an XOR gate molecule to design specifications
         self.gate_complexity = gate_complexity
@@ -31,8 +32,8 @@ class XorGate:
         # construct XOR gate monomers
         xor_gate_top = self.make_xor_monomer(position=0)
         xor_gate_bottom = self.make_xor_monomer(position=3)
-        # display(Draw.MolToImage(mol_with_atom_index(xor_gate_top.to_rdkit_mol()),size=(700,300)))
-        # display(Draw.MolToImage(mol_with_atom_index(xor_gate_bottom.to_rdkit_mol()),size=(700,300)))
+        
+        # Example: for gate_complexity == 2, num_gates == 5, gives 'AABBAABBAA'
         monomer_pattern = ''.join(islice(cycle('A' * gate_complexity + 'B' * gate_complexity),
                                  num_gates * gate_complexity))
         self.polymer = stk.ConstructedMolecule(
@@ -84,9 +85,7 @@ class XorGate:
         num_atoms = self.polymer.get_num_atoms()
         num_top_atoms = num_atoms // 2 + 1
         nonring = [[1, 0, 7, 8]]
-        # nonring += [[i+1, i, i+5, i+6] for i in range(9, 59, 7)]
         nonring += [[i+1, i, i+5, i+6] for i in range(9, num_top_atoms , mon_size)]
-        # nonring += [[i-1, i, i+2, i+3] for i in range(68, 125, 7)]
         nonring += [[i-1, i, i+2, i+3] for i in range(num_top_atoms + 3, num_atoms, mon_size)]
         return nonring
 
@@ -104,6 +103,21 @@ class XorGate:
         return torsion_idx % self.gate_complexity
 
 
+def mol_with_atom_index(mol):
+    for atom in mol.GetAtoms():
+        atom.SetAtomMapNum(atom.GetIdx())
+    return mol
+
+if __name__ == "__main__":
+    # utilize the doctest module to check tests built into the documentation
+    import doctest
+    doctest.testmod(optionflags = doctest.NORMALIZE_WHITESPACE, verbose=True)
+    
+    # visualize the molecule used in the documentation tests
+    xor_gate = XorGate(gate_complexity=2, num_gates=3)
+    display(Draw.MolToImage(mol_with_atom_index(xor_gate.polymer.to_rdkit_mol()),size=(700,300)))
+    
+    # test new stk method for getting a corresponding building block atom
+    print(list(xor_gate.polymer.get_atom_infos())[10].get_building_block_atom())
+
 # %%
-# run doctest
-# executive an example that visualizes a molecule
