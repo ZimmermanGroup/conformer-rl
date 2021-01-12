@@ -25,13 +25,13 @@ def ppo_feature(tag, model):
     config.tag = tag
     
 
-    config.num_workers = 1
+    config.num_workers = 4
     single_process = False
     lr = 5e-6 * np.sqrt(config.num_workers)
 
     config.curriculum = Curriculum(min_length=config.num_workers)
 
-    config.train_env = Task('Diff-v0', num_envs=config.num_workers, seed=random.randint(0,1e5)) # causes error
+    config.train_env = Task('Diff-v0', num_envs=config.num_workers, seed=random.randint(0,1e5))
 
     config.optimizer_fn = lambda params: torch.optim.Adam(params, lr=lr, eps=1e-5)
     config.network = model

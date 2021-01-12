@@ -6,6 +6,7 @@ import os
 
 # documentation for SubprocVecEnv: https://github.com/DLR-RM/stable-baselines3/blob/master/stable_baselines3/common/vec_env/subproc_vec_env.py
 from stable_baselines3.common.vec_env.subproc_vec_env import SubprocVecEnv
+from .simple_vec_env import SimpleVecEnv
 
 from ..utils import mkdir, random_seed
 
@@ -39,4 +40,4 @@ class OriginalReturnWrapper(gym.Wrapper):
 
 def Task(name, num_envs=1, seed=np.random.randint(int(1e5))):
     envs = [make_env(name, seed, i) for i in range(num_envs)]
-    return SubprocVecEnv(envs)
+    return SimpleVecEnv(envs)
