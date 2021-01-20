@@ -1,23 +1,54 @@
-import time
-import os.path
-import multiprocessing
-import logging
-import glob
-import json
-
 import numpy as np
-import pandas as pd
-import scipy
+import torch
 
 from rdkit import Chem
-from rdkit.Chem import AllChem
 
-import torch
-from torch_geometric.data import Data, Batch
+from torch_geometric.data import Data
 from torch_geometric.transforms import Distance, NormalizeScale, Center, NormalizeRotation
 
-from utils.moleculeUtilities import *
+def bond_features(bond, use_chirality=False, use_basic_feats=True, null_feature=False):
+    bt = bond.GetBondType()
+    bond_feats = []
+    if use_basic_feats:
+        bond_feats = bond_feats + [
+            bt == Chem.rdchem.BondType.SINGLE, bt == Chem.rdchem.BondType.DOUBLE,
+            bt == Chem.rdchem.BondType.TRIPLE, bt == Chem.rdchem.BondType.AROMATIC,
+            bond.GetIsConjugated(),
+            bond.IsInRing()
+        ]
+    if use_chirality:
+        bond_feats = bond_feats + one_of_k_encoding_unk(
+            str(bond.GetStereo()),
+            ["STEREONONE", "STEREOANY", "STEREOZ", "STEREOE"])
+    if null_feature:
+        bond_feats += [0.0]
+    return np.array(bond_feats)
 
+def get_bond_pair(mol):
+    bonds = mol.GetBonds()
+    res = [[],[]]
+    for bond in bonds:
+        res[0] += [bond.GetBeginAtomIdx(), bond.GetEndAtomIdx()]
+        res[1] += [bond.GetEndAtomIdx(), bond.GetBeginAtomIdx()]
+    return res
+
+def atom_features(atom, conf):
+
+    anum = atom.GetSymbol()
+    atom_feats = []
+
+    atom_feats = atom_feats + [
+        anum == 'C', anum == 'O',
+    ]
+
+    p = conf.GetAtomPosition(atom.GetIdx())
+    fts = atom_feats + [p.x, p.y, p.z]
+    return np.array(fts)
+
+
+def atom_features_simple(atom, conf):
+    p = conf.GetAtomPosition(atom.GetIdx())
+    return np.array([p.x, p.y, p.z])
 
 def mol2vecsimple(mol):
     conf = mol.GetConformer(id=-1)
@@ -261,60 +292,3 @@ def mol2points(mol):
             )
     data = Distance()(data)
     return data
-
-def bond_features(bond, use_chirality=False, use_basic_feats=True, null_feature=False):
-    bt = bond.GetBondType()
-    bond_feats = []
-    if use_basic_feats:
-        bond_feats = bond_feats + [
-            bt == Chem.rdchem.BondType.SINGLE, bt == Chem.rdchem.BondType.DOUBLE,
-            bt == Chem.rdchem.BondType.TRIPLE, bt == Chem.rdchem.BondType.AROMATIC,
-            bond.GetIsConjugated(),
-            bond.IsInRing()
-        ]
-    if use_chirality:
-        bond_feats = bond_feats + one_of_k_encoding_unk(
-            str(bond.GetStereo()),
-            ["STEREONONE", "STEREOANY", "STEREOZ", "STEREOE"])
-    if null_feature:
-        bond_feats += [0.0]
-    return np.array(bond_feats)
-
-def get_bond_pair(mol):
-    bonds = mol.GetBonds()
-    res = [[],[]]
-    for bond in bonds:
-        res[0] += [bond.GetBeginAtomIdx(), bond.GetEndAtomIdx()]
-        res[1] += [bond.GetEndAtomIdx(), bond.GetBeginAtomIdx()]
-    return res
-
-def atom_features(atom, conf):
-
-    anum = atom.GetSymbol()
-    atom_feats = []
-
-    atom_feats = atom_feats + [
-        anum == 'C', anum == 'O',
-    ]
-
-    p = conf.GetAtomPosition(atom.GetIdx())
-    fts = atom_feats + [p.x, p.y, p.z]
-    return np.array(fts)
-
-
-def atom_features_simple(atom, conf):
-    p = conf.GetAtomPosition(atom.GetIdx())
-    return np.array([p.x, p.y, p.z])
-
-def sort_func(x, y):
-        if x < y:
-            return -1
-        elif y < x:
-            return 1
-        else:
-            if os.path.getsize(x) < os.path.getsize(y):
-                return -1
-            elif os.path.getsize(y) < os.path.getsize(x):
-                return 1
-            else:
-                return 0

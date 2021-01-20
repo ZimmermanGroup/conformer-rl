@@ -1,5 +1,0 @@
-{
-    "python.pythonPath": "/home/joshkamm/miniconda3/envs/my-rdkit-env/bin/python",
-    "python.linting.pylintEnabled": true,
-    "python.linting.enabled": true
-}

@@ -10,3 +10,6 @@ data/*
 __pycache__/
 .ipynb_checkpoints/
 */__pycache__/
+
+#vscode utility files
+.vscode/

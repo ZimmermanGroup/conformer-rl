@@ -1,13 +1,13 @@
-import logging
-import numpy as np
-
-import torch
+from torch.autograd import Variable
 from torch import nn
 import torch.nn.functional as F
-from torch.autograd import Variable
+import torch
 from torch_geometric.data import Data, Batch
 from torch_geometric.transforms import Distance
 import torch_geometric.nn as gnn
+
+import logging
+import numpy as np
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -15,7 +15,7 @@ class CriticBatchNet(torch.nn.Module):
     def __init__(self, action_dim, dim, edge_dim=1, num_features=3):
         super(CriticBatchNet, self).__init__()
         self.lin0 = torch.nn.Linear(num_features, dim)
-        func_ag = nn.Sequential(nn.Linear(edge_dim, dim), nn.ReLU(), nn.Linear(dim, dim * dim))
+        func_ag = nn.Sequential(nn.Linear(edge_dim, dim), nn.ReLU(inplace=False), nn.Linear(dim, dim * dim))
         self.conv = gnn.NNConv(dim, dim, func_ag, aggr='mean')
         self.gru = nn.GRU(dim, dim)
 
@@ -32,7 +32,7 @@ class CriticBatchNet(torch.nn.Module):
         data, nonring, nrbidx, torsion_list_sizes = obs
 
         data.to(device)
-        data.to(device)
+        data.x = data.x.to(device)
 
         if states:
             hx, cx = states
@@ -59,7 +59,7 @@ class ActorBatchNet(torch.nn.Module):
     def __init__(self, action_dim, dim, edge_dim=1, num_features=3):
         super(ActorBatchNet, self).__init__()
         self.lin0 = torch.nn.Linear(num_features, dim)
-        func_ag = nn.Sequential(nn.Linear(edge_dim, dim), nn.ReLU(), nn.Linear(dim, dim * dim))
+        func_ag = nn.Sequential(nn.Linear(edge_dim, dim), nn.ReLU(inplace=False), nn.Linear(dim, dim * dim))
         self.conv = gnn.NNConv(dim, dim, func_ag, aggr='mean')
         self.gru = nn.GRU(dim, dim)
 
@@ -76,7 +76,7 @@ class ActorBatchNet(torch.nn.Module):
         data, nonring, nrbidx, torsion_list_sizes = obs
 
         data.to(device)
-        data.x.to(device)
+        data.x = data.x.to(device)
 
         if states:
             hx, cx = states
