@@ -1,12 +1,9 @@
 import numpy as np
 import torch
 
-from rdkit import Chem, DataStructs, RDConfig, rdBase
-from rdkit import rdBase
-from rdkit.Chem import AllChem, TorsionFingerprints
-from rdkit.Chem import Draw,PyMol,rdFMCS
+from rdkit import Chem
 
-from torch_geometric.data import Data, Batch
+from torch_geometric.data import Data
 from torch_geometric.transforms import Distance, NormalizeScale, Center, NormalizeRotation
 
 def bond_features(bond, use_chirality=False, use_basic_feats=True, null_feature=False):

@@ -1,12 +1,8 @@
 import numpy as np
-import scipy
 import gym
 
-from rdkit import Chem, DataStructs, RDConfig, rdBase
-from rdkit import rdBase
+from rdkit import Chem
 from rdkit.Chem import AllChem, TorsionFingerprints
-from rdkit.Chem import Draw,PyMol,rdFMCS
-from rdkit.Chem.Draw import IPythonConsole
 
 import os.path
 import multiprocessing
@@ -16,8 +12,8 @@ from torch_geometric.transforms import Distance, NormalizeScale, Center, Normali
 
 import logging
 
-from ..utils import ConformerGeneratorCustom, print_torsions, prune_conformers, prune_last_conformer, prune_last_conformer_quick
-from .molecule_handler import mol2vecskeletonpoints
+from ...utils import ConformerGeneratorCustom, print_torsions
+from .molecule_converters import mol2vecskeletonpoints
 
 confgen = ConformerGeneratorCustom(max_conformers=1,
                              rmsd_threshold=None,
@@ -27,10 +23,11 @@ confgen = ConformerGeneratorCustom(max_conformers=1,
 class ConformerEnv(gym.Env):
     metadata = {'render.modes': ['human']}
 
-    def __init__(self, mol_config, max_steps=5, temp_0=1.):
+    def __init__(self, mol_config, max_steps=5, temp_0=1., pruning_thresh=0.05):
         super(ConformerEnv, self).__init__()
 
         self.temp_0 = temp_0 # temperature normalization constant
+        self.pruning_thresh = pruning_thresh
         self.mol_config = mol_config
         self.max_steps = max_steps
         self.total_reward = 0
@@ -48,11 +45,16 @@ class ConformerEnv(gym.Env):
         self._handle_action()
         self._update_memory()
 
+
         obs = self._get_obs()
         reward = self._get_reward()
         self.total_reward += reward
         done = self._get_done()
         info = self._get_info()
+
+        print("reward is ", reward)
+        print ("new state is:")
+        print_torsions(self.molecule)
 
         return obs, reward, done, info
         
@@ -79,6 +81,9 @@ class ConformerEnv(gym.Env):
         self.conf = self.molecule.GetConformer(id=0)
         nonring, ring = TorsionFingerprints.CalculateTorsionLists(self.molecule)
         self.nonring = [list(atoms[0]) for atoms, ang in nonring]
+
+        print('reset called\n\n\n\n\n')
+        print_torsions(self.molecule)
 
         obs = self._get_obs()
         return obs

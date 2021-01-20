@@ -30,7 +30,7 @@ def ppo_feature(tag, model):
 
     config.curriculum = Curriculum(min_length=config.num_workers)
 
-    config.train_env = Task('ConfEnv-v0', num_envs=config.num_workers, seed=random.randint(0,1e5), mol_config=DIFF)
+    config.train_env = Task('ConfEnv-v1', num_envs=config.num_workers, seed=random.randint(0,1e5), mol_config=DIFF)
 
     config.optimizer_fn = lambda params: torch.optim.Adam(params, lr=lr, eps=1e-5)
     config.network = model
@@ -50,7 +50,7 @@ def ppo_feature(tag, model):
     config.save_interval = 3
     config.eval_interval = 3
     config.eval_episodes = 1
-    config.eval_env = Task('ConfEnv-v0', seed=random.randint(0,7e4), mol_config=DIFF)
+    config.eval_env = Task('ConfEnv-v1', seed=random.randint(0,7e4), mol_config=DIFF)
     return PPORecurrentAgent(config)
 
 
