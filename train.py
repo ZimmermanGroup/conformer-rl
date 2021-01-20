@@ -6,8 +6,7 @@ import torch
 from main import mkdir
 from main import PPORecurrentAgent
 from main import Config
-from main import register_environment
-from main import Task
+from main import Task, DIFF
 from main import RTGNBatch
 
 class Curriculum():
@@ -31,7 +30,7 @@ def ppo_feature(tag, model):
 
     config.curriculum = Curriculum(min_length=config.num_workers)
 
-    config.train_env = Task('Diff-v0', num_envs=config.num_workers, seed=random.randint(0,1e5))
+    config.train_env = Task('ConfEnv-v0', num_envs=config.num_workers, seed=random.randint(0,1e5), mol_config=DIFF)
 
     config.optimizer_fn = lambda params: torch.optim.Adam(params, lr=lr, eps=1e-5)
     config.network = model
@@ -51,7 +50,7 @@ def ppo_feature(tag, model):
     config.save_interval = 3
     config.eval_interval = 3
     config.eval_episodes = 1
-    config.eval_env = Task('Diff-v0', seed=random.randint(0,7e4))
+    config.eval_env = Task('ConfEnv-v0', seed=random.randint(0,7e4), mol_config=DIFF)
     return PPORecurrentAgent(config)
 
 
