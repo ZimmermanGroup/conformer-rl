@@ -12,7 +12,8 @@ class MoleculeWrapper():
             res = Chem.AllChem.EmbedMultipleConfs(self.molecule, numConfs=1)
             res = Chem.AllChem.MMFFOptimizeMoleculeConfs(self.molecule)
         elif input_type == 'file':
-            pass
+            
 
 DIFF = [MoleculeWrapper(mol_input="CC(CCC)CCCC(CCCC)CC", standard=7.668625034772399, total=13.263723987526067)]
+XORGATE = [MoleculeWrapper(mol_input="molecules/xor_gate/XORgateNo8.mol")]
 
