@@ -4,6 +4,7 @@ from rdkit import Chem
 from rdkit.Chem import Draw
 import stk
 from itertools import cycle, islice
+from IPython.display import display
 
 
 class XorGate:

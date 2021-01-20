@@ -6,8 +6,10 @@ import torch
 from main import mkdir
 from main import PPORecurrentAgent
 from main import Config
-from main import Task, DIFF
+from main import Task
 from main import RTGNBatch
+
+from generate_molecule import DIFF, XORGATE
 
 class Curriculum():
     def __init__(self, win_cond=0.7, success_percent=0.7, fail_percent=0.2, min_length=100):
@@ -30,7 +32,7 @@ def ppo_feature(tag, model):
 
     config.curriculum = Curriculum(min_length=config.num_workers)
 
-    config.train_env = Task('ConfEnv-v1', num_envs=config.num_workers, seed=random.randint(0,1e5), mol_config=DIFF)
+    config.train_env = Task('ConfEnv-v1', num_envs=config.num_workers, seed=random.randint(0,1e5), mol_config=XORGATE)
 
     config.optimizer_fn = lambda params: torch.optim.Adam(params, lr=lr, eps=1e-5)
     config.network = model
@@ -50,7 +52,7 @@ def ppo_feature(tag, model):
     config.save_interval = 3
     config.eval_interval = 3
     config.eval_episodes = 1
-    config.eval_env = Task('ConfEnv-v1', seed=random.randint(0,7e4), mol_config=DIFF)
+    config.eval_env = Task('ConfEnv-v1', seed=random.randint(0,7e4), mol_config=XORGATE)
     return PPORecurrentAgent(config)
 
 
