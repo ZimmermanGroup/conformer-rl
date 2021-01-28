@@ -4,12 +4,13 @@ import time
 
 import time
 import torch
-from ..utils import to_np
+from torch.utils.tensorboard import SummaryWriter
+from ..utils import to_np, get_time_str
 
 class BaseAgent:
     def __init__(self, config):
         self.config = config
-        # self.logger = get_logger(tag=config.tag, log_level=config.log_level)
+        self.writer = SummaryWriter(log_dir = f'./train_data/{config.tag}-{get_time_str()}')
         self.task_ind = 0
 
     def run_steps(self):
@@ -19,11 +20,8 @@ class BaseAgent:
 
         while True:
             if (config.save_interval != 0) and (self.total_steps % config.save_interval == 0):
-                self.save('data/%s-%s-%d' % (agent_name, config.tag, self.total_steps))
-            if (config.log_interval != 0) and (self.total_steps % config.log_interval == 0):
-                # self.logger.info('steps %d, %.2f steps/s' % (self.total_steps, config.log_interval / (time.time() - t0)))
-                t0 = time.time()
-            if (config.eval_interval != 0) and not (self.total_steps % config.eval_interval == 0):
+                self.save(f'model_data/{agent_name}-{config.tag}-{self.total_steps}')
+            if (config.eval_interval != 0) and (self.total_steps % config.eval_interval == 0):
                 self.eval_episodes()
             if (config.max_steps != 0) and (self.total_steps >= config.max_steps):
                 self.close()
@@ -40,14 +38,14 @@ class BaseAgent:
         state_dict = torch.load('%s.model' % filename, map_location=lambda storage, loc: storage)
         self.network.load_state_dict(state_dict)
 
-    def eval_step(self, state):
-        raise NotImplementedError
-
     def eval_episode(self):
         raise NotImplementedError
 
     def eval_episodes(self):
         episodic_returns = []
         for ep in range(self.config.eval_episodes):
+            self.eval_ep = ep
             total_rewards = self.eval_episode()
-            episodic_returns.append(np.sum(total_rewards))
+            episodic_returns.append(total_rewards)
+        print('logging episodic return evaluation', self.total_steps)
+        self.writer.add_scalar('episodic_return_eval', np.mean(episodic_returns), self.total_steps)

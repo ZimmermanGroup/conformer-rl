@@ -15,12 +15,8 @@ from pathlib import Path
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
-# def get_time_str():
-#     return datetime.datetime.now().strftime("%y%m%d-%H%M%S")
-
-
-# def get_default_log_dir(name):
-#     return './log/%s-%s' % (name, get_time_str())
+def get_time_str():
+    return datetime.datetime.now().strftime("%y%m%d-%H%M%S")
 
 def random_seed(seed=None):
     np.random.seed(seed)

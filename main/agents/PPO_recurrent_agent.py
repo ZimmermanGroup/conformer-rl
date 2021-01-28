@@ -1,10 +1,11 @@
 from .agent_utils import Storage
 from .base_agent import BaseAgent
-from ..utils import to_np, tensor
+from ..utils import to_np, tensor, mkdir
 import time
 from torch_geometric.data import Data, Batch
 from torch_geometric.transforms import Distance
 from collections import deque
+from rdkit import Chem
 
 import numpy as np
 import numpy.random
@@ -58,14 +59,18 @@ class PPORecurrentAgent(BaseAgent):
         state = env.reset()
         done = True
         rstates = None
-        while True:
+        ret = None
+        current_step = 0
+        while ret is None:
+            current_step += 1
             action, rstates = self.eval_step(state, done, rstates)
             done = False
             state, reward, done, info = env.step(to_np(action))
+            molecule = env.render()[0]
+            path_str = f'./molecule_data/{self.config.tag}/{self.total_steps}/{self.eval_ep}'
+            mkdir(path_str)
+            Chem.MolToMolFile(molecule, path_str + f'/step_{current_step}.mol')
             ret = info[0]['episodic_return']
-            if ret is not None:
-                break
-
         return ret
 
 
@@ -99,15 +104,15 @@ class PPORecurrentAgent(BaseAgent):
                 prediction, (self.hp, self.cp, self.hv, self.cv) = self.network(states, (self.hp, self.cp, self.hv, self.cv))
                 end = time.time()
 
-                # self.logger.add_scalar('forward_pass_time', end-start, self.total_steps)
-
                 #step the environment with the action determined by the prediction
                 start = time.time()
                 next_states, rewards, terminals, info = self.task.step(to_np(prediction['a']))
                 end = time.time()
 
-                # self.logger.add_scalar('env_step_time', end-start, self.total_steps)
-                # self.record_online_return(info)
+                for idx, infoDict in enumerate(info):
+                    if infoDict['episodic_return'] is not None:
+                        print('logging episodic return train...', self.total_steps)
+                        self.writer.add_scalar('episodic_return_train', infoDict['episodic_return'], self.total_steps)
 
                 #add everything to storage
                 storage.add({
@@ -142,8 +147,6 @@ class PPORecurrentAgent(BaseAgent):
                 if len(self.reward_buffer) >= self.curr.min_length + config.num_workers:
                     rewbuf = np.array(self.reward_buffer)[-1 * self.curr.min_length:]
                     conds = rewbuf > self.curr.win_cond
-
-                    # self.logger.add_scalar('win_percent', conds.mean(), self.total_steps)
 
                     if conds.mean() > self.curr.success_percent:
                         self.task.env_method('change_level', True)
@@ -205,7 +208,7 @@ class PPORecurrentAgent(BaseAgent):
 
         advantages = (advantages - advantages.mean()) / advantages.std()
 
-        # self.logger.add_scalar('advantages', advantages.mean(), self.total_steps)
+        self.writer.add_scalar('advantages', advantages.mean(), self.total_steps)
 
         states = []
         for block in states_mem:
@@ -288,12 +291,9 @@ class PPORecurrentAgent(BaseAgent):
                 batch_value_loss /= self.recurrence
                 batch_loss /= self.recurrence
 
-                # self.logger.add_scalar('entropy_loss', batch_entropy, self.total_steps)
-                # self.logger.add_scalar('policy_loss', batch_policy_loss, self.total_steps)
-                # self.logger.add_scalar('value_loss', batch_value_loss, self.total_steps)
-
-                # self.logger.add_scalar('reserved_bytes', torch.cuda.memory_reserved() / (1024 * 1024), self.total_steps)
-                # print('reserved_bytes', torch.cuda.memory_reserved() / (1024 * 1024))
+                self.writer.add_scalar('entropy_loss', batch_entropy, self.total_steps)
+                self.writer.add_scalar('policy_loss', batch_policy_loss, self.total_steps)
+                self.writer.add_scalar('value_loss', batch_value_loss, self.total_steps)
 
                 start = time.time()
                 self.optimizer.zero_grad()
@@ -302,7 +302,5 @@ class PPORecurrentAgent(BaseAgent):
                 self.optimizer.step()
                 end = time.time()
 
-                # self.logger.add_scalar('backwards_pass_time', end-start, self.total_steps)
 
         end_train = time.time()
-        # self.logger.add_scalar('train_loop_time', end_train-start_train, self.total_steps)

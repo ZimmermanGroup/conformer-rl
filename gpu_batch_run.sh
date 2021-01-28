@@ -3,8 +3,7 @@
 
 #“#SBATCH” directives that convey submission options:
 
-#SBATCH --job-name=conformer_generation
-#ppo_rtgn_pruning_fix_lignin_curr
+#SBATCH --job-name=train_xorgate_v2
 #SBATCH --mail-user=runxuanj@umich.edu
 #SBATCH --cpus-per-task=20
 #SBATCH --gres=gpu:1
@@ -14,8 +13,8 @@
 #SBATCH --partition=gpu
 #SBATCH --output=/home/%u/%x-%j.log
 #SBATCH --get-user-env
+
 # The application(s) to execute along with its input arguments and options:
 cd ~/conformer_generation/conformer-ml
-module load cuda/10.1.243
-module load gcc
-python -u run_batch_train.py
+conda activate my-rdkit-env
+python -u train_XorGate_0.py

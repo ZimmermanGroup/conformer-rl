@@ -13,7 +13,6 @@ from torch_geometric.transforms import Distance, NormalizeScale, Center, Normali
 import logging
 
 from ...utils import ConformerGeneratorCustom, print_torsions
-from .molecule_converters import mol2vecskeletonpoints
 
 confgen = ConformerGeneratorCustom(max_conformers=1,
                              rmsd_threshold=None,
@@ -23,18 +22,14 @@ confgen = ConformerGeneratorCustom(max_conformers=1,
 class ConformerEnv(gym.Env):
     metadata = {'render.modes': ['human']}
 
-    def __init__(self, mol_config, max_steps=5, temp_0=1., pruning_thresh=0.05):
+    def __init__(self, mol_config, max_steps=200):
         super(ConformerEnv, self).__init__()
-
-        self.temp_0 = temp_0 # temperature normalization constant
-        self.pruning_thresh = pruning_thresh
+        print('initializing conformer environment')
+        self.episode_count = 0
         self.mol_config = mol_config
         self.max_steps = max_steps
         self.total_reward = 0
-
         self.current_step = 0
-        self.repeats = 0
-        self.seen = set()
 
         self.reset()
 
@@ -52,85 +47,57 @@ class ConformerEnv(gym.Env):
         done = self._get_done()
         info = self._get_info()
 
-        print("reward is ", reward)
-        print ("new state is:")
-        print_torsions(self.molecule)
+        print("episode", self.episode_count, "step", self.current_step, "reward", reward)
+        self.render()
 
         return obs, reward, done, info
         
     def reset(self):
+        print("reset called")
+        print("epsiode", self.episode_count, "total reward", self.total_reward)
+        self.episode_count += 1
         self.total_reward = 0
         self.current_step = 0
-        self.repeats = 0
-        self.seen = set()
 
-        self.mol = self._get_mol()
-
-        self.molecule = self.mol.molecule
-
-        if self.mol.inv_temp is not None:
-            self.temp_0 = self.mol.inv_temp
-
-        self.standard_energy = self.mol.standard
-
-        if self.mol.total is not None:
-            self.total = self.mol.total
-        else:
-            self.total = 1.
-
-        self.conf = self.molecule.GetConformer(id=0)
-        nonring, ring = TorsionFingerprints.CalculateTorsionLists(self.molecule)
-        self.nonring = [list(atoms[0]) for atoms, ang in nonring]
-
-        print('reset called\n\n\n\n\n')
-        print_torsions(self.molecule)
+        self.selected_config = self._select_molecule()
+        self._parse_molecule()
 
         obs = self._get_obs()
         return obs
 
-    def render(self, mode='human'):
-        pass
-
-    def _get_mol(self):
-        return self.mol_config[0]
-
-    def _get_obs(self):
-        data = Batch.from_data_list([mol2vecskeletonpoints(self.molecule)])
-        return data, self.nonring
-
-    def _get_reward(self):
-        if tuple(self.action) in self.seen:
-            self.repeats += 1
-            return 0.
-        else:
-            self.seen.add(tuple(self.action))
-            energy = confgen.get_conformer_energies(self.molecule)[0]
-            energy = energy * self.temp_0
-            return np.exp(-1.0 * (energy - self.standard_energy)) / self.total
-
     def _get_done(self):
-        return (self.current_step == self.max_steps)
+        return (self.current_step > self.max_steps)
 
     def _get_info(self):
         info = {}
         done = self._get_done()
         if (done):
-            info['repeats'] = self.repeats
             info['episodic_return'] = self.total_reward
         else:
             info['episodic_return'] = None
         
         return info
 
-    def _handle_action(self):
-        desired_torsions = []
+    def render(self, mode='human'):
+        return self.molecule
 
-        for idx, tors in enumerate(self.nonring):
-            deg = Chem.rdMolTransforms.GetDihedralDeg(self.conf, *tors)
-            ang = -180.0 + 60 * self.action[idx]
-            desired_torsions.append(ang)
-            Chem.rdMolTransforms.SetDihedralDeg(self.conf, tors[0], tors[1], tors[2], tors[3], float(ang))
-        Chem.AllChem.MMFFOptimizeMolecule(self.molecule, confId=0)
+    def _select_molecule(self):
+        return self.mol_config[0]
+
+    def _parse_molecule(self):
+        self.molecule = self.selected_config.molecule
+        self.conf = self.molecule.GetConformer(id=0)
+        nonring, ring = TorsionFingerprints.CalculateTorsionLists(self.molecule)
+        self.nonring = [list(atoms[0]) for atoms, ang in nonring]
+
+    def _get_obs(self):
+        raise NotImplementedError
+
+    def _get_reward(self):
+        raise NotImplementedError
+
+    def _handle_action(self):
+        raise NotImplementedError
 
     def _update_memory(self):
         pass

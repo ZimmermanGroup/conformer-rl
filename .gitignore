@@ -1,7 +1,8 @@
 # log files
-tf_log/
-log/
-data/*
+data/
+model_data/
+train_data/
+molecule_data/
 
 #input files
 #molecules/

@@ -4,10 +4,11 @@ from .xor_gate import XorGate
 from rdkit.Chem.rdmolops import FastFindRings
 
 class MoleculeWrapper():
-    def __init__(self, mol_input, standard, inv_temp=None, total=None, input_type='smiles'):
+    def __init__(self, mol_input, standard, inv_temp=None, total=None, pruning_thresh=0.05, input_type='smiles'):
         self.standard = standard
         self.inv_temp = inv_temp
         self.total = total
+        self.pruning_thresh = pruning_thresh
 
         if input_type == 'smiles':
             self.molecule = Chem.MolFromSmiles(mol_input)
@@ -27,7 +28,7 @@ class MoleculeWrapper():
 DIFF = [MoleculeWrapper(mol_input="CC(CCC)CCCC(CCCC)CC", standard=7.668625034772399, total=13.263723987526067)]
 
 # Xorgate
-xor_gate = XorGate(gate_complexity=2, num_gates=3)
+xor_gate = XorGate(gate_complexity=2, num_gates=4)
 xor_gate = xor_gate.polymer.to_rdkit_mol()
-XORGATE = [MoleculeWrapper(xor_gate, standard=1., input_type='mol')]
+XORGATE = [MoleculeWrapper(xor_gate, standard=270, input_type='mol')]
 

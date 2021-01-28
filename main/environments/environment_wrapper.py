@@ -18,6 +18,6 @@ def make_env(env_id, seed, rank, **kwargs):
 
     return _thunk
 
-def Task(name, num_envs=1, seed=np.random.randint(int(1e5)), **kwargs):
+def Task(name, concurrency=False, num_envs=1, seed=np.random.randint(int(1e5)), **kwargs):
     envs = [make_env(name, seed, i, **kwargs) for i in range(num_envs)]
-    return SubprocVecEnv(envs)
+    return SubprocVecEnv(envs) if concurrency else SimpleVecEnv(envs)
