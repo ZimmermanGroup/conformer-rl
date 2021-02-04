@@ -37,8 +37,8 @@ def append_mol_df(id, mol, df, num_gates):
 
     for gate in range(num_gates):
         df = df.append(get_gate_series(gate), ignore_index=True)
-        if not get_gate_series(gate)['xor']:
-            return old_df
+        # if not get_gate_series(gate)['xor']:
+        #     return old_df
     return df
 
 # generate a dataframe with properties of xor gate conformers from a TorsionNet log directory
@@ -69,7 +69,7 @@ display(alt.Chart(df).mark_rect().encode(
 )
 def correlation_chart(df):
     return alt.Chart(df).mark_square().encode(
-        facet='gate:O',
+        facet=alt.Facet('gate:O', columns=4),
         x='tor_1_bool:O',
         y='tor_2_bool:O',
         size=alt.Size('count()', scale=alt.Scale(range=[0, 1500]))
@@ -90,20 +90,33 @@ display(df_temp)
 
 # %%
 import altair as alt
-from vega_datasets import data
+import numpy as np
 
-# df_iris = data.iris()
-df_iris = df_temp
-df_iris.columns = df_iris.columns.to_flat_index()
-display(df_iris.corr())
-corrMatrix = df_iris.corr().reset_index().melt('index')
-corrMatrix.columns = ['var1', 'var2', 'correlation']
+df_temp_2 = df_temp
+display(df_temp_2)
+# df_temp_2.columns = df_temp_2.columns.to_flat_index()
+display(df_temp_2.corr())
+
+corrMatrix = df_temp_2.corr().abs().fillna(1)
+np.fill_diagonal(corrMatrix.values, np.NaN)
+corrMatrix = corrMatrix.mean(axis=1, level='gate')
+# display(corrMatrix)
+grouped = corrMatrix.groupby(level='gate')
+corrMatrix = grouped.mean()
+
+display(corrMatrix)
+corrMatrix = corrMatrix.melt(ignore_index=False)
+corrMatrix.index.name = 'gate_1'
+corrMatrix = corrMatrix.reset_index()
+# corrMatrix = corrMatrix.reset_index().melt('index')
+# corrMatrix = pd.wide_to_long(corrMatrix, stubnames=)
+corrMatrix.columns = ['gate_1', 'gate_2', 'correlation']
 
 base = alt.Chart(corrMatrix).transform_filter(
-    alt.datum.var1 < alt.datum.var2
+    alt.datum.gate_1 <= alt.datum.gate_2
 ).encode(
-    x='var1',
-    y='var2',
+    x='gate_1:O',
+    y='gate_2:O',
 ).properties(
     width=alt.Step(30),
     height=alt.Step(30)
