@@ -3,11 +3,11 @@ import random
 import argparse
 import torch
 
-from main import mkdir
-from main import PPORecurrentAgent
-from main import Config
-from main import Task, Curriculum
-from main import RTGNBatch
+from main.utils import *
+from main.agents import PPORecurrentAgent
+from main.config import Config
+from main.environments import Task
+from main.models import RTGNBatch
 
 from generate_molecule import DIFF, XORGATE
 
@@ -47,7 +47,6 @@ def ppo_feature(tag, model):
     config.train_env = Task('ConfEnv-v1', concurrency=True, num_envs=config.num_workers, seed=random.randint(0,1e5), mol_config=DIFF, max_steps=200)
     config.eval_env = Task('ConfEnv-v1', seed=random.randint(0,7e4), mol_config=DIFF, max_steps=200)
     config.curriculum = None
-    # config.curriculum = Curriculum(min_length=config.num_workers)
 
     return PPORecurrentAgent(config)
 
@@ -55,11 +54,7 @@ def ppo_feature(tag, model):
 if __name__ == '__main__':
     nnet = RTGNBatch(6, 128, edge_dim=6, point_dim=5)
     nnet.to(device)
-    mkdir('train_data')
-    mkdir('model_data')
-    mkdir('molecule_data')
-    # set_one_thread()
-    # select_device(0)
-    tag = 'Diff-v1'
+    set_one_thread()
+    tag = 'Diff-v2'
     agent = ppo_feature(tag=tag, model=nnet)
     agent.run_steps()

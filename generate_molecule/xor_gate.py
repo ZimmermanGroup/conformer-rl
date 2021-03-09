@@ -115,10 +115,13 @@ if __name__ == "__main__":
     doctest.testmod(optionflags = doctest.NORMALIZE_WHITESPACE, verbose=True)
     
     # visualize the molecule used in the documentation tests
-    xor_gate = XorGate(gate_complexity=2, num_gates=4)
+    xor3_gate = XorGate(gate_complexity=2, num_gates=4)
+    xor_gate = XorGate(gate_complexity=2, num_gates=1)
+    display(Draw.MolToImage(mol_with_atom_index(xor3_gate.polymer.to_rdkit_mol()),size=(700,300)))
     display(Draw.MolToImage(mol_with_atom_index(xor_gate.polymer.to_rdkit_mol()),size=(700,300)))
     
     # test new stk method for getting a corresponding building block atom
     print(list(xor_gate.polymer.get_atom_infos())[10].get_building_block_atom())
 
 # %%
+

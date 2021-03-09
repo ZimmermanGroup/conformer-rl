@@ -1,93 +1,21 @@
 import numpy as np
 import bisect
-import torch
 import logging
-from deepchem.utils import conformers
 from tqdm import tqdm
-import mdtraj as md
-from rdkit import Chem, rdBase
+from rdkit import Chem
 from rdkit.Chem import AllChem, TorsionFingerprints
 
-class ConformerGeneratorCustom(conformers.ConformerGenerator):
-    # pruneRmsThresh=-1 means no pruning done here
-    # I don't use embed_molecule() because it does AddHs() & EmbedMultipleConfs()
-    def __init__(self, *args, **kwargs):
-        super(ConformerGeneratorCustom, self).__init__(*args, **kwargs)
-
-
-    # add progress bar
-    def minimize_conformers(self, mol):
-        """
-        Minimize molecule conformers.
-
-        Parameters
-        ----------
-        mol : RDKit Mol
-                Molecule.
-        """
-        pbar = tqdm(total=mol.GetNumConformers())
-        for conf in mol.GetConformers():
-            ff = self.get_molecule_force_field(mol, conf_id=conf.GetId())
-            ff.Minimize()
-            pbar.update(1)
-        pbar.close()
-
-    def prune_conformers(self, mol, rmsd, heavy_atoms_only=True):
-        """
-        Prune conformers from a molecule using an RMSD threshold, starting
-        with the lowest energy conformer.
-
-        Parameters
-        ----------
-        mol : RDKit Mol
-                Molecule.
-
-        Returns
-        -------
-        new: A new RDKit Mol containing the chosen conformers, sorted by
-                 increasing energy.
-        new_rmsd: matrix of conformer-conformer RMSD
-        """
-        if self.rmsd_threshold < 0 or mol.GetNumConformers() <= 1:
-            return mol
-        energies = self.get_conformer_energies(mol)
-    #     rmsd = get_conformer_rmsd_fast(mol)
-
-        sort = np.argsort(energies)  # sort by increasing energy
-        keep = []  # always keep lowest-energy conformer
-        discard = []
-
-        for i in sort:
-            # always keep lowest-energy conformer
-            if len(keep) == 0:
-                keep.append(i)
-                continue
-
-            # discard conformers after max_conformers is reached
-            if len(keep) >= self.max_conformers:
-                discard.append(i)
-                continue
-
-            # get RMSD to selected conformers
-            this_rmsd = rmsd[i][np.asarray(keep, dtype=int)]
-
-            # discard conformers within the RMSD threshold
-            if np.all(this_rmsd >= self.rmsd_threshold):
-                keep.append(i)
-            else:
-                discard.append(i)
-
-        # create a new molecule to hold the chosen conformers
-        # this ensures proper conformer IDs and energy-based ordering
-        new = Chem.Mol(mol)
-        new.RemoveAllConformers()
-        conf_ids = [conf.GetId() for conf in mol.GetConformers()]
-        for i in keep:
-            conf = mol.GetConformer(conf_ids[i])
-            new.AddConformer(conf, assignId=True)
-
-        new_rmsd = get_conformer_rmsd_fast(new, heavy_atoms_only=heavy_atoms_only)
-        return new, new_rmsd
+def get_conformer_energies(mol):
+    energies = []
+    AllChem.MMFFSanitizeMolecule(mol)
+    mmff_props = AllChem.MMFFGetMoleculeProperties(mol)
+    for conf in mol.GetConformers():
+        ff = AllChem.MMFFGetMoleculeForceField(mol, mmff_props, confId=conf.GetId())
+        energy = ff.CalcEnergy()
+        energies.append(energy)
+    
+    return np.asarray(energies, dtype=float)
+    
 
 def prune_last_conformer(mol, tfd_thresh, energies=None, quick=False):
     """
@@ -104,8 +32,6 @@ def prune_last_conformer(mol, tfd_thresh, energies=None, quick=False):
     new: A new RDKit Mol containing the chosen conformers, sorted by
              increasing energy.
     """
-
-    confgen = ConformerGeneratorCustom()
 
     if tfd_thresh < 0 or mol.GetNumConformers() <= 1:
         return mol
@@ -167,8 +93,6 @@ def prune_last_conformer_quick(mol, tfd_thresh, energies=None):
              increasing energy.
     """
 
-    confgen = ConformerGeneratorCustom()
-
     if tfd_thresh < 0 or mol.GetNumConformers() <= 1:
         return mol
 
@@ -185,7 +109,7 @@ def prune_last_conformer_quick(mol, tfd_thresh, energies=None):
 
 
 
-def prune_conformers(mol, tfd_thresh, rmsd=False):
+def prune_conformers(mol, tfd_thresh):
     """
     Prune conformers from a molecule using an TFD/RMSD threshold, starting
     with the lowest energy conformer.
@@ -201,17 +125,13 @@ def prune_conformers(mol, tfd_thresh, rmsd=False):
              increasing energy.
     """
 
-    confgen = ConformerGeneratorCustom()
 
     if tfd_thresh < 0 or mol.GetNumConformers() <= 1:
         return mol
 
-    energies = confgen.get_conformer_energies(mol)
+    energies = get_conformer_energies(mol)
 
-    if not rmsd:
-        tfd = array_to_lower_triangle(Chem.TorsionFingerprints.GetTFDMatrix(mol, useWeights=False), True)
-    else:
-        tfd = get_conformer_rmsd_fast(mol)
+    tfd = array_to_lower_triangle(Chem.TorsionFingerprints.GetTFDMatrix(mol, useWeights=False), True)
     sort = np.argsort(energies)  # sort by increasing energy
     keep = []  # always keep lowest-energy conformer
     discard = []
@@ -249,20 +169,27 @@ def print_torsions(mol):
     print(degs)
 
 def print_energy(mol):
-    confgen = ConformerGeneratorCustom(max_conformers=1,
-                                 rmsd_threshold=None,
-                                 force_field='mmff',
-                                 pool_multiplier=1)
-    print(confgen.get_conformer_energies(mol))
+    print(get_conformer_energies(mol))
 
 
 
-# def load_from_sdf(sdf_file):
-#     """
-#     """
-#     suppl = Chem.SDMolSupplier(sdf_file, removeHs=False) #, strictParsing=False
-#     sdf_mols = [mol for mol in suppl]
-#     return sdf_mols
+def load_from_sdf(sdf_file):
+    """
+    """
+    suppl = Chem.SDMolSupplier(sdf_file, removeHs=False) #, strictParsing=False
+    sdf_mols = [mol for mol in suppl]
+    return sdf_mols
+
+def array_to_lower_triangle(arr, get_symm=False):
+    # convert list to lower triangle mat
+    n = int(np.sqrt(len(arr)*2))+1
+    idx = np.tril_indices(n, k=-1, m=n)
+    lt_mat = np.zeros((n,n))
+    lt_mat[idx] = arr
+    if get_symm == True:
+        return lt_mat + np.transpose(lt_mat) # symmetric matrix
+    return lt_mat
+
 
 # def load_trajectories(dcd_files, psf_files, stride=1):
 #     """
@@ -386,15 +313,6 @@ def print_energy(mol):
 #     ix_lt = np.tril_indices(n, k=-1)
 #     return mat[ix_lt]
 
-# def array_to_lower_triangle(arr, get_symm=False):
-#     # convert list to lower triangle mat
-#     n = int(np.sqrt(len(arr)*2))+1
-#     idx = np.tril_indices(n, k=-1, m=n)
-#     lt_mat = np.zeros((n,n))
-#     lt_mat[idx] = arr
-#     if get_symm == True:
-#         return lt_mat + np.transpose(lt_mat) # symmetric matrix
-#     return lt_mat
 
 # def save_xyz(m, file):
 #     """
@@ -469,7 +387,3 @@ def print_energy(mol):
 #                     continue
 #                 torsionList.append((idx1, idx2, idx3, idx4))
 #     return torsionList
-
-
-
-

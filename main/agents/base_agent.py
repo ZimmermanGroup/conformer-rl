@@ -5,13 +5,16 @@ import time
 import time
 import torch
 from torch.utils.tensorboard import SummaryWriter
-from ..utils import to_np, get_time_str
+from ..utils import *
 
 class BaseAgent:
     def __init__(self, config):
         self.config = config
         self.writer = SummaryWriter(log_dir = f'./train_data/{config.tag}-{get_time_str()}')
         self.task_ind = 0
+        mkdir('train_data')
+        mkdir('model_data')
+        mkdir('molecule_data')
 
     def run_steps(self):
         config = self.config

@@ -1,23 +1,7 @@
 import numpy as np
 import gym
 
-from rdkit import Chem
-from rdkit.Chem import AllChem, TorsionFingerprints
-
-import os.path
-import multiprocessing
-
-from torch_geometric.data import Data, Batch
-from torch_geometric.transforms import Distance, NormalizeScale, Center, NormalizeRotation
-
-import logging
-
-from ...utils import ConformerGeneratorCustom, print_torsions
-
-confgen = ConformerGeneratorCustom(max_conformers=1,
-                             rmsd_threshold=None,
-                             force_field='mmff',
-                             pool_multiplier=1)
+from rdkit.Chem import TorsionFingerprints
 
 class ConformerEnv(gym.Env):
     metadata = {'render.modes': ['human']}

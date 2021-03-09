@@ -20,9 +20,8 @@ class MoleculeWrapper():
             self.molecule.UpdatePropertyCache()
             FastFindRings(self.molecule)
 
-            
-        res = Chem.AllChem.EmbedMultipleConfs(self.molecule, numConfs=1)
-        res = Chem.AllChem.MMFFOptimizeMoleculeConfs(self.molecule)
+        Chem.AllChem.EmbedMultipleConfs(self.molecule, numConfs=1)
+        Chem.AllChem.MMFFOptimizeMoleculeConfs(self.molecule, maxIters=200)
             
 # Diff
 DIFF = [MoleculeWrapper(mol_input="CC(CCC)CCCC(CCCC)CC", standard=7.668625034772399, total=13.263723987526067)]

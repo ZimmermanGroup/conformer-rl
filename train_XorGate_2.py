@@ -7,7 +7,7 @@ from main.utils import *
 from main.agents import PPORecurrentAgent
 from main.config import Config
 from main.environments import Task
-from main.models import RTGNBatch
+from main.models import RTGNBatchNoLstm
 
 from generate_molecule import DIFF, XORGATE
 
@@ -23,7 +23,7 @@ def ppo_feature(tag, model):
 
     # Batch Hyperparameters
     config.num_workers = 20
-    config.rollout_length = 20
+    config.rollout_length = 40
     config.recurrence = 2
     config.optimization_epochs = 4
     config.max_steps = 10000000
@@ -52,9 +52,9 @@ def ppo_feature(tag, model):
 
 
 if __name__ == '__main__':
-    nnet = RTGNBatch(6, 128, edge_dim=6, point_dim=5)
+    nnet = RTGNBatchNoLstm(6, 64, edge_dim=6, point_dim=5)
     nnet.to(device)
     set_one_thread()
-    tag = 'xorgate-1.5'
+    tag = 'xorgate-3'
     agent = ppo_feature(tag=tag, model=nnet)
     agent.run_steps()

@@ -1,9 +1,6 @@
 from .agent_utils import Storage
 from .base_agent import BaseAgent
 from ..utils import to_np, tensor, mkdir
-import time
-from torch_geometric.data import Data, Batch
-from torch_geometric.transforms import Distance
 from collections import deque
 from rdkit import Chem
 
@@ -100,16 +97,12 @@ class PPORecurrentAgent(BaseAgent):
                 })
 
                 #run the neural net once to get prediction
-                start = time.time()
                 prediction, (self.hp, self.cp, self.hv, self.cv) = self.network(states, (self.hp, self.cp, self.hv, self.cv))
-                end = time.time()
 
                 #step the environment with the action determined by the prediction
-                start = time.time()
                 next_states, rewards, terminals, info = self.task.step(to_np(prediction['a']))
-                end = time.time()
 
-                for idx, infoDict in enumerate(info):
+                for _, infoDict in enumerate(info):
                     if infoDict['episodic_return'] is not None:
                         print('logging episodic return train...', self.total_steps)
                         self.writer.add_scalar('episodic_return_train', infoDict['episodic_return'], self.total_steps)
@@ -206,6 +199,7 @@ class PPORecurrentAgent(BaseAgent):
         hv = torch.stack(storage.hv, 2).view(-1, self.hidden_size)
         cv = torch.stack(storage.cv, 2).view(-1, self.hidden_size)
 
+
         advantages = (advantages - advantages.mean()) / advantages.std()
 
         self.writer.add_scalar('advantages', advantages.mean(), self.total_steps)
@@ -219,7 +213,6 @@ class PPORecurrentAgent(BaseAgent):
         ############################################################################################
         #Training Loop
         ############################################################################################
-        start_train = time.time()
 
         for _ in range(config.optimization_epochs):
             indices = numpy.arange(0, self.config.rollout_length * self.config.num_workers, self.recurrence)
@@ -295,12 +288,7 @@ class PPORecurrentAgent(BaseAgent):
                 self.writer.add_scalar('policy_loss', batch_policy_loss, self.total_steps)
                 self.writer.add_scalar('value_loss', batch_value_loss, self.total_steps)
 
-                start = time.time()
                 self.optimizer.zero_grad()
                 batch_loss.backward()
                 nn.utils.clip_grad_norm_(self.network.parameters(), config.gradient_clip)
                 self.optimizer.step()
-                end = time.time()
-
-
-        end_train = time.time()
