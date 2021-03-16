@@ -5,6 +5,7 @@ from rdkit.Chem import Draw
 import stk
 from itertools import cycle, islice
 from IPython.display import display
+from stk.molecular.atoms import atom_info
 
 
 class XorGate:
@@ -65,7 +66,19 @@ class XorGate:
         )
         display(Draw.MolToImage(mol_with_atom_index(
             individual_gate.to_rdkit_mol()), size=(700, 300)))
-        return stk.BuildingBlock.init_from_molecule(individual_gate)
+        def get_atom_map(building_block_id):
+            {atom_info.get_building_block_atom().get_id(): atom_info.get_atom().get_id()
+            for atom_info in individual_gate.get_atom_infos()
+            if atom_info.get_building_block_id() == building_block_id}
+        # get the first functional group in the first monomer
+        # get the last functional group in the last monomer
+        # map the atoms involved in these functional groups to the atom indices after construction
+        atom_map = {monomer.get_building_block_atom(gate_atom): gate_atom
+                    for gate_atom in individual_gate.}
+        # create the functional groups for this gate
+        functional_groups = [functional_group.with_atoms(atom_map)
+                             for functional_group in functional_groups]
+        return stk.BuildingBlock.init_from_molecule(individual_gate, functional_groups)
 
     def make_xor_monomer(self, position=0):
         # initialize building blocks
