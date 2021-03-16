@@ -31,12 +31,14 @@ class XorGate:
         self.num_torsions = num_gates * gate_complexity
 
         # construct XOR gate monomers
-        xor_gate_top = self.make_xor_monomer(position=0)
-        xor_gate_bottom = self.make_xor_monomer(position=3)
+        xor_gate_top = self.make_xor_individual_gate(self.make_xor_monomer(position=0))
+        xor_gate_bottom = self.make_xor_individual_gate(self.make_xor_monomer(position=3))
         
         # Example: for gate_complexity == 2, num_gates == 5, gives 'AABBAABBAA'
-        monomer_pattern = ''.join(islice(cycle('A' * gate_complexity + 'B' * gate_complexity),
-                                 num_gates * gate_complexity))
+        # monomer_pattern = ''.join(islice(cycle('A' * gate_complexity + 'B' * gate_complexity),
+        #                          num_gates * gate_complexity))
+        monomer_pattern = ''.join(islice(cycle('A' + 'B'),
+                                 num_gates))
         self.polymer = stk.ConstructedMolecule(
             topology_graph=stk.polymer.Linear(
                 building_blocks=(xor_gate_top, xor_gate_bottom),
@@ -52,6 +54,18 @@ class XorGate:
         # convert rdkit aromatic bonds to single and double bonds for portability
         Chem.rdmolops.Kekulize(mol)
         return stk.BuildingBlock.init_from_rdkit_mol(mol)
+    
+    def make_xor_individual_gate(self, xor_monomer):
+        individual_gate = stk.ConstructedMolecule(
+            topology_graph=stk.polymer.Linear(
+                building_blocks=(xor_monomer,),
+                repeating_unit='A',
+                num_repeating_units=self.gate_complexity
+            )
+        )
+        display(Draw.MolToImage(mol_with_atom_index(
+            individual_gate.to_rdkit_mol()), size=(700, 300)))
+        return stk.BuildingBlock.init_from_molecule(individual_gate)
 
     def make_xor_monomer(self, position=0):
         # initialize building blocks
@@ -124,4 +138,3 @@ if __name__ == "__main__":
     print(list(xor_gate.polymer.get_atom_infos())[10].get_building_block_atom())
 
 # %%
-
