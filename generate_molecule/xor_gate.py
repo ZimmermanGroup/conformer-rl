@@ -35,11 +35,8 @@ class XorGate:
         xor_gate_top = self.make_xor_individual_gate(self.make_xor_monomer(position=0))
         xor_gate_bottom = self.make_xor_individual_gate(self.make_xor_monomer(position=3))
         
-        # Example: for gate_complexity == 2, num_gates == 5, gives 'AABBAABBAA'
-        # monomer_pattern = ''.join(islice(cycle('A' * gate_complexity + 'B' * gate_complexity),
-        #                          num_gates * gate_complexity))
-        monomer_pattern = ''.join(islice(cycle('A' + 'B'),
-                                 num_gates))
+        # Example: for num_gates == 5, gives 'ABABA'
+        monomer_pattern = ''.join(islice(cycle('A' + 'B'), num_gates))
         self.polymer = stk.ConstructedMolecule(
             topology_graph=stk.polymer.Linear(
                 building_blocks=(xor_gate_top, xor_gate_bottom),
@@ -66,18 +63,18 @@ class XorGate:
         )
         display(Draw.MolToImage(mol_with_atom_index(
             individual_gate.to_rdkit_mol()), size=(700, 300)))
+        
         def get_atom_map(building_block_id):
-            {atom_info.get_building_block_atom().get_id(): atom_info.get_atom().get_id()
+            'map from monomer atom ids to gate atoms for a specified building block id'
+            return {atom_info.get_building_block_atom().get_id(): atom_info.get_atom()
             for atom_info in individual_gate.get_atom_infos()
             if atom_info.get_building_block_id() == building_block_id}
-        # get the first functional group in the first monomer
-        # get the last functional group in the last monomer
-        # map the atoms involved in these functional groups to the atom indices after construction
-        atom_map = {monomer.get_building_block_atom(gate_atom): gate_atom
-                    for gate_atom in individual_gate.}
-        # create the functional groups for this gate
-        functional_groups = [functional_group.with_atoms(atom_map)
-                             for functional_group in functional_groups]
+            
+        # construct the functional groups of the gate from the functional groups of the monomers
+        functional_groups = list(xor_monomer.get_functional_groups())
+        functional_groups = [functional_groups[0].with_atoms(get_atom_map(0)),
+                             functional_groups[1].with_atoms(get_atom_map(self.gate_complexity - 1))]
+        
         return stk.BuildingBlock.init_from_molecule(individual_gate, functional_groups)
 
     def make_xor_monomer(self, position=0):
@@ -101,9 +98,9 @@ class XorGate:
         # numbering starts at top and proceeds clockwise
         c_0, c_1, c_2, c_3, c_4, c_5 = stk.C(0), stk.C(
             1), stk.C(2), stk.C(3), stk.C(4), stk.C(5)
-        functional_groups = [stk.GenericFunctionalGroup(atoms=(c_0, c_1, c_2, c_3, c_4, c_5),
+        functional_groups = [stk.GenericFunctionalGroup(atoms=(c_0, c_3, c_4, c_5),
                                                         bonders=(c_0, c_3), deleters=(c_4, c_5)),
-                            stk.GenericFunctionalGroup(atoms=(c_0, c_1, c_2, c_3, c_4, c_5),
+                            stk.GenericFunctionalGroup(atoms=(c_1, c_2),
                                                         bonders=(c_1, c_2), deleters=())]
         return stk.BuildingBlock.init_from_molecule(xor_gate, functional_groups=functional_groups)
 
@@ -142,12 +139,12 @@ if __name__ == "__main__":
     doctest.testmod(optionflags = doctest.NORMALIZE_WHITESPACE, verbose=True)
     
     # visualize the molecule used in the documentation tests
-    xor3_gate = XorGate(gate_complexity=2, num_gates=4)
-    xor_gate = XorGate(gate_complexity=2, num_gates=1)
+    xor3_gate = XorGate(gate_complexity=3, num_gates=4)
+    # xor_gate = XorGate(gate_complexity=2, num_gates=1)
     display(Draw.MolToImage(mol_with_atom_index(xor3_gate.polymer.to_rdkit_mol()),size=(700,300)))
-    display(Draw.MolToImage(mol_with_atom_index(xor_gate.polymer.to_rdkit_mol()),size=(700,300)))
+    # display(Draw.MolToImage(mol_with_atom_index(xor_gate.polymer.to_rdkit_mol()),size=(700,300)))
     
     # test new stk method for getting a corresponding building block atom
-    print(list(xor_gate.polymer.get_atom_infos())[10].get_building_block_atom())
+    # print(list(xor_gate.polymer.get_atom_infos())[10].get_building_block_atom())
 
 # %%
