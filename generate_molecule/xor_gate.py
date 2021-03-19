@@ -45,14 +45,6 @@ class XorGate:
             )
         )
 
-    def init_building_block(self, smiles):
-        'construct a building block with hydrogens removed'
-        mol = stk.BuildingBlock(smiles=smiles)
-        mol = Chem.rdmolops.RemoveHs(mol.to_rdkit_mol(), sanitize=True)
-        # convert rdkit aromatic bonds to single and double bonds for portability
-        Chem.rdmolops.Kekulize(mol)
-        return stk.BuildingBlock.init_from_rdkit_mol(mol)
-    
     def make_xor_individual_gate(self, xor_monomer):
         individual_gate = stk.ConstructedMolecule(
             topology_graph=stk.polymer.Linear(
@@ -79,8 +71,8 @@ class XorGate:
 
     def make_xor_monomer(self, position=0):
         # initialize building blocks
-        benzene = self.init_building_block(smiles='C1=CC=CC=C1')
-        acetaldehyde = self.init_building_block(smiles='CC=O')
+        benzene = init_building_block(smiles='C1=CC=CC=C1')
+        acetaldehyde = init_building_block(smiles='CC=O')
         benzene = benzene.with_functional_groups([stk.SingleAtom(stk.C(position))])
         acetaldehyde = acetaldehyde.with_functional_groups(
             [stk.SingleAtom(stk.C(1))])
@@ -132,6 +124,14 @@ def mol_with_atom_index(mol):
     for atom in mol.GetAtoms():
         atom.SetAtomMapNum(atom.GetIdx())
     return mol
+
+def init_building_block(smiles):
+    'construct a building block with hydrogens removed'
+    mol = stk.BuildingBlock(smiles=smiles)
+    mol = Chem.rdmolops.RemoveHs(mol.to_rdkit_mol(), sanitize=True)
+    # convert rdkit aromatic bonds to single and double bonds for portability
+    Chem.rdmolops.Kekulize(mol)
+    return stk.BuildingBlock.init_from_rdkit_mol(mol)
 
 if __name__ == "__main__":
     # utilize the doctest module to check tests built into the documentation
