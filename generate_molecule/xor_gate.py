@@ -6,7 +6,7 @@ import stk
 from itertools import cycle, islice
 from IPython.display import display
 from stk.molecular.atoms import atom_info
-
+from stko.molecular.molecules.constructed_molecule_torsioned import ConstructedMoleculeTorsioned
 
 class XorGate:
     """
@@ -78,13 +78,14 @@ class XorGate:
             [stk.SingleAtom(stk.C(1))])
 
         # construct xor gate monomer
-        xor_gate = stk.ConstructedMolecule(
+        xor_monomer = stk.ConstructedMolecule(
             topology_graph=stk.polymer.Linear(
                 building_blocks=(benzene, acetaldehyde),
                 repeating_unit='AB',
                 num_repeating_units=1
             )
         )
+        xor_monomer = ConstructedMoleculeTorsioned(xor_monomer)
 
         # construct functional groups for xor gate monomer
         # numbering starts at top and proceeds clockwise
@@ -94,7 +95,7 @@ class XorGate:
                                                         bonders=(c_0, c_3), deleters=(c_4, c_5)),
                             stk.GenericFunctionalGroup(atoms=(c_1, c_2),
                                                         bonders=(c_1, c_2), deleters=())]
-        return stk.BuildingBlock.init_from_molecule(xor_gate, functional_groups=functional_groups)
+        return stk.BuildingBlock.init_from_molecule(xor_monomer, functional_groups=functional_groups)
 
     def get_torsions(self):
         'returns a list torsions in the molecule, where each torsion is a list of atom indices'
