@@ -7,6 +7,7 @@ from itertools import cycle, islice
 from IPython.display import display
 from stk.molecular.atoms import atom_info
 from stko.molecular.molecules.constructed_molecule_torsioned import ConstructedMoleculeTorsioned
+from stko.molecular.torsions.torsion import Torsion
 
 class XorGate:
     """
@@ -32,23 +33,26 @@ class XorGate:
         self.num_torsions = num_gates * gate_complexity
 
         # construct XOR gate monomers
-        xor_gate_top = self.make_xor_individual_gate(self.make_xor_monomer(position=0))
-        xor_gate_bottom = self.make_xor_individual_gate(self.make_xor_monomer(position=3))
+        xor_gate_top, top_building_block = self.make_xor_individual_gate(*self.make_xor_monomer(position=0))
+        xor_gate_bottom, bottom_building_block = self.make_xor_individual_gate(*self.make_xor_monomer(position=3))
         
         # Example: for num_gates == 5, gives 'ABABA'
         monomer_pattern = ''.join(islice(cycle('A' + 'B'), num_gates))
         self.polymer = stk.ConstructedMolecule(
             topology_graph=stk.polymer.Linear(
-                building_blocks=(xor_gate_top, xor_gate_bottom),
+                building_blocks=(top_building_block, bottom_building_block),
                 repeating_unit=monomer_pattern,
                 num_repeating_units=1,
             )
         )
+        self.polymer = ConstructedMoleculeTorsioned(self.polymer)
+        self.polymer.transfer_torsions({top_building_block : xor_gate_top,
+                                        bottom_building_block : xor_gate_bottom})
 
-    def make_xor_individual_gate(self, xor_monomer):
+    def make_xor_individual_gate(self, xor_monomer, xor_building_block):
         individual_gate = stk.ConstructedMolecule(
             topology_graph=stk.polymer.Linear(
-                building_blocks=(xor_monomer,),
+                building_blocks=(xor_building_block,),
                 repeating_unit='A',
                 num_repeating_units=self.gate_complexity
             )
@@ -56,18 +60,18 @@ class XorGate:
         display(Draw.MolToImage(mol_with_atom_index(
             individual_gate.to_rdkit_mol()), size=(700, 300)))
         
-        def get_atom_map(building_block_id):
-            'map from monomer atom ids to gate atoms for a specified building block id'
-            return {atom_info.get_building_block_atom().get_id(): atom_info.get_atom()
-            for atom_info in individual_gate.get_atom_infos()
-            if atom_info.get_building_block_id() == building_block_id}
+        individual_gate = ConstructedMoleculeTorsioned(individual_gate)
+        individual_gate.transfer_torsions({xor_building_block: xor_monomer})
             
         # construct the functional groups of the gate from the functional groups of the monomers
-        functional_groups = list(xor_monomer.get_functional_groups())
-        functional_groups = [functional_groups[0].with_atoms(get_atom_map(0)),
-                             functional_groups[1].with_atoms(get_atom_map(self.gate_complexity - 1))]
+        functional_groups = list(xor_building_block.get_functional_groups())
+        atom_maps = individual_gate.atom_maps
+        functional_groups = [functional_groups[0].with_atoms(atom_maps[0]),
+                             functional_groups[1].with_atoms(atom_maps[self.gate_complexity - 1])]
         
-        return stk.BuildingBlock.init_from_molecule(individual_gate, functional_groups)
+        gate_building_block = stk.BuildingBlock.init_from_molecule(individual_gate.stk_molecule,
+                                                                   functional_groups)
+        return individual_gate, gate_building_block
 
     def make_xor_monomer(self, position=0):
         # initialize building blocks
@@ -86,6 +90,12 @@ class XorGate:
             )
         )
         xor_monomer = ConstructedMoleculeTorsioned(xor_monomer)
+        
+        # set the initial torsions
+        if position == 0:
+            xor_monomer.set_torsions([Torsion(stk.C(1), stk.C(0), stk.C(7), stk.C(6))])
+        elif position == 3:
+            xor_monomer.set_torsions([Torsion(stk.C(2), stk.C(3), stk.C(7), stk.C(6))])
 
         # construct functional groups for xor gate monomer
         # numbering starts at top and proceeds clockwise
@@ -95,7 +105,9 @@ class XorGate:
                                                         bonders=(c_0, c_3), deleters=(c_4, c_5)),
                             stk.GenericFunctionalGroup(atoms=(c_1, c_2),
                                                         bonders=(c_1, c_2), deleters=())]
-        return stk.BuildingBlock.init_from_molecule(xor_monomer, functional_groups=functional_groups)
+        xor_building_block = stk.BuildingBlock.init_from_molecule(xor_monomer.stk_molecule,
+                                                                  functional_groups)
+        return xor_monomer, xor_building_block
 
     def get_torsions(self):
         'returns a list torsions in the molecule, where each torsion is a list of atom indices'
@@ -137,7 +149,7 @@ def init_building_block(smiles):
 if __name__ == "__main__":
     # utilize the doctest module to check tests built into the documentation
     import doctest
-    doctest.testmod(optionflags = doctest.NORMALIZE_WHITESPACE, verbose=True)
+    # doctest.testmod(optionflags = doctest.NORMALIZE_WHITESPACE, verbose=True)
     
     # visualize the molecule used in the documentation tests
     xor3_gate = XorGate(gate_complexity=3, num_gates=4)
