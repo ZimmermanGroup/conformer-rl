@@ -149,12 +149,17 @@ def init_building_block(smiles):
 if __name__ == "__main__":
     # utilize the doctest module to check tests built into the documentation
     import doctest
+    import importlib
+    import sys
+    importlib.reload(sys.modules[
+        'stko.molecular.molecules.constructed_molecule_torsioned'])
+    from stko.molecular.molecules.constructed_molecule_torsioned import ConstructedMoleculeTorsioned
     # doctest.testmod(optionflags = doctest.NORMALIZE_WHITESPACE, verbose=True)
     
     # visualize the molecule used in the documentation tests
     xor3_gate = XorGate(gate_complexity=3, num_gates=4)
     # xor_gate = XorGate(gate_complexity=2, num_gates=1)
-    display(Draw.MolToImage(mol_with_atom_index(xor3_gate.polymer.to_rdkit_mol()),size=(700,300)))
+    display(Draw.MolToImage(mol_with_atom_index(xor3_gate.polymer.stk_molecule.to_rdkit_mol()),size=(700,300)))
     # display(Draw.MolToImage(mol_with_atom_index(xor_gate.polymer.to_rdkit_mol()),size=(700,300)))
     
     # test new stk method for getting a corresponding building block atom
