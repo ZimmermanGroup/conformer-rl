@@ -12,13 +12,13 @@ from stko.molecular.torsions.torsion import Torsion
 class XorGate:
     """
     >>> xor_gate = XorGate(gate_complexity=2, num_gates=3)
-    >>> xor_gate.get_torsions()
-    [[1, 0, 7, 8],
-    [10, 9, 14, 15],
-    [17, 16, 21, 22],
-    [25, 26, 28, 29],
-    [32, 33, 35, 36],
-    [39, 40, 42, 43]]
+    >>> xor_gate.polymer.get_torsion_list()
+    [[1, 0, 7, 6],
+    [10, 9, 14, 13],
+    [17, 16, 21, 20],
+    [24, 23, 28, 27],
+    [32, 33, 35, 34],
+    [39, 40, 42, 41]]
     >>> xor_gate.num_torsions == xor_gate.num_gates * xor_gate.gate_complexity
     True
     >>> xor_gate.get_individual_gate().num_gates
@@ -57,8 +57,6 @@ class XorGate:
                 num_repeating_units=self.gate_complexity
             )
         )
-        display(Draw.MolToImage(mol_with_atom_index(
-            individual_gate.to_rdkit_mol()), size=(700, 300)))
         
         individual_gate = ConstructedMoleculeTorsioned(individual_gate)
         individual_gate.transfer_torsions({xor_building_block: xor_monomer})
@@ -109,17 +107,6 @@ class XorGate:
                                                                   functional_groups)
         return xor_monomer, xor_building_block
 
-    def get_torsions(self):
-        'returns a list torsions in the molecule, where each torsion is a list of atom indices'
-        mon_size = 7
-        num_atoms = self.polymer.get_num_atoms()
-        num_top_atoms = num_atoms // 2 + 1
-        nonring = [[1, 0, 7, 8]]
-        nonring += [[i+1, i, i+5, i+6] for i in range(9, num_top_atoms , mon_size)]
-        nonring += [[i-1, i, i+2, i+3] for i in range(num_top_atoms + 3, num_atoms, mon_size)]
-        return nonring
-
-
     def get_env(self):  # this may involve some environment refactoring
         'returns a gym environment corresponding to this molecule'
         raise NotImplementedError
@@ -154,7 +141,8 @@ if __name__ == "__main__":
     importlib.reload(sys.modules[
         'stko.molecular.molecules.constructed_molecule_torsioned'])
     from stko.molecular.molecules.constructed_molecule_torsioned import ConstructedMoleculeTorsioned
-    # doctest.testmod(optionflags = doctest.NORMALIZE_WHITESPACE, verbose=True)
+    # doctest.testmod(extraglobs={'xor_gate': None}, optionflags = doctest.NORMALIZE_WHITESPACE, verbose=True)
+    doctest.testmod(optionflags = doctest.NORMALIZE_WHITESPACE, verbose=True)
     
     # visualize the molecule used in the documentation tests
     xor3_gate = XorGate(gate_complexity=3, num_gates=4)
