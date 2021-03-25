@@ -38,16 +38,19 @@ class XorGate:
         
         # Example: for num_gates == 5, gives 'ABABA'
         monomer_pattern = ''.join(islice(cycle('A' + 'B'), num_gates))
-        self.polymer = stk.ConstructedMolecule(
-            topology_graph=stk.polymer.Linear(
-                building_blocks=(top_building_block, bottom_building_block),
-                repeating_unit=monomer_pattern,
-                num_repeating_units=1,
+        if monomer_pattern == 'A':
+            self.polymer = xor_gate_top
+        else:
+            self.polymer = stk.ConstructedMolecule(
+                topology_graph=stk.polymer.Linear(
+                    building_blocks=(top_building_block, bottom_building_block),
+                    repeating_unit=monomer_pattern,
+                    num_repeating_units=1,
+                )
             )
-        )
-        self.polymer = ConstructedMoleculeTorsioned(self.polymer)
-        self.polymer.transfer_torsions({top_building_block : xor_gate_top,
-                                        bottom_building_block : xor_gate_bottom})
+            self.polymer = ConstructedMoleculeTorsioned(self.polymer)
+            self.polymer.transfer_torsions({top_building_block : xor_gate_top,
+                                            bottom_building_block : xor_gate_bottom})
 
     def make_xor_individual_gate(self, xor_monomer, xor_building_block):
         individual_gate = stk.ConstructedMolecule(
