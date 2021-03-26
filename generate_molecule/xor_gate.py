@@ -5,7 +5,6 @@ from rdkit.Chem import Draw
 import stk
 from itertools import cycle, islice
 from IPython.display import display
-from stk.molecular.atoms import atom_info
 from stko.molecular.molecules.constructed_molecule_torsioned import ConstructedMoleculeTorsioned
 from stko.molecular.torsions.torsion import Torsion
 
@@ -19,10 +18,19 @@ class XorGate:
     [24, 23, 28, 27],
     [32, 33, 35, 34],
     [39, 40, 42, 41]]
-    >>> print(*[torsion_info.torsion for torsion_info in xor_gate.polymer.get_torsion_infos()], sep="\n")
-    Torsion(atom1=C(1), atom2=C(0), atom3=C(7), atom4=C(6))
-    Torsion(atom1=C(10), atom2=C(9), atom3=C(14), atom4=C(13))
-    ...
+    >>> display(Draw.MolToImage(mol_with_atom_index(xor_gate.polymer.stk_molecule.to_rdkit_mol()),
+    ...     size=(700,300)))
+    
+    Accessing the underlying CostructedMoleculeTorsioned allows for mapping from a torsion in
+    an xor gate to a corresponding torsion in the individual gate which contains it.
+    >>> test_torsion_info = xor_gate.polymer.get_torsion_infos_by_building_block()[2][0]
+    >>> test_torsion_info.torsion
+    Torsion(atom1=C(32), atom2=C(33), atom3=C(35), atom4=C(34))
+    >>> test_torsion_info.building_block_torsion
+    Torsion(atom1=C(2), atom2=C(3), atom3=C(7), atom4=C(6))
+    >>> display(Draw.MolToImage(mol_with_atom_index(
+    ...    test_torsion_info.building_block.to_rdkit_mol()), size=(700, 300)))
+
     >>> xor_gate.num_torsions == xor_gate.num_gates * xor_gate.gate_complexity
     True
     """
