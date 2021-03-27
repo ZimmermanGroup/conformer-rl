@@ -9,7 +9,7 @@ from stko.molecular.molecules.constructed_molecule_torsioned import ConstructedM
 from stko.molecular.torsions.torsion import Torsion
 
 class XorGate:
-    r"""
+    """
     >>> xor_gate = XorGate(gate_complexity=2, num_gates=3)
     >>> xor_gate.polymer.get_torsion_list()
     [[1, 0, 7, 6],
@@ -23,7 +23,7 @@ class XorGate:
     
     Accessing the underlying CostructedMoleculeTorsioned allows for mapping from a torsion in
     an xor gate to a corresponding torsion in the individual gate which contains it.
-    >>> test_torsion_info = xor_gate.polymer.get_torsion_infos_by_building_block()[2][0]
+    >>> test_torsion_info, *rest = xor_gate.polymer.get_torsion_infos_by_building_block()[2]
     >>> test_torsion_info.torsion
     Torsion(atom1=C(32), atom2=C(33), atom3=C(35), atom4=C(34))
     >>> test_torsion_info.building_block_torsion
@@ -108,8 +108,7 @@ class XorGate:
 
         # construct functional groups for xor gate monomer
         # numbering starts at top and proceeds clockwise
-        c_0, c_1, c_2, c_3, c_4, c_5 = stk.C(0), stk.C(
-            1), stk.C(2), stk.C(3), stk.C(4), stk.C(5)
+        c_0, c_1, c_2, c_3, c_4, c_5 = stk.C(0), stk.C(1), stk.C(2), stk.C(3), stk.C(4), stk.C(5)
         functional_groups = [stk.GenericFunctionalGroup(atoms=(c_0, c_3, c_4, c_5),
                                                         bonders=(c_0, c_3), deleters=(c_4, c_5)),
                             stk.GenericFunctionalGroup(atoms=(c_1, c_2),
@@ -117,22 +116,6 @@ class XorGate:
         xor_building_block = stk.BuildingBlock.init_from_molecule(xor_monomer.stk_molecule,
                                                                   functional_groups)
         return xor_monomer, xor_building_block
-
-    def get_individual_gate(self):
-        """return a corresponding XOR gate molecule with a single gate
-        
-        >>> xor_gate = XorGate(gate_complexity=2, num_gates=3)
-        >>> xor_gate.get_individual_gate().num_gates
-        1
-        >>> xor_gate.get_individual_gate().gate_complexity
-        2
-        """
-        return XorGate(self.gate_complexity, 1)
-
-    def individual_gate_torsion_idx(self, torsion_idx):
-        """given a torsion index, return the corresponding torsion index in an individual gate"""
-        return torsion_idx % self.gate_complexity
-
 
 def mol_with_atom_index(mol):
     """call on an rdkit molecule before visualizing to show atom indices in visualization"""
@@ -152,9 +135,5 @@ if __name__ == "__main__":
     """utilize the doctest module to check tests built into the documentation"""
     import doctest
     doctest.testmod(optionflags=doctest.NORMALIZE_WHITESPACE | doctest.ELLIPSIS, verbose=True)
-    
-    # visualize the molecule used in the documentation tests
-    xor_gate = XorGate(gate_complexity=2, num_gates=3)
-    display(Draw.MolToImage(mol_with_atom_index(xor_gate.polymer.stk_molecule.to_rdkit_mol()),size=(700,300)))
     
 # %%
