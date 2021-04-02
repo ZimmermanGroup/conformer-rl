@@ -69,6 +69,9 @@ if __name__ == '__main__':
     display(Draw.MolToImage(mol_with_atom_index(polymer.to_rdkit_mol()),
                             size=(700, 300)))
     
-
-
+    polymer = ConstructedMoleculeTorsioned(polymer)
+    for test_torsion_info in polymer.get_torsion_infos_by_building_block()[2]:
+    # test_torsion_info, *rest = 
+        print(test_torsion_info.torsion)
+        print(test_torsion_info.building_block_torsion)
 # %%
