@@ -123,13 +123,13 @@ def mol_with_atom_index(mol):
         atom.SetAtomMapNum(atom.GetIdx())
     return mol
 
-def init_building_block(smiles):
+def init_building_block(smiles, functional_groups=()):
     """construct a building block with hydrogens removed"""
     mol = stk.BuildingBlock(smiles=smiles)
     mol = Chem.rdmolops.RemoveHs(mol.to_rdkit_mol(), sanitize=True)
     # convert rdkit aromatic bonds to single and double bonds for portability
     Chem.rdmolops.Kekulize(mol)
-    return stk.BuildingBlock.init_from_rdkit_mol(mol)
+    return stk.BuildingBlock.init_from_rdkit_mol(mol, functional_groups)
 
 if __name__ == "__main__":
     """utilize the doctest module to check tests built into the documentation"""
