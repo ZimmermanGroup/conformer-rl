@@ -24,7 +24,7 @@ import glob
 import json
 import logging
 
-from ..utils import ConformerGeneratorCustom, print_torsions, prune_conformers, prune_last_conformer, prune_last_conformer_quick
+from torsionnet.utils import ConformerGeneratorCustom, print_torsions, prune_conformers, prune_last_conformer, prune_last_conformer_quick
 
 
 confgen = ConformerGeneratorCustom(max_conformers=1,

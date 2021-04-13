@@ -1,15 +1,14 @@
-from .agent_utils import Storage
-from .base_agent import BaseAgent
-from ..utils import to_np, tensor, mkdir
 from collections import deque
 from rdkit import Chem
-
 import numpy as np
 import numpy.random
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+
+from torsionnet.agents.agent_utils import Storage
+from torsionnet.agents.base_agent import BaseAgent
+from torsionnet.utils import to_np, tensor, mkdir
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 class PPORecurrentAgent(BaseAgent):
@@ -63,10 +62,10 @@ class PPORecurrentAgent(BaseAgent):
             action, rstates = self.eval_step(state, done, rstates)
             done = False
             state, reward, done, info = env.step(to_np(action))
-            molecule = env.render()[0]
-            path_str = f'./molecule_data/{self.config.tag}/{self.total_steps}/{self.eval_ep}'
-            mkdir(path_str)
-            Chem.MolToMolFile(molecule, path_str + f'/step_{current_step}.mol')
+            # molecule = env.render()[0]
+            # path_str = f'./molecule_data/{self.config.tag}/{self.total_steps}/{self.eval_ep}'
+            # mkdir(path_str)
+            # Chem.MolToMolFile(molecule, path_str + f'/step_{current_step}.mol')
             ret = info[0]['episodic_return']
         return ret
 
@@ -105,7 +104,7 @@ class PPORecurrentAgent(BaseAgent):
                 for _, infoDict in enumerate(info):
                     if infoDict['episodic_return'] is not None:
                         print('logging episodic return train...', self.total_steps)
-                        self.writer.add_scalar('episodic_return_train', infoDict['episodic_return'], self.total_steps)
+                        # self.writer.add_scalar('episodic_return_train', infoDict['episodic_return'], self.total_steps)
 
                 #add everything to storage
                 storage.add({
@@ -202,7 +201,7 @@ class PPORecurrentAgent(BaseAgent):
 
         advantages = (advantages - advantages.mean()) / advantages.std()
 
-        self.writer.add_scalar('advantages', advantages.mean(), self.total_steps)
+        # self.writer.add_scalar('advantages', advantages.mean(), self.total_steps)
 
         states = []
         for block in states_mem:
@@ -284,9 +283,9 @@ class PPORecurrentAgent(BaseAgent):
                 batch_value_loss /= self.recurrence
                 batch_loss /= self.recurrence
 
-                self.writer.add_scalar('entropy_loss', batch_entropy, self.total_steps)
-                self.writer.add_scalar('policy_loss', batch_policy_loss, self.total_steps)
-                self.writer.add_scalar('value_loss', batch_value_loss, self.total_steps)
+                # self.writer.add_scalar('entropy_loss', batch_entropy, self.total_steps)
+                # self.writer.add_scalar('policy_loss', batch_policy_loss, self.total_steps)
+                # self.writer.add_scalar('value_loss', batch_value_loss, self.total_steps)
 
                 self.optimizer.zero_grad()
                 batch_loss.backward()

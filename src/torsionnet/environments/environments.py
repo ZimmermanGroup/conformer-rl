@@ -1,7 +1,7 @@
-from .conformer_environment import ConformerEnv
-from .conformer_environment import GibbsRewardMixin, UniqueGibbsRewardMixin, PruningGibbsRewardMixin
-from .conformer_environment import DiscreteActionMixin
-from .conformer_environment import SkeletonPointsObsMixin, XorgateSkeletonPointsObsMixin
+from torsionnet.environments.conformer_environment import ConformerEnv
+from torsionnet.environments.conformer_environment import GibbsRewardMixin, UniqueGibbsRewardMixin, PruningGibbsRewardMixin
+from torsionnet.environments.conformer_environment import DiscreteActionMixin
+from torsionnet.environments.conformer_environment import SkeletonPointsObsMixin, XorgateSkeletonPointsObsMixin
 
 class GibbsEnv(GibbsRewardMixin, DiscreteActionMixin, SkeletonPointsObsMixin):
     pass

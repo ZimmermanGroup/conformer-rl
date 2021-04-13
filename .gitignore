@@ -4,13 +4,12 @@ model_data
 train_data
 molecule_data
 
-#input files
-#molecules/
 
 #python utility files
 __pycache__/
 .ipynb_checkpoints/
 */__pycache__/
+src/*.egg-info
 
 #vscode utility files
 .vscode/

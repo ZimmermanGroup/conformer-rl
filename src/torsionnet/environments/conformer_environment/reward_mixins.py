@@ -1,11 +1,10 @@
-from main.utils.chem_utils import get_conformer_energies
 import numpy as np
 import logging
 
 from rdkit import Chem
 
 from .conformer_env import ConformerEnv
-from ...utils import prune_conformers, prune_last_conformer, get_conformer_energies
+from torsionnet.utils import prune_conformers, prune_last_conformer, get_conformer_energies
 
 # Gibbs Score
 class GibbsRewardMixin(ConformerEnv):

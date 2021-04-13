@@ -32,8 +32,6 @@ Deep Reinforcement Learning for Conformer Generation
     - `pip install torch-cluster==latest+cu102 -f https://pytorch-geometric.com/whl/torch-1.5.0.html`
     - `pip install torch-spline-conv==latest+cu102 -f https://pytorch-geometric.com/whl/torch-1.5.0.html`
     - `pip install torch-geometric`
-3. Create "Data" Folder:
-    - `mkdir Data`
     
 **Part 3: Verify that environment is set up properly**
 1. Check that the current directory is the conformer-ml directory and the my-rdkit-env environment is active.

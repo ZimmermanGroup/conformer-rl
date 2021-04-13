@@ -5,15 +5,15 @@ from gym.envs.registration import register
 
 register(
     id='ConfEnv-v0',
-    entry_point='main.environments.environments:GibbsEnv'
+    entry_point='torsionnet.environments.environments:GibbsEnv'
 )
 
 register(
     id='ConfEnv-v1',
-    entry_point='main.environments.environments:GibbsPruningEnv'
+    entry_point='torsionnet.environments.environments:GibbsPruningEnv'
 )
 
 register(
     id='XorgateEnv-v0',
-    entry_point='main.environments.environments:XorgateHierarchicalEnv'
+    entry_point='torsionnet.environments.environments:XorgateHierarchicalEnv'
 )
