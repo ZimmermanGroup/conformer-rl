@@ -26,10 +26,10 @@ def ppo_feature(tag, model):
     config.rollout_length = 2
     config.recurrence = 1
     config.optimization_epochs = 1
-    config.max_steps = 10000000
-    config.save_interval = config.num_workers*200*5
-    config.eval_interval = config.num_workers*200*5
-    config.eval_episodes = 1
+    config.max_steps = 30
+    config.save_interval = 8
+    config.eval_interval = 8
+    config.eval_episodes = 3
     config.mini_batch_size = 4
 
     # Coefficient Hyperparameters
@@ -45,7 +45,7 @@ def ppo_feature(tag, model):
 
     # Task Settings
     config.train_env = Task('ConfEnv-v1', concurrency=False, num_envs=config.num_workers, seed=random.randint(0,1e5), mol_config=DIFF, max_steps=4)
-    config.eval_env = Task('ConfEnv-v1', seed=random.randint(0,7e4), mol_config=DIFF, max_steps=4)
+    config.eval_env = Task('ConfEnv-v1', seed=random.randint(0,7e4), mol_config=DIFF, max_steps=20)
     config.curriculum = None
 
     return PPORecurrentAgent(config)

@@ -62,6 +62,7 @@ class PPORecurrentAgent(BaseAgent):
             action, rstates = self.eval_step(state, done, rstates)
             done = False
             state, reward, done, info = env.step(to_np(action))
+            self.eval_logger.log_step(env.render()[0])
             # molecule = env.render()[0]
             # path_str = f'./molecule_data/{self.config.tag}/{self.total_steps}/{self.eval_ep}'
             # mkdir(path_str)

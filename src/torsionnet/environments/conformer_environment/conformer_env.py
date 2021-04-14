@@ -1,6 +1,6 @@
 import numpy as np
 import gym
-
+import copy
 from rdkit.Chem import TorsionFingerprints
 
 class ConformerEnv(gym.Env):
@@ -14,6 +14,8 @@ class ConformerEnv(gym.Env):
         self.max_steps = max_steps
         self.total_reward = 0
         self.current_step = 0
+
+        self.state = {}
 
         self.reset()
 
@@ -45,6 +47,8 @@ class ConformerEnv(gym.Env):
 
         self.selected_config = self._select_molecule()
         self._parse_molecule()
+        self.state["molecule"] = self.molecule
+        
 
         obs = self._get_obs()
         return obs
@@ -63,7 +67,7 @@ class ConformerEnv(gym.Env):
         return info
 
     def render(self, mode='human'):
-        return self.molecule
+        return copy.deepcopy(self.state)
 
     def _select_molecule(self):
         return self.mol_config[0]

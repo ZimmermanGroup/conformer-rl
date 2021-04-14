@@ -3,6 +3,7 @@ import numpy as np
 import torch
 from torch.utils.tensorboard import SummaryWriter
 from torsionnet.utils import *
+from torsionnet.logging import EvalLogger
 
 class BaseAgent:
     def __init__(self, config):
@@ -12,6 +13,8 @@ class BaseAgent:
         # mkdir('train_data')
         # mkdir('model_data')
         # mkdir('molecule_data')
+
+        self.eval_logger = EvalLogger(dir=f"./data/eval/{config.tag}-{get_time_str()}")
 
     def run_steps(self):
         config = self.config
@@ -48,5 +51,7 @@ class BaseAgent:
             self.eval_ep = ep
             total_rewards = self.eval_episode()
             episodic_returns.append(total_rewards)
+            self.eval_logger.log_episode({"total_rewards": total_rewards})
+            self.eval_logger.dump_episode(self.total_steps, self.eval_ep)
         print('logging episodic return evaluation', self.total_steps)
         # self.writer.add_scalar('episodic_return_eval', np.mean(episodic_returns), self.total_steps)
