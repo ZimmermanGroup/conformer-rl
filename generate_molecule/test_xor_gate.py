@@ -1,4 +1,6 @@
 from generate_molecule.xor_gate import XorGate
+import stk
+from stko.molecular.torsions.torsion import Torsion
 
 import pytest
 
@@ -11,3 +13,8 @@ def test_xor_gate():
                             [24, 23, 28, 27],
                             [32, 33, 35, 34],
                             [39, 40, 42, 41]]
+    test_torsion_info, *rest = xor_gate.polymer.get_torsion_infos_by_building_block()[2]
+    assert str(test_torsion_info.torsion) == str(Torsion(atom1=stk.C(32), atom2=stk.C(33), atom3=stk.C(35), atom4=stk.C(34)))
+
+def test_xor_gate_torsion_info():
+    pass
