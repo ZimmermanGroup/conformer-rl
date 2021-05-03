@@ -20,6 +20,7 @@ class XorGate:
     [39, 40, 42, 41]]
     >>> display(Draw.MolToImage(mol_with_atom_index(xor_gate.polymer.stk_molecule.to_rdkit_mol()),
     ...     size=(700,300)))
+    <PIL.PngImagePlugin.PngImageFile ...
     
     Accessing the underlying CostructedMoleculeTorsioned allows for mapping from a torsion in
     an xor gate to a corresponding torsion in the individual gate which contains it.
@@ -30,6 +31,7 @@ class XorGate:
     Torsion(atom1=C(2), atom2=C(3), atom3=C(7), atom4=C(6))
     >>> display(Draw.MolToImage(mol_with_atom_index(
     ...    test_torsion_info.building_block.to_rdkit_mol()), size=(700, 300)))
+    <PIL.PngImagePlugin.PngImageFile ...
 
     >>> xor_gate.num_torsions == xor_gate.num_gates * xor_gate.gate_complexity
     True
