@@ -10,7 +10,10 @@ Welcome to torsionnet's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-
+test function
+=============
+.. automodule:: torsionnet.logging.env_logger
+   :members:
 
 Indices and tables
 ==================
