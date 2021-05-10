@@ -8,11 +8,11 @@ import os
 from stable_baselines3.common.vec_env.subproc_vec_env import SubprocVecEnv
 from .simple_vec_env import SimpleVecEnv
 
-from ..utils import mkdir, random_seed
+from ..utils import mkdir
 
 def make_env(env_id, seed, rank, **kwargs):
     def _thunk():
-        random_seed(seed + rank)
+        np.random.seed(seed + rank)
         env = gym.make(env_id, **kwargs)
         return env
 

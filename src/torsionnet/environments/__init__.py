@@ -12,8 +12,3 @@ register(
     id='ConfEnv-v1',
     entry_point='torsionnet.environments.environments:GibbsPruningEnv'
 )
-
-register(
-    id='XorgateEnv-v0',
-    entry_point='torsionnet.environments.environments:XorgateHierarchicalEnv'
-)

@@ -1,6 +1,5 @@
 import numpy as np
 import random
-import argparse
 import torch
 
 from torsionnet.utils import *

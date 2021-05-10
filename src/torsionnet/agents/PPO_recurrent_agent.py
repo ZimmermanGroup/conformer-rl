@@ -8,13 +8,12 @@ import torch.nn.functional as F
 
 from torsionnet.agents.agent_utils import Storage
 from torsionnet.agents.base_agent import BaseAgent
-from torsionnet.utils import to_np, tensor, mkdir
+from torsionnet.utils import to_np
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 class PPORecurrentAgent(BaseAgent):
     def __init__(self, config):
         BaseAgent.__init__(self, config)
-        self.config = config #config file, contains hyperparameters and other info
         self.task = config.train_env #gym environment wrapper
         self.hidden_size = config.hidden_size
 
@@ -22,7 +21,6 @@ class PPORecurrentAgent(BaseAgent):
         self.network.to(device)
 
         self.optimizer = config.optimizer_fn(self.network.parameters()) #optimization function
-        self.total_steps = 0
         self.batch_num = 0
 
         self.states = self.task.reset()
@@ -63,10 +61,6 @@ class PPORecurrentAgent(BaseAgent):
             done = False
             state, reward, done, info = env.step(to_np(action))
             self.eval_logger.log_step(env.render()[0])
-            # molecule = env.render()[0]
-            # path_str = f'./molecule_data/{self.config.tag}/{self.total_steps}/{self.eval_ep}'
-            # mkdir(path_str)
-            # Chem.MolToMolFile(molecule, path_str + f'/step_{current_step}.mol')
             ret = info[0]['episodic_return']
         return ret
 
@@ -105,7 +99,7 @@ class PPORecurrentAgent(BaseAgent):
                 for _, infoDict in enumerate(info):
                     if infoDict['episodic_return'] is not None:
                         print('logging episodic return train...', self.total_steps)
-                        # self.writer.add_scalar('episodic_return_train', infoDict['episodic_return'], self.total_steps)
+                        self.train_logger.add_scalar('episodic_return_train', infoDict['episodic_return'], self.total_steps)
 
                 #add everything to storage
                 storage.add({
@@ -115,8 +109,8 @@ class PPORecurrentAgent(BaseAgent):
                     'v': prediction['v'].squeeze(0),
                 })
                 storage.add({
-                    'r': tensor(rewards).unsqueeze(-1).to(device),
-                    'm': tensor(1 - terminals).unsqueeze(-1).to(device)
+                    'r': torch.tensor(rewards).unsqueeze(-1).to(device),
+                    'm': torch.tensor(1 - terminals).unsqueeze(-1).to(device)
                     })
                 for i in range(config.num_workers):
                     states_mem[i].append(states[i])
@@ -166,7 +160,7 @@ class PPORecurrentAgent(BaseAgent):
         #Calculate advantages and returns and set up for training
         #############################################################################################
 
-        advantages = tensor(np.zeros((config.num_workers, 1))).to(device)
+        advantages = torch.tensor(np.zeros((config.num_workers, 1))).to(device)
         returns = prediction['v'].squeeze(0).detach()
 
         for i in reversed(range(config.rollout_length)):
@@ -202,7 +196,7 @@ class PPORecurrentAgent(BaseAgent):
 
         advantages = (advantages - advantages.mean()) / advantages.std()
 
-        # self.writer.add_scalar('advantages', advantages.mean(), self.total_steps)
+        self.train_logger.add_scalar('advantages', advantages.mean(), self.total_steps)
 
         states = []
         for block in states_mem:
@@ -284,9 +278,9 @@ class PPORecurrentAgent(BaseAgent):
                 batch_value_loss /= self.recurrence
                 batch_loss /= self.recurrence
 
-                # self.writer.add_scalar('entropy_loss', batch_entropy, self.total_steps)
-                # self.writer.add_scalar('policy_loss', batch_policy_loss, self.total_steps)
-                # self.writer.add_scalar('value_loss', batch_value_loss, self.total_steps)
+                self.train_logger.add_scalar('entropy_loss', batch_entropy, self.total_steps)
+                self.train_logger.add_scalar('policy_loss', batch_policy_loss, self.total_steps)
+                self.train_logger.add_scalar('value_loss', batch_value_loss, self.total_steps)
 
                 self.optimizer.zero_grad()
                 batch_loss.backward()

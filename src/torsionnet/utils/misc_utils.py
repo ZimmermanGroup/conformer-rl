@@ -1,44 +1,46 @@
-#######################################################################
-# Copyright (C) 2017 Shangtong Zhang(zhangshangtong.cpp@gmail.com)    #
-# Permission given to modify the code as long as you keep this        #
-# declaration at the top                                              #
-#######################################################################
-
 import numpy as np
-import pickle
 import os
-import datetime
 import torch
-import time
 from pathlib import Path
+
+from datetime import datetime
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
-def get_time_str():
-    return datetime.datetime.now().strftime("%y%m%d-%H%M%S")
+def current_time() -> str:
+    """
+    Returns a string containing the current date and time.
+    """
+    now = datetime.now()
+    date_string = now.strftime("%d-%m-%Y %H:%M:%S")
+    return date_string
 
-def random_seed(seed=None):
-    np.random.seed(seed)
-    torch.manual_seed(np.random.randint(int(1e6)))
-
-def set_one_thread():
+def set_one_thread() -> None:
+    """
+    Sets the number of CPU threads to 1 for each Python process.
+    """
     os.environ['OMP_NUM_THREADS'] = '1'
     os.environ['MKL_NUM_THREADS'] = '1'
     torch.set_num_threads(1)
 
+def mkdir(path: str) -> None:
+    """
+    Creates directory specified by the input string.
+    """
+    p = Path(path)
+    p.mkdir(parents=True, exist_ok=True)
 
-def mkdir(path):
-    Path(path).mkdir(parents=True, exist_ok=True)
-
-
-def tensor(x):
-    if isinstance(x, torch.Tensor):
-        return x
-    x = np.asarray(x, dtype=np.float)
-    x = torch.tensor(x, device=device, dtype=torch.float32)
-    return x
-
-
-def to_np(t):
+def to_np(t: torch.tensor) -> np.array:
+    """
+    Converts a PyTorch tensor to a Numpy array.
+    """
     return t.cpu().detach().numpy()
+
+def save_model(model: torch.nn.Module, filename: str) -> None:
+    state_dict = model.state_dict()
+    torch.save(state_dict, filename)
+
+def load_model(model: torch.nn.Module, filename: str) -> None:
+    state_dict = torch.load(filename)
+    model.load_state_dict(state_dict)
