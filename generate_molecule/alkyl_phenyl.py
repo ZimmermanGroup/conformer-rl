@@ -29,6 +29,7 @@ class AlkylPhenylPolymer:
     
     >>> mol = ap_polymer.polymer.stk_molecule.to_rdkit_mol()
     >>> display(Draw.MolToImage(mol_with_atom_index(mol), size=(700, 300)))
+    <PIL.PngImagePlugin.PngImageFile ...
     """
     
     def __init__(self, num_repeating_units=2):
@@ -76,6 +77,7 @@ class AlkylPhenylPolymer:
         
         >>> display(Draw.MolToImage(mol_with_atom_index(ap_monomer.to_rdkit_mol()),
         ...                        size=(700, 300)))
+        <PIL.PngImagePlugin.PngImageFile ...
         """
         alkane = init_building_block(smiles='F' + 'C' * length + 'F',
                                      functional_groups=[stk.FluoroFactory()])
