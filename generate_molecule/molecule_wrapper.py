@@ -22,13 +22,12 @@ class MoleculeWrapper():
 
         Chem.AllChem.EmbedMultipleConfs(self.molecule, numConfs=1)
         Chem.AllChem.MMFFOptimizeMoleculeConfs(self.molecule, maxIters=200)
+            
+# Diff
+DIFF = [MoleculeWrapper(mol_input="CC(CCC)CCCC(CCCC)CC", standard=7.668625034772399, total=13.263723987526067)]
 
-if __name__ == "__main__":           
-    # Diff
-    DIFF = [MoleculeWrapper(mol_input="CC(CCC)CCCC(CCCC)CC", standard=7.668625034772399, total=13.263723987526067)]
-
-    # Xorgate
-    xor_gate = XorGate(gate_complexity=2, num_gates=4)
-    xor_gate = xor_gate.polymer.to_rdkit_mol()
-    XORGATE = [MoleculeWrapper(xor_gate, standard=270, input_type='mol')]
+# Xorgate
+xor_gate = XorGate(gate_complexity=2, num_gates=4)
+xor_gate = xor_gate.polymer.stk_molecule.to_rdkit_mol()
+XORGATE = [MoleculeWrapper(xor_gate, standard=270, input_type='mol')]
 
