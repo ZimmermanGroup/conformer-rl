@@ -1,5 +1,6 @@
 # %%
 
+from typing import Tuple
 from rdkit import Chem
 from rdkit.Chem import Draw
 import stk
@@ -9,7 +10,8 @@ from stko.molecular.molecules.constructed_molecule_torsioned import ConstructedM
 from stko.molecular.torsions.torsion import Torsion
 
 class XorGate:
-    """
+    """class to generate an artificial polymer with low energy conformers of an xor pattern
+    
     >>> xor_gate = XorGate(gate_complexity=2, num_gates=3)
     >>> xor_gate.polymer.get_torsion_list()
     [[1, 0, 7, 6],
@@ -62,7 +64,15 @@ class XorGate:
             self.polymer.transfer_torsions({top_building_block : xor_gate_top,
                                             bottom_building_block : xor_gate_bottom})
 
-    def make_xor_individual_gate(self, xor_monomer, xor_building_block):
+    def make_xor_individual_gate(self, xor_monomer, xor_building_block
+                                 ) -> Tuple[ConstructedMoleculeTorsioned, stk.BuildingBlock]:
+        """create a single section of polymer with all functional groups interacting
+        
+        Parameters
+        ----------
+        xor_monomer
+            
+        """
         individual_gate = stk.ConstructedMolecule(
             topology_graph=stk.polymer.Linear(
                 building_blocks=(xor_building_block,),
