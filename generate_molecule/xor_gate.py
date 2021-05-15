@@ -5,8 +5,7 @@ from rdkit.Chem import Draw
 import stk
 from itertools import cycle, islice
 from IPython.display import display
-from stko.molecular.molecules.constructed_molecule_torsioned import ConstructedMoleculeTorsioned
-from stko.molecular.torsions.torsion import Torsion
+from stko.molecular.torsion.torsion import Torsion
 
 class XorGate:
     """

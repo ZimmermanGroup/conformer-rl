@@ -8,9 +8,6 @@ from rdkit.Chem import Draw
 import nglview
 import stk
 from IPython.display import display
-from stko.molecular.molecules.constructed_molecule_torsioned import ConstructedMoleculeTorsioned
-from stko.molecular.torsions.torsion import Torsion
-
 
 class AlkylPhenylPolymer:
     """a polymer of alkyl chains bridged with phenyl groups
@@ -63,8 +60,7 @@ class AlkylPhenylPolymer:
         for bond in islice(boundary_bonds, 1, len(boundary_bonds), 2):
             bond._order = 2
         
-        self.polymer = ConstructedMoleculeTorsioned(polymer)
-        
+        self.polymer = polymer
     
     @staticmethod
     def make_monomer(length):
