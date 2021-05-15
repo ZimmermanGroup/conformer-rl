@@ -12,6 +12,10 @@ from stko.molecular.torsions.torsion import Torsion
 class XorGate:
     """class to generate an artificial polymer with low energy conformers of an xor pattern
     
+    Parameters
+    ----------
+    gate_complexity
+        
     
     >>> xor_gate = XorGate(gate_complexity=2, num_gates=3)
     >>> xor_gate.polymer.get_torsion_list()

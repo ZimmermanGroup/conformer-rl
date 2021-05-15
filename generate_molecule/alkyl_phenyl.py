@@ -18,6 +18,11 @@ class AlkylPhenylPolymer:
     This is a preliminary implementation with a fixed pattern of building blocks due to simplicity
     of cheminformatic manipulation.
     
+    Parameters
+    ----------
+    num_repeating_units = 2
+        The number of repeat units of the basic building block.
+    
     >>> ap_polymer = AlkylPhenylPolymer(num_repeating_units=2)
     
     test on the first torsion in the second building block
