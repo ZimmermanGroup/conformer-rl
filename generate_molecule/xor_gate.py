@@ -1,12 +1,12 @@
 # %%
 
+from collections import defaultdict
 from rdkit import Chem
 from rdkit.Chem import Draw
 import stk
 from itertools import cycle, islice
 from IPython.display import display
 from stko.molecular.torsion.torsion import Torsion
-
 class XorGate:
     """
     >>> xor_gate = XorGate(gate_complexity=2, num_gates=3)
@@ -57,9 +57,9 @@ class XorGate:
                     num_repeating_units=1,
                 )
             )
-            self.polymer = ConstructedMoleculeTorsioned(self.polymer)
-            self.polymer.transfer_torsions({top_building_block : xor_gate_top,
-                                            bottom_building_block : xor_gate_bottom})
+            # self.polymer = ConstructedMoleculeTorsioned(self.polymer)
+            # self.polymer.transfer_torsions({top_building_block : xor_gate_top,
+            #                                 bottom_building_block : xor_gate_bottom})
 
     def make_xor_individual_gate(self, xor_monomer, xor_building_block):
         individual_gate = stk.ConstructedMolecule(
@@ -70,17 +70,29 @@ class XorGate:
             )
         )
         
-        individual_gate = ConstructedMoleculeTorsioned(individual_gate)
-        individual_gate.transfer_torsions({xor_building_block: xor_monomer})
+        # individual_gate = ConstructedMoleculeTorsioned(individual_gate)
+        # individual_gate.transfer_torsions({xor_building_block: xor_monomer})
             
         # construct the functional groups of the gate from the functional groups of the monomers
         functional_groups = list(xor_building_block.get_functional_groups())
-        atom_maps = individual_gate.atom_maps
+        def set_atom_maps(stk_molecule : stk.ConstructedMolecule):
+            """
+            map from building block atom ids to constructed molecule atoms for a
+            specified building block id
+            """
+            atom_maps = defaultdict(dict)
+            for atom_info in stk_molecule.get_atom_infos():
+                current_atom_map = atom_maps[atom_info.get_building_block_id(
+                )]
+                current_atom_map[atom_info.get_building_block_atom(
+                ).get_id()] = atom_info.get_atom()
+            return atom_maps
+
+        atom_maps = set_atom_maps(individual_gate)
         functional_groups = [functional_groups[0].with_atoms(atom_maps[0]),
                              functional_groups[1].with_atoms(atom_maps[self.gate_complexity - 1])]
         
-        gate_building_block = stk.BuildingBlock.init_from_molecule(individual_gate.stk_molecule,
-                                                                   functional_groups)
+        gate_building_block = stk.BuildingBlock.init_from_molecule(individual_gate, functional_groups)
         return individual_gate, gate_building_block
 
     def make_xor_monomer(self, position=0):
@@ -99,13 +111,13 @@ class XorGate:
                 num_repeating_units=1
             )
         )
-        xor_monomer = ConstructedMoleculeTorsioned(xor_monomer)
+        # xor_monomer = ConstructedMoleculeTorsioned(xor_monomer)
         
         # set the initial torsions
-        if position == 0:
-            xor_monomer.set_torsions([Torsion(stk.C(1), stk.C(0), stk.C(7), stk.C(6))])
-        elif position == 3:
-            xor_monomer.set_torsions([Torsion(stk.C(2), stk.C(3), stk.C(7), stk.C(6))])
+        # if position == 0:
+        #     xor_monomer.set_torsions([Torsion(stk.C(1), stk.C(0), stk.C(7), stk.C(6))])
+        # elif position == 3:
+        #     xor_monomer.set_torsions([Torsion(stk.C(2), stk.C(3), stk.C(7), stk.C(6))])
 
         # construct functional groups for xor gate monomer
         # numbering starts at top and proceeds clockwise
@@ -114,8 +126,7 @@ class XorGate:
                                                         bonders=(c_0, c_3), deleters=(c_4, c_5)),
                             stk.GenericFunctionalGroup(atoms=(c_1, c_2),
                                                         bonders=(c_1, c_2), deleters=())]
-        xor_building_block = stk.BuildingBlock.init_from_molecule(xor_monomer.stk_molecule,
-                                                                  functional_groups)
+        xor_building_block = stk.BuildingBlock.init_from_molecule(xor_monomer, functional_groups)
         return xor_monomer, xor_building_block
 
 def mol_with_atom_index(mol):

@@ -1,6 +1,6 @@
 from generate_molecule.xor_gate import XorGate
 import stk
-from stko.molecular.torsions.torsion import Torsion
+from stko.molecular.torsion.torsion import Torsion
 
 def test_xor_gate():
     xor_gate = XorGate(gate_complexity=2, num_gates=3)

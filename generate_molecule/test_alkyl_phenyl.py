@@ -1,6 +1,6 @@
 from generate_molecule.alkyl_phenyl import AlkylPhenylPolymer
 import stk
-from stko.molecular.torsions.torsion import Torsion
+from stko.molecular.torsion.torsion import Torsion
 
 
 def test_alkyl_phenyl():
