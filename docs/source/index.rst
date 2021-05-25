@@ -3,12 +3,43 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to torsionnet's documentation!
-======================================
+.. toctree::
+   :maxdepth: 2
+   :caption: TorsionNet
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: Environments
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Agents
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Models
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Molecules
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Config
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Logging
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Analysis
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Utils
+
+
 
 test function
 =============

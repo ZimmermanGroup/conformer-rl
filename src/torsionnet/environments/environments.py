@@ -1,10 +1,25 @@
-from torsionnet.environments.conformer_environment import ConformerEnv
-from torsionnet.environments.conformer_environment import GibbsRewardMixin, UniqueGibbsRewardMixin, PruningGibbsRewardMixin
-from torsionnet.environments.conformer_environment import DiscreteActionMixin
-from torsionnet.environments.conformer_environment import SkeletonPointsObsMixin
+from torsionnet.environments.conformer_env import ConformerEnv
+from torsionnet.environments.environment_components.action_mixins import ContinuousActionMixin, DiscreteActionMixin
+from torsionnet.environments.environment_components.reward_mixins import GibbsRewardMixin, GibbsPruningRewardMixin, GibbsEndPruningRewardMixin, GibbsLogPruningRewardMixin
+from torsionnet.environments.environment_components.obs_mixins import GraphObsMixin, AtomCoordsTypeGraphObsMixin
 
-class GibbsEnv(GibbsRewardMixin, DiscreteActionMixin, SkeletonPointsObsMixin):
+
+
+class DiscreteActionEnv(DiscreteActionMixin, GraphObsMixin, ConformerEnv):
     pass
 
-class GibbsPruningEnv(PruningGibbsRewardMixin, DiscreteActionMixin, SkeletonPointsObsMixin):
+
+class GibbsScoreEnv(GibbsRewardMixin, DiscreteActionMixin, AtomCoordsTypeGraphObsMixin, ConformerEnv):
+    pass
+
+
+class GibbsScorePruningEnv(GibbsPruningRewardMixin, DiscreteActionMixin, AtomCoordsTypeGraphObsMixin, ConformerEnv):
+    pass
+
+
+class GibbsScoreEndPruningEnv(GibbsEndPruningRewardMixin, DiscreteActionMixin, AtomCoordsTypeGraphObsMixin, ConformerEnv):
+    pass
+
+
+class GibbsScoreLogPruningEnv(GibbsLogPruningRewardMixin, DiscreteActionMixin, AtomCoordsTypeGraphObsMixin, ConformerEnv):
     pass

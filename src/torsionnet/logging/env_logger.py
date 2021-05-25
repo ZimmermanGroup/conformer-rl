@@ -21,7 +21,7 @@ class EnvLogger:
     self.cache: dict used for storing data across several episodes. Maps from strings to lists, where each
     index of the list corresponds to an episode.
     """
-    def __init__(self, tag: str, dir: str = "data/"):
+    def __init__(self, tag: str, dir: str = "data"):
         """
         Parameters
         ----------
@@ -49,7 +49,7 @@ class EnvLogger:
         self.step_data = {}
         self.episode_data = {}
 
-    def log_item(self, key: str, val: Any) -> None:
+    def log_step_item(self, key: str, val: Any) -> None:
         """
         Logs a single key value pair for current step.
         If an existing key is found, the value is appended
@@ -65,7 +65,7 @@ class EnvLogger:
         else:
             self.step_data[key] = [val]
 
-    def log_molecule(self, mol: Chem.Mol) -> None:
+    def log_step_molecule(self, mol: Chem.Mol) -> None:
         """
         Logs a single rdkit molecule for current step.
         The key for the molecule will be 'molecule'.
@@ -74,7 +74,7 @@ class EnvLogger:
         ----------
         mol: the rdkit molecule to be logged.
         """
-        self.log_item(key = "molecule", val = mol)
+        self.log_step_item(key = "molecule", val = mol)
 
     def log_step(self, step_data: dict) -> None:
         """
@@ -87,8 +87,10 @@ class EnvLogger:
         step_data: dictionary containing key-value pairs to be logged.
         """
         for key, val in step_data.items():
-            self.log_item(key, val)
+            self.log_step_item(key, val)
 
+    def log_episode_item(self, key: str, value: Any) -> None:
+        self.episode_data[key] = value
 
     def log_episode(self, episode_data: dict) -> None:
         """
@@ -117,9 +119,9 @@ class EnvLogger:
         throughout the episode as a .mol file uniquely named by the step number.
         save_cache: if True, episode data is cached to self.data.
         """
-        path = self.dir + 'env_data/' + self.tag + '/' + subdir
+        path = self.dir + '/' +  'env_data' + '/' + self.tag + '/' + subdir
         mkdir(path)
-        filename = path + 'data.pickle'
+        filename = path + '/' +  'data.pickle'
 
         if save_pickle:
             outfile = open(filename, 'w+b')
@@ -128,7 +130,7 @@ class EnvLogger:
 
         if save_molecules and "molecule" in self.step_data:
             for index, mol in enumerate(self.step_data["molecule"]):
-                Chem.MolToMolFile(mol, path + f'step_{index}.mol')
+                Chem.MolToMolFile(mol, path + '/' +  f'step_{index}.mol')
 
         if save_cache:
             self._add_to_cache(self.episode_data)

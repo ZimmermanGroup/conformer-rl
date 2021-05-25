@@ -1,14 +1,14 @@
 from .environment_wrapper import Task
-from .conformer_environment import Curriculum
+from .conformer_env import ConformerEnv
+import inspect
+
+from torsionnet.environments import environments
 
 from gym.envs.registration import register
 
-register(
-    id='ConfEnv-v0',
-    entry_point='torsionnet.environments.environments:GibbsEnv'
-)
-
-register(
-    id='ConfEnv-v1',
-    entry_point='torsionnet.environments.environments:GibbsPruningEnv'
-)
+envs = [m[0] for m in inspect.getmembers(environments, inspect.isclass) if m[1].__module__ == 'torsionnet.environments.environments']
+for env in envs:
+    register(
+        id = env + '-v0',
+        entry_point = 'torsionnet.environments.environments:' + env
+    )

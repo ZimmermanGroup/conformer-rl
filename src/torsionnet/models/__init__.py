@@ -1,2 +1,2 @@
-from .RTGN_batch import RTGNBatch
-from .RTGN_batch_no_lstm import RTGNBatchNoLstm
+from .RTGN import RTGN
+from .RTGN_recurrent import RTGNRecurrent

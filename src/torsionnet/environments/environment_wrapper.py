@@ -1,7 +1,5 @@
 import gym
 import numpy as np
-import torch
-import os
 
 
 # documentation for SubprocVecEnv: https://github.com/DLR-RM/stable-baselines3/blob/master/stable_baselines3/common/vec_env/subproc_vec_env.py

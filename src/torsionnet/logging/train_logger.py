@@ -2,7 +2,7 @@ from torch.utils.tensorboard import SummaryWriter
 from torsionnet.utils import mkdir
 
 class TrainLogger:
-    def __init__(self, tag: str, dir: str = "data/", use_tensorboard: bool = True, use_cache: bool = True, use_print: bool = True):
+    def __init__(self, tag: str, dir: str = "data", use_tensorboard: bool = True, use_cache: bool = True, use_print: bool = True):
         self.dir = dir
         self.tag = tag
         mkdir(dir)
@@ -11,7 +11,7 @@ class TrainLogger:
         self.use_print = use_print
 
         if self.use_tensorboard:
-            path = dir + 'tensorboard_log/' + self.tag + '/'
+            path = dir + '/' + 'tensorboard_log' + '/' + self.tag + '/'
             mkdir(path)
             self.writer = SummaryWriter(log_dir = path)
 
