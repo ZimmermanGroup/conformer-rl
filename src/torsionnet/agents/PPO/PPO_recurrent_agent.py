@@ -4,24 +4,17 @@ import torch.nn as nn
 
 import time
 
-from torsionnet.agents.base_agent_recurrent import BaseAgentRecurrent
+from torsionnet.agents.base_ac_agent_recurrent import BaseACAgentRecurrent
 from torsionnet.utils import to_np
 from torsionnet.agents.storage import Storage
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-class PPORecurrentAgent(BaseAgentRecurrent):
+class PPORecurrentAgent(BaseACAgentRecurrent):
     def __init__(self, config):
         super().__init__(config)
         self.batch_num = 0
         assert config.rollout_length % self.recurrence == 0
         assert config.mini_batch_size % self.recurrence == 0
-
-    def step(self):
-        self.storage.reset()
-        with torch.no_grad():
-            self._sample()
-        self._calculate_advantages()
-        self._train()
 
     def _train(self):
         config = self.config

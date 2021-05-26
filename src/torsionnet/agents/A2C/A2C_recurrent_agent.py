@@ -3,24 +3,16 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from torsionnet.agents.base_agent_recurrent import BaseAgentRecurrent
+from torsionnet.agents.base_ac_agent_recurrent import BaseACAgentRecurrent
 from torsionnet.utils import to_np
 from torsionnet.agents.storage import Storage
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
-class A2CRecurrentAgent(BaseAgentRecurrent):
+class A2CRecurrentAgent(BaseACAgentRecurrent):
     def __init__(self, config):
         super().__init__(config)
-        self.recurrence = config.recurrence
         assert config.rollout_length * config.num_workers % self.recurrence == 0
-
-    def step(self):
-        self.storage.reset()
-        with torch.no_grad():
-            self._sample()
-        self._calculate_advantages()
-        self._train()
 
     def _train(self):
         config = self.config

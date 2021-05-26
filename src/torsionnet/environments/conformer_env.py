@@ -24,6 +24,8 @@ class ConformerEnv(gym.Env):
         self.episode_info = {}
 
         self.mol = self.config.mol
+
+        # set mol to have exactly one conformer
         if self.mol.GetNumConformers() != 1:
             logging.warn("Input molecule to environment should have exactly one conformer, none or more than one detected.")
             self.mol.RemoveAllConformers()
@@ -52,7 +54,6 @@ class ConformerEnv(gym.Env):
         info = self._info()
 
         logging.info(f"step {self.current_step} reward {reward}")
-        self.episode_info['mol'].AddConformer(self.conf, assignId=True)
         self.step_info['reward'] = reward
 
         return obs, reward, done, info

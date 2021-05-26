@@ -3,13 +3,13 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from torsionnet.agents.base_agent import BaseAgent
+from torsionnet.agents.base_ac_agent import BaseACAgent
 from torsionnet.utils import to_np
 from torsionnet.agents.storage import Storage
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
-class A2CAgent(BaseAgent):
+class A2CAgent(BaseACAgent):
     def _train(self):
         storage = self.storage
         config = self.config

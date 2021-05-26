@@ -4,12 +4,12 @@ import torch.nn as nn
 
 import time
 
-from torsionnet.agents.base_agent import BaseAgent
+from torsionnet.agents.base_ac_agent import BaseACAgent
 from torsionnet.utils import to_np
 from torsionnet.agents.storage import Storage
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-class PPOAgent(BaseAgent):
+class PPOAgent(BaseACAgent):
     def step(self):
         self.storage.reset()
         with torch.no_grad():

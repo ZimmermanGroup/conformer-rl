@@ -8,6 +8,7 @@ class ContinuousActionMixin:
         for idx, tors in enumerate(self.nonring):
             Chem.rdMolTransforms.SetDihedralDeg(conf, *tors, float(action[idx]))
         Chem.AllChem.MMFFOptimizeMolecule(self.mol, maxIters=10000, confId=self.mol.GetNumConformers() - 1)
+        self.episode_info['mol'].AddConformer(self.conf, assignId=True)
     
 class DiscreteActionMixin:
 
@@ -16,3 +17,4 @@ class DiscreteActionMixin:
             ang = -180 + 60 * action[idx]
             Chem.rdMolTransforms.SetDihedralDeg(self.conf, *tors, float(ang))
         Chem.AllChem.MMFFOptimizeMolecule(self.mol, maxIters=10000, confId=self.mol.GetNumConformers() - 1)
+        self.episode_info['mol'].AddConformer(self.conf, assignId=True)
