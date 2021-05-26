@@ -95,6 +95,7 @@ class PPORecurrentAgent(BaseACAgentRecurrent):
                 self.train_logger.add_scalar('entropy_loss', batch_entropy, self.total_steps)
                 self.train_logger.add_scalar('policy_loss', batch_policy_loss, self.total_steps)
                 self.train_logger.add_scalar('value_loss', batch_value_loss, self.total_steps)
+                self.train_logger.add_scalar('loss', batch_loss, self.total_steps)
 
                 self.optimizer.zero_grad()
                 batch_loss.backward()

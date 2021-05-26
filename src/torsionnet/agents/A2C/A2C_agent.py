@@ -29,6 +29,7 @@ class A2CAgent(BaseACAgent):
         self.train_logger.add_scalar('policy_loss', policy_loss, self.total_steps)
         self.train_logger.add_scalar('value_loss', value_loss, self.total_steps)
         self.train_logger.add_scalar('entropy_loss', entropy_loss, self.total_steps)
+        self.train_logger.add_scalar('loss', loss, self.total_steps)
 
         self.optimizer.zero_grad()
         loss.backward()

@@ -59,6 +59,7 @@ class A2CRecurrentAgent(BaseACAgentRecurrent):
         self.train_logger.add_scalar('policy_loss', total_policy_loss, self.total_steps)
         self.train_logger.add_scalar('value_loss', total_value_loss, self.total_steps)
         self.train_logger.add_scalar('entropy_loss', total_entropy, self.total_steps)
+        self.train_logger.add_scalar('loss', total_loss, self.total_steps)
 
 
         self.optimizer.zero_grad()

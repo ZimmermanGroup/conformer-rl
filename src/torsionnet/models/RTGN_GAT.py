@@ -8,17 +8,17 @@ import torch_geometric.nn as gnn
 import logging
 import numpy as np
 
-from .graph_components import MPNN
+from .graph_components import GAT
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-class RTGN(torch.nn.Module):
-    def __init__(self, action_dim, hidden_dim, edge_dim, node_dim):
+class RTGNGat(torch.nn.Module):
+    def __init__(self, action_dim, hidden_dim, node_dim):
         super().__init__()
         self.action_dim = action_dim
         self.hidden_dim = hidden_dim
 
-        self.actor = _RTGNActor(action_dim, hidden_dim, edge_dim=edge_dim, node_dim=node_dim)
-        self.critic = _RTGNCritic(action_dim, hidden_dim, edge_dim=edge_dim, node_dim=node_dim)
+        self.actor = _RTGNGatActor(action_dim, hidden_dim, node_dim=node_dim)
+        self.critic = _RTGNGatCritic(action_dim, hidden_dim, node_dim=node_dim)
 
     def forward(self, obs, action=None):
         data_list = []
@@ -66,10 +66,10 @@ class RTGN(torch.nn.Module):
 
         return prediction
 
-class _RTGNCritic(torch.nn.Module):
-    def __init__(self, action_dim, hidden_dim, edge_dim, node_dim):
+class _RTGNGatCritic(torch.nn.Module):
+    def __init__(self, action_dim, hidden_dim, node_dim):
         super().__init__()
-        self.mpnn = MPNN(hidden_dim=hidden_dim, edge_dim=edge_dim, node_dim=node_dim)
+        self.gat = GAT(hidden_dim=hidden_dim, node_dim=node_dim)
         self.set2set = gnn.Set2Set(hidden_dim, processing_steps=6)
         self.mlp = nn.Sequential(
             nn.Linear(2*hidden_dim, hidden_dim), 
@@ -83,16 +83,16 @@ class _RTGNCritic(torch.nn.Module):
         data, nonring, nrbidx, torsion_list_sizes = obs
         N = data.num_graphs
 
-        out = self.mpnn(data)
+        out = self.gat(data)
         pool = self.set2set(out, data.batch)
         v = self.mlp(pool)
 
         return v
 
-class _RTGNActor(torch.nn.Module):
-    def __init__(self, action_dim, hidden_dim, edge_dim, node_dim):
+class _RTGNGatActor(torch.nn.Module):
+    def __init__(self, action_dim, hidden_dim, node_dim):
         super().__init__()
-        self.mpnn = MPNN(hidden_dim=hidden_dim, edge_dim=edge_dim, node_dim=node_dim)
+        self.gat = self.gat = GAT(hidden_dim=hidden_dim, node_dim=node_dim)
         self.set2set = gnn.Set2Set(hidden_dim, processing_steps=6)
 
         self.fc = nn.Linear(2*hidden_dim, hidden_dim)
@@ -104,7 +104,7 @@ class _RTGNActor(torch.nn.Module):
         data, nonring, nrbidx, torsion_list_sizes = obs
         N = data.num_graphs
 
-        out = self.mpnn(data)
+        out = self.gat(data)
         pool = self.set2set(out, data.batch)
         graph_embed = self.fc(pool)
 

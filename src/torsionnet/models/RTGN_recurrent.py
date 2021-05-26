@@ -12,14 +12,13 @@ from .graph_components import MPNN
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 class RTGNRecurrent(torch.nn.Module):
-    def __init__(self, action_dim, dim, edge_dim=7, point_dim=3):
+    def __init__(self, action_dim, hidden_dim, edge_dim, node_dim):
         super().__init__()
-        num_features = point_dim
         self.action_dim = action_dim
-        self.dim = dim
+        self.hidden_dim = hidden_dim
 
-        self.actor = ActorBatchNet(action_dim, dim, edge_dim=edge_dim, num_features=num_features)
-        self.critic = CriticBatchNet(action_dim, dim, edge_dim=edge_dim, num_features=num_features)
+        self.actor = _RTGNActorRecurrent(action_dim, hidden_dim, edge_dim=edge_dim, node_dim=node_dim)
+        self.critic = _RTGNCriticRecurrent(action_dim, hidden_dim, edge_dim=edge_dim, node_dim=node_dim)
 
     def forward(self, obs, states=None, action=None):
         data_list = []
@@ -76,16 +75,16 @@ class RTGNRecurrent(torch.nn.Module):
 
         return prediction, (hp, cp, hv, cv)
 
-class CriticBatchNet(torch.nn.Module):
-    def __init__(self, action_dim, dim, edge_dim=1, num_features=3):
+class _RTGNCriticRecurrent(torch.nn.Module):
+    def __init__(self, action_dim, hidden_dim, edge_dim, node_dim):
         super().__init__()
-        self.mpnn = MPNN(edge_dim, dim, num_features)
-        self.set2set = gnn.Set2Set(dim, processing_steps=6)
+        self.mpnn = MPNN(hidden_dim=hidden_dim, edge_dim=edge_dim, node_dim=node_dim)
+        self.set2set = gnn.Set2Set(hidden_dim, processing_steps=6)
 
-        self.memory = nn.LSTM(2*dim, dim)
-        self.mlp = nn.Sequential(nn.Linear(dim, dim), nn.ReLU(), nn.Linear(dim, 1))
+        self.memory = nn.LSTM(2*hidden_dim, hidden_dim)
+        self.mlp = nn.Sequential(nn.Linear(hidden_dim, hidden_dim), nn.ReLU(), nn.Linear(hidden_dim, 1))
 
-        self.dim = dim
+        self.hidden_dim = hidden_dim
 
     def forward(self, obs, states=None):
         data, nonring, nrbidx, torsion_list_sizes = obs
@@ -94,26 +93,26 @@ class CriticBatchNet(torch.nn.Module):
         if states:
             hx, cx = states
         else:
-            hx = torch.zeros(1, N, self.dim).to(device)
-            cx = torch.zeros(1, N, self.dim).to(device)
+            hx = torch.zeros(1, N, self.hidden_dim).to(device)
+            cx = torch.zeros(1, N, self.hidden_dim).to(device)
 
         out = self.mpnn(data)
         pool = self.set2set(out, data.batch)
-        lstm_out, (hx, cx) = self.memory(pool.view(1, N, 2*self.dim), (hx, cx))
+        lstm_out, (hx, cx) = self.memory(pool.view(1, N, 2*self.hidden_dim), (hx, cx))
         v = self.mlp(lstm_out)
 
         return v, (hx, cx)
 
-class ActorBatchNet(torch.nn.Module):
-    def __init__(self, action_dim, dim, edge_dim=1, num_features=3):
+class _RTGNActorRecurrent(torch.nn.Module):
+    def __init__(self, action_dim, hidden_dim, edge_dim, node_dim):
         super().__init__()
-        self.mpnn = MPNN(edge_dim, dim, num_features)
-        self.set2set = gnn.Set2Set(dim, processing_steps=6)
+        self.mpnn = MPNN(hidden_dim=hidden_dim, edge_dim=edge_dim, node_dim=node_dim)
+        self.set2set = gnn.Set2Set(hidden_dim, processing_steps=6)
 
-        self.memory = nn.LSTM(2*dim, dim)
-        self.mlp = nn.Sequential(nn.Linear(5*dim, dim), nn.ReLU(), nn.Linear(dim, action_dim))
+        self.memory = nn.LSTM(2*hidden_dim, hidden_dim)
+        self.mlp = nn.Sequential(nn.Linear(5*hidden_dim, hidden_dim), nn.ReLU(), nn.Linear(hidden_dim, action_dim))
 
-        self.dim = dim
+        self.hidden_dim = hidden_dim
 
     def forward(self, obs, states=None):
         data, nonring, nrbidx, torsion_list_sizes = obs
@@ -122,8 +121,8 @@ class ActorBatchNet(torch.nn.Module):
         if states:
             hx, cx = states
         else:
-            hx = torch.zeros(1, N, self.dim).to(device)
-            cx = torch.zeros(1, N, self.dim).to(device)
+            hx = torch.zeros(1, N, self.hidden_dim).to(device)
+            cx = torch.zeros(1, N, self.hidden_dim).to(device)
 
         out = self.mpnn(data)
         pool = self.set2set(out, data.batch)
@@ -135,15 +134,15 @@ class ActorBatchNet(torch.nn.Module):
             index=nrbidx
         )
 
-        lstm_out = lstm_out.view(-1, self.dim)
+        lstm_out = lstm_out.view(-1, self.hidden_dim)
 
         out = torch.index_select(
             out,
             dim=0,
             index=nonring.view(-1)
         )
-        out = out.view(-1, self.dim * 4)
-        out = torch.cat([lstm_out,out],1)   # shape = (num_torsions, 5*self.dim)
+        out = out.view(-1, self.hidden_dim * 4)
+        out = torch.cat([lstm_out,out],1)   # shape = (num_torsions, 5*self.hidden_dim)
         out = self.mlp(out)
 
         logit = out.split(torsion_list_sizes)
