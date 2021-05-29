@@ -51,7 +51,7 @@ class ConformerEnv(gym.Env):
         reward = self._reward()
         self.total_reward += reward
         done = self._done()
-        info = self._info()
+        info = copy.deepcopy(self._info())
 
         logging.info(f"step {self.current_step} reward {reward}")
         self.step_info['reward'] = reward
@@ -76,7 +76,7 @@ class ConformerEnv(gym.Env):
         pass
 
     def _step(self, action: Any) -> None:
-        pass
+        self.episode_info['mol'].AddConformer(self.conf, assignId=True)
 
     def _obs(self) -> Chem.rdchem.Mol:
         return self.mol

@@ -44,7 +44,6 @@ class BaseAgent:
         env = self.config.eval_env
         state = env.reset()
         info = None
-        episode_info = None
         done = False
 
         with torch.no_grad():

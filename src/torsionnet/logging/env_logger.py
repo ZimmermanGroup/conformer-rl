@@ -65,17 +65,6 @@ class EnvLogger:
         else:
             self.step_data[key] = [val]
 
-    def log_step_molecule(self, mol: Chem.Mol) -> None:
-        """
-        Logs a single rdkit molecule for current step.
-        The key for the molecule will be 'molecule'.
-
-        Parameters
-        ----------
-        mol: the rdkit molecule to be logged.
-        """
-        self.log_step_item(key = "molecule", val = mol)
-
     def log_step(self, step_data: dict) -> None:
         """
         Logs each key-value pair for current step.
@@ -128,9 +117,10 @@ class EnvLogger:
             pickle.dump(self.episode_data, outfile)
             outfile.close()
 
-        if save_molecules and "molecule" in self.step_data:
-            for index, mol in enumerate(self.step_data["molecule"]):
-                Chem.MolToMolFile(mol, path + '/' +  f'step_{index}.mol')
+        if save_molecules and 'mol' in self.episode_data:
+            mol = self.episode_data['mol']
+            for i in range(mol.GetNumConformers()):
+                Chem.MolToMolFile(mol, filename=path + '/' +  f'step_{i}.mol', confId=i)
 
         if save_cache:
             self._add_to_cache(self.episode_data)

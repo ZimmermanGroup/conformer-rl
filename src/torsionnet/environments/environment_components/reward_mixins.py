@@ -6,7 +6,7 @@ from torsionnet.utils import get_conformer_energies, get_conformer_energy, prune
 KB = 0.001985875 # Boltzmann constant in kcal/(mol * K)
 
 # Gibbs Score
-class GibbsRewardMixin():
+class GibbsRewardMixin:
     def reset(self):
         self.seen = set()
         self.repeats = 0
@@ -28,7 +28,7 @@ class GibbsRewardMixin():
             reward = np.exp(-1. * (energy - config.E0) / (KB * config.tau)) / config.Z0
             return reward
 
-class GibbsEndPruningRewardMixin(GibbsRewardMixin):
+class GibbsEndPruningRewardMixin:
     def reset(self):
         self.backup_mol = Chem.Mol(self.mol)
         self.backup_mol.RemoveAllConformers()
@@ -56,7 +56,7 @@ class GibbsEndPruningRewardMixin(GibbsRewardMixin):
         after_total = np.exp(-1.0 * (get_conformer_energies(self.backup_mol) - config.E0) / (KB * config.tau)).sum() / config.Z0
         return before_total - after_total
 
-class GibbsPruningRewardMixin(GibbsRewardMixin):
+class GibbsPruningRewardMixin:
     def reset(self):
         self.backup_mol = Chem.Mol(self.mol)
         self.backup_mol.RemoveAllConformers()
