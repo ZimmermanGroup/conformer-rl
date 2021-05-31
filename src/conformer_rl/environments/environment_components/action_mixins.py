@@ -24,6 +24,7 @@ class ContinuousActionMixin:
         Notes
         -----
         Logged parameters:
+
         * conf: the current generated conformer is saved to the episodic mol object.
         """
         conf = self.conf
@@ -47,6 +48,7 @@ class DiscreteActionMixin:
         Notes
         -----
         Logged parameters:
+        
         * conf: the current generated conformer is saved to the episodic mol object.
         """
         for idx, tors in enumerate(self.nonring):
