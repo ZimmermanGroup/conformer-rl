@@ -19,7 +19,8 @@ setuptools.setup(
         'stable-baselines3',
         'ligninkmc',
         'seaborn',
-        'stk'
+        'stk',
+        'py3Dmol'
     ),
     description="Deep Reinforcement Library for Conformer Generation",
     long_description=README,

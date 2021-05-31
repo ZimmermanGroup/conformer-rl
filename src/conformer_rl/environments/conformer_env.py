@@ -61,7 +61,6 @@ class ConformerEnv(gym.Env):
             if Chem.EmbedMolecule(self.mol, randomSeed=self.config.seed, useRandomCoords=True) == -1:
                 raise Exception('Unable to embed molecule with conformer using rdkit')
         self.conf = self.mol.GetConformer()
-
         nonring, ring = TorsionFingerprints.CalculateTorsionLists(self.mol)
         self.nonring = [list(atoms[0]) for atoms, ang in nonring]
 
@@ -88,6 +87,11 @@ class ConformerEnv(gym.Env):
             Whether or not the current episode has finished.
         info : dict
             Information about the current step and episode of the environment, to be used for logging.
+
+        Notes
+        -----
+        Logged parameters:
+        * reward (float): the reward for the current step
         """
         self.action = action
         logging.debug(str(action))
@@ -127,7 +131,10 @@ class ConformerEnv(gym.Env):
     def _step(self, action: Any) -> None:
         """Does not modify molecule.
 
-        Logs the current conformer.
+        Notes
+        -----
+        Logged parameters:
+        * conf: the current generated conformer is saved to the episodic mol object.
         """
         self.episode_info['mol'].AddConformer(self.conf, assignId=True)
 
@@ -140,7 +147,10 @@ class ConformerEnv(gym.Env):
         """Returns :math:`e^{-1 * energy}` where :math:`energy` is the
         energy of the current conformer of the molecule.
 
-        Logs current energy.
+        Notes
+        -----
+        Logged parameters:
+        * energy (float): the energy of the current conformer
         """
         energy = get_conformer_energy(self.mol)
         reward =  np.exp(-1. * energy)
@@ -157,7 +167,10 @@ class ConformerEnv(gym.Env):
     def _info(self) -> Mapping[str, Mapping[str, Any]]:
         """Returns a dict wrapping `episode_info` and `step_info`.
 
-        Logs the total cumulative rewards if called at the end of an episode.
+        Notes
+        -----
+        Logged parameters:
+        * total_reward (float): total reward of the episode is updated
         """
         if self._done():
             self.episode_info["total_rewards"] = self.total_reward

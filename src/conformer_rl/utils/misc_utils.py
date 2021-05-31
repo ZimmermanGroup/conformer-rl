@@ -18,7 +18,7 @@ def current_time() -> str:
     """Returns a string containing the current date and time.
     """
     now = datetime.now()
-    date_string = now.strftime("%d%m%Y_%H%M%S")
+    date_string = now.strftime("%d-%m-%Y_%H:%M:%S")
     return date_string
 
 def set_one_thread() -> None:

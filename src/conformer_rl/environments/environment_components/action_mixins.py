@@ -21,6 +21,10 @@ class ContinuousActionMixin:
             Each element of `action` specifies the angle (in degrees) to set the angle of the corresponding
             torsion in the molecule.
 
+        Notes
+        -----
+        Logged parameters:
+        * conf: the current generated conformer is saved to the episodic mol object.
         """
         conf = self.conf
         for idx, tors in enumerate(self.nonring):
@@ -39,6 +43,11 @@ class DiscreteActionMixin:
         ----------
         action : list of int between 0 and 5
             For each element of `action`, sets the corresponding torsion angle to 60 times the element degrees.
+        
+        Notes
+        -----
+        Logged parameters:
+        * conf: the current generated conformer is saved to the episodic mol object.
         """
         for idx, tors in enumerate(self.nonring):
             ang = -180 + 60 * action[idx]

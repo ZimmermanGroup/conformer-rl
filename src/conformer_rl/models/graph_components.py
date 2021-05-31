@@ -47,8 +47,6 @@ class MPNN(torch.nn.Module):
             m = F.relu(self.conv(out, data.edge_index, data.edge_attr))
             out, h = self.gru(m.unsqueeze(0), h)
             out = out.squeeze(0)
-        import pdb
-        pdb.set_trace()
         return out
 
 class GAT(torch.nn.Module):

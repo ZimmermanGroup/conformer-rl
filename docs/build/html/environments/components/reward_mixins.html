@@ -48,6 +48,15 @@ whether the conformers were produced by the same action input, instead of with T
 <dd><p><a class="reference external" href="https://arxiv.org/abs/2006.07078">TorsionNet paper</a></p>
 </dd>
 </dl>
+<dl class="py method">
+<dt id="conformer_rl.environments.environment_components.reward_mixins.GibbsRewardMixin._reward">
+<code class="sig-name descname"><span class="pre">_reward</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">float</span><a class="headerlink" href="#conformer_rl.environments.environment_components.reward_mixins.GibbsRewardMixin._reward" title="Permalink to this definition">¶</a></dt>
+<dd><p class="rubric">Notes</p>
+<p>Logged parameters:
+* energy (float): the energy of the current conformer
+* repeat (int): total number of repeated actions so far in the episode</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -56,6 +65,14 @@ whether the conformers were produced by the same action input, instead of with T
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Implements the Gibbs Score reward <a class="footnote-reference brackets" href="#id2" id="id3">1</a>, except overly similar conformers are only pruned at the end of an episode
 and therefore is only reflected in the final reward in each episode.</p>
+<dl class="py method">
+<dt id="conformer_rl.environments.environment_components.reward_mixins.GibbsEndPruningRewardMixin._reward">
+<code class="sig-name descname"><span class="pre">_reward</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">float</span><a class="headerlink" href="#conformer_rl.environments.environment_components.reward_mixins.GibbsEndPruningRewardMixin._reward" title="Permalink to this definition">¶</a></dt>
+<dd><p class="rubric">Notes</p>
+<p>Logged parameters:
+* energy (float): the energy of the current conformer</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -63,6 +80,14 @@ and therefore is only reflected in the final reward in each episode.</p>
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">conformer_rl.environments.environment_components.reward_mixins.</span></code><code class="sig-name descname"><span class="pre">GibbsPruningRewardMixin</span></code><a class="headerlink" href="#conformer_rl.environments.environment_components.reward_mixins.GibbsPruningRewardMixin" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Implements the Gibbs Score reward <a class="footnote-reference brackets" href="#id2" id="id4">1</a>.</p>
+<dl class="py method">
+<dt id="conformer_rl.environments.environment_components.reward_mixins.GibbsPruningRewardMixin._reward">
+<code class="sig-name descname"><span class="pre">_reward</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">float</span><a class="headerlink" href="#conformer_rl.environments.environment_components.reward_mixins.GibbsPruningRewardMixin._reward" title="Permalink to this definition">¶</a></dt>
+<dd><p class="rubric">Notes</p>
+<p>Logged parameters:
+* energy (float): the energy of the current conformer</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -70,6 +95,14 @@ and therefore is only reflected in the final reward in each episode.</p>
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">conformer_rl.environments.environment_components.reward_mixins.</span></code><code class="sig-name descname"><span class="pre">GibbsLogPruningRewardMixin</span></code><a class="headerlink" href="#conformer_rl.environments.environment_components.reward_mixins.GibbsLogPruningRewardMixin" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#conformer_rl.environments.environment_components.reward_mixins.GibbsPruningRewardMixin" title="conformer_rl.environments.environment_components.reward_mixins.GibbsPruningRewardMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">conformer_rl.environments.environment_components.reward_mixins.GibbsPruningRewardMixin</span></code></a></p>
 <p>Implements the log of the Gibbs Score reward <a class="footnote-reference brackets" href="#id2" id="id5">1</a>.</p>
+<dl class="py method">
+<dt id="conformer_rl.environments.environment_components.reward_mixins.GibbsLogPruningRewardMixin._reward">
+<code class="sig-name descname"><span class="pre">_reward</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">float</span><a class="headerlink" href="#conformer_rl.environments.environment_components.reward_mixins.GibbsLogPruningRewardMixin._reward" title="Permalink to this definition">¶</a></dt>
+<dd><p class="rubric">Notes</p>
+<p>Logged parameters:
+* energy (float): the energy of the current conformer</p>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -91,7 +124,11 @@ and therefore is only reflected in the final reward in each episode.</p>
 
 
 <h3>Navigation</h3>
-<p><span class="caption-text">API reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial/quick_start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial/customizing_env_basic.html">Customizing Environment - basic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial/customizing_env_advanced.html">Customizing Environment - advanced</a></li>
+</ul>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../agents/agents.html">Agents</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../models/models.html">Models</a></li>

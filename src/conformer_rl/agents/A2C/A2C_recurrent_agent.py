@@ -52,6 +52,15 @@ class A2CRecurrentAgent(BaseACAgentRecurrent):
     * data_dir
     * use_tensorboard
 
+    *Logged values*: The following values are logged during training:
+    * advantages
+    * loss
+    * policy_loss
+    * entropy_loss
+    * value_loss
+    * episodic_return_eval (total rewards per episode for eval episodes)
+    * episodic_return_train (total rewards per episode for training episodes)
+
     References
     ----------
     .. [1] `A2C Paper <https://arxiv.org/abs/1602.01783>`_

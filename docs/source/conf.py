@@ -33,6 +33,7 @@ release = '1.0.0'
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
+    'sphinx.ext.autosectionlabel'
 ]
 autodoc_member_order = 'bysource'
 

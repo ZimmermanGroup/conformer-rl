@@ -123,6 +123,9 @@ reward, done, and info.</p>
 </p>
 </dd>
 </dl>
+<p class="rubric">Notes</p>
+<p>Logged parameters:
+* reward (float): the reward for the current step</p>
 </dd></dl>
 
 <dl class="py method">
@@ -135,7 +138,9 @@ reward, done, and info.</p>
 <dt id="conformer_rl.environments.conformer_env.ConformerEnv._step">
 <code class="sig-name descname"><span class="pre">_step</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">action</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#conformer_rl.environments.conformer_env.ConformerEnv._step" title="Permalink to this definition">¶</a></dt>
 <dd><p>Does not modify molecule.</p>
-<p>Logs the current conformer.</p>
+<p class="rubric">Notes</p>
+<p>Logged parameters:
+* conf: the current generated conformer is saved to the episodic mol object.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -149,7 +154,9 @@ reward, done, and info.</p>
 <code class="sig-name descname"><span class="pre">_reward</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">float</span><a class="headerlink" href="#conformer_rl.environments.conformer_env.ConformerEnv._reward" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns <span class="math notranslate nohighlight">\(e^{-1 * energy}\)</span> where <span class="math notranslate nohighlight">\(energy\)</span> is the
 energy of the current conformer of the molecule.</p>
-<p>Logs current energy.</p>
+<p class="rubric">Notes</p>
+<p>Logged parameters:
+* energy (float): the energy of the current conformer</p>
 </dd></dl>
 
 <dl class="py method">
@@ -163,7 +170,9 @@ the max number of steps per episode.</p>
 <dt id="conformer_rl.environments.conformer_env.ConformerEnv._info">
 <code class="sig-name descname"><span class="pre">_info</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Mapping</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#conformer_rl.environments.conformer_env.ConformerEnv._info" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a dict wrapping <cite>episode_info</cite> and <cite>step_info</cite>.</p>
-<p>Logs the total cumulative rewards if called at the end of an episode.</p>
+<p class="rubric">Notes</p>
+<p>Logged parameters:
+* total_reward (float): total reward of the episode is updated</p>
 </dd></dl>
 
 </dd></dl>
@@ -187,7 +196,11 @@ the max number of steps per episode.</p>
 
 
 <h3>Navigation</h3>
-<p><span class="caption-text">API reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/quick_start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/customizing_env_basic.html">Customizing Environment - basic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/customizing_env_advanced.html">Customizing Environment - advanced</a></li>
+</ul>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../agents/agents.html">Agents</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../models/models.html">Models</a></li>

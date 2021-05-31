@@ -27,6 +27,13 @@ class GibbsRewardMixin:
         return super().reset()
 
     def _reward(self) -> float:
+        """
+        Notes
+        -----
+        Logged parameters:
+        * energy (float): the energy of the current conformer
+        * repeat (int): total number of repeated actions so far in the episode
+        """
         config = self.config
 
         energy = get_conformer_energy(self.mol)
@@ -52,6 +59,12 @@ class GibbsEndPruningRewardMixin:
         return super().reset()
 
     def _reward(self) -> float:
+        """
+        Notes
+        -----
+        Logged parameters:
+        * energy (float): the energy of the current conformer
+        """
         config = self.config
 
         self.backup_mol.AddConformer(self.conf, assignId=True)
@@ -85,6 +98,12 @@ class GibbsPruningRewardMixin:
         return super().reset()
 
     def _reward(self) -> float:
+        """
+        Notes
+        -----
+        Logged parameters:
+        * energy (float): the energy of the current conformer
+        """
         config = self.config
         
         self.backup_mol.AddConformer(self.conf, assignId=True)
@@ -105,9 +124,14 @@ class GibbsPruningRewardMixin:
 class GibbsLogPruningRewardMixin(GibbsPruningRewardMixin):
     """Implements the log of the Gibbs Score reward [1]_.
 
-
     """
     def _reward(self) -> float:
+        """
+        Notes
+        -----
+        Logged parameters:
+        * energy (float): the energy of the current conformer
+        """
         config = self.config
 
         self.backup_mol.AddConformer(self.conf, assignId=True)

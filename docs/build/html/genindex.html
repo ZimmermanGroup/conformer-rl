@@ -88,12 +88,12 @@
         <li><a href="agents/base_agents/base_agent_recurrent.html#conformer_rl.agents.base_agent_recurrent.BaseAgentRecurrent._eval_step">(conformer_rl.agents.base_agent_recurrent.BaseAgentRecurrent method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="environments/conformer_env.html#conformer_rl.environments.conformer_env.ConformerEnv._info">_info() (conformer_rl.environments.conformer_env.ConformerEnv method)</a>
 </li>
       <li><a href="analysis/analysis.html#conformer_rl.analysis.analysis._load_from_pickle">_load_from_pickle() (in module conformer_rl.analysis.analysis)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="environments/conformer_env.html#conformer_rl.environments.conformer_env.ConformerEnv._obs">_obs() (conformer_rl.environments.conformer_env.ConformerEnv method)</a>
 
       <ul>
@@ -105,7 +105,17 @@
 </li>
       </ul></li>
       <li><a href="environments/conformer_env.html#conformer_rl.environments.conformer_env.ConformerEnv._reward">_reward() (conformer_rl.environments.conformer_env.ConformerEnv method)</a>
+
+      <ul>
+        <li><a href="environments/components/reward_mixins.html#conformer_rl.environments.environment_components.reward_mixins.GibbsEndPruningRewardMixin._reward">(conformer_rl.environments.environment_components.reward_mixins.GibbsEndPruningRewardMixin method)</a>
 </li>
+        <li><a href="environments/components/reward_mixins.html#conformer_rl.environments.environment_components.reward_mixins.GibbsLogPruningRewardMixin._reward">(conformer_rl.environments.environment_components.reward_mixins.GibbsLogPruningRewardMixin method)</a>
+</li>
+        <li><a href="environments/components/reward_mixins.html#conformer_rl.environments.environment_components.reward_mixins.GibbsPruningRewardMixin._reward">(conformer_rl.environments.environment_components.reward_mixins.GibbsPruningRewardMixin method)</a>
+</li>
+        <li><a href="environments/components/reward_mixins.html#conformer_rl.environments.environment_components.reward_mixins.GibbsRewardMixin._reward">(conformer_rl.environments.environment_components.reward_mixins.GibbsRewardMixin method)</a>
+</li>
+      </ul></li>
       <li><a href="agents/base_agents/base_ac_agent.html#conformer_rl.agents.base_ac_agent.BaseACAgent._sample">_sample() (conformer_rl.agents.base_ac_agent.BaseACAgent method)</a>
 
       <ul>
@@ -938,7 +948,11 @@
 
 
 <h3>Navigation</h3>
-<p><span class="caption-text">API reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorial/quick_start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial/customizing_env_basic.html">Customizing Environment - basic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial/customizing_env_advanced.html">Customizing Environment - advanced</a></li>
+</ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="agents/agents.html">Agents</a></li>
 <li class="toctree-l1"><a class="reference internal" href="models/models.html">Models</a></li>

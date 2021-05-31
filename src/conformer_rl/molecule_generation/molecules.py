@@ -7,6 +7,7 @@ from conformer_rl.config import MolConfig
 from conformer_rl.molecule_generation import generation
 from conformer_rl.utils import calculate_normalizers
 from rdkit import Chem
+from rdkit.Chem import AllChem
 
 def branched_alkane(num_atoms: int) -> MolConfig:
     """Generates a randomized branched alkane :class:`~conformer_rl.config.mol_config.MolConfig`,
@@ -21,6 +22,7 @@ def branched_alkane(num_atoms: int) -> MolConfig:
 
     mol = generation.generate_branched_alkane(num_atoms)
     mol = Chem.AddHs(mol)
+    AllChem.MMFFSanitizeMolecule(mol)
     E0, Z0 = calculate_normalizers(mol)
     
     config.mol = mol
@@ -41,6 +43,7 @@ def straight_alkane(num_atoms: int) -> MolConfig:
 
     mol = Chem.MolFromSmiles('C' * num_atoms)
     mol = Chem.AddHs(mol)
+    AllChem.MMFFSanitizeMolecule(mol)
     E0, Z0 = calculate_normalizers(mol)
 
     config.mol = mol
@@ -61,6 +64,7 @@ def lignin(num_monomers: int) -> MolConfig:
 
     mol = generation.generate_lignin(num_monomers)
     mol = Chem.AddHs(mol)
+    AllChem.MMFFSanitizeMolecule(mol)
     E0, Z0 = calculate_normalizers(mol)
 
     config.mol = mol
@@ -85,6 +89,7 @@ def xorgate(gate_complexity: int, num_gates: int) -> MolConfig:
     config = MolConfig()
     mol = generation.generate_xor_gate(gate_complexity, num_gates)
     mol = Chem.AddHs(mol)
+    AllChem.MMFFSanitizeMolecule(mol)
     E0, Z0 = calculate_normalizers(mol)
 
     config.mol = mol
@@ -101,6 +106,7 @@ def test_alkane() -> MolConfig:
     
     mol = Chem.MolFromSmiles("CC(CCC)CCCC(CCCC)CC")
     mol = Chem.AddHs(mol)
+    AllChem.MMFFSanitizeMolecule(mol)
 
     config.mol = mol
     config.E0 = 7.668625034772399
@@ -115,6 +121,7 @@ def mol_from_dict(input: dict) -> MolConfig:
 
     mol = input['mol']
     mol = Chem.AddHs(mol)
+    AllChem.MMFFSanitizeMolecule(mol)
     config.mol = mol
 
     for key, val in input.items():

@@ -73,6 +73,14 @@ for more details on the parameters.</p>
 <li><p>data_dir</p></li>
 <li><p>use_tensorboard</p></li>
 </ul>
+<p><em>Logged values</em>: The following values are logged during training:
+* advantages
+* loss
+* policy_loss
+* entropy_loss
+* value_loss
+* episodic_return_eval (total rewards per episode for eval episodes)
+* episodic_return_train (total rewards per episode for training episodes)</p>
 <p class="rubric">References</p>
 <dl class="footnote brackets">
 <dt class="label" id="id2"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
@@ -146,7 +154,11 @@ and then trains on the acquired samples.</p>
 
 
 <h3>Navigation</h3>
-<p><span class="caption-text">API reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial/quick_start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial/customizing_env_basic.html">Customizing Environment - basic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial/customizing_env_advanced.html">Customizing Environment - advanced</a></li>
+</ul>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="../agents.html">Agents</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="../prebuilt.html">Pre-built agents</a></li>

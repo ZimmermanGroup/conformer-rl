@@ -69,8 +69,6 @@ class RTGNGatRecurrent(torch.nn.Module):
             Output recurrent states from LSTM.
 
         """
-        import pdb
-        pdb.set_trace()
         data_list = []
         nr_list = []
         for b, nr in obs:
