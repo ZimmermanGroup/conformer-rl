@@ -7,4 +7,3 @@ python:
   install:
     - requirements: docs/requirements.txt
   version: 3.7
-  setup_py_install: true
