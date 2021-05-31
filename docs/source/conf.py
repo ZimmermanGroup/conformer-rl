@@ -72,3 +72,5 @@ html_sidebars = {
         'donate.html',
     ]
 }
+
+autodoc_mock_imports = ["rdkit", "torch_geometric"]
