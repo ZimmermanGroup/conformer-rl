@@ -1,0 +1,187 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+
+    <title>Pre-built Environments &#8212; conformer_rl 1.0.0 documentation</title>
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Conformer_env" href="conformer_env.html" />
+    <link rel="prev" title="Environments" href="environments.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <span class="target" id="module-conformer_rl.environments.environments"></span><section id="pre-built-environments">
+<h1>Pre-built Environments<a class="headerlink" href="#pre-built-environments" title="Permalink to this headline">¶</a></h1>
+<p>This module contains several pre-built experiments. Each pre-built environment is created by overriding the following components:</p>
+<ul class="simple">
+<li><p><strong>Action Handler</strong> refers to overriding of the <a class="reference internal" href="conformer_env.html#conformer_rl.environments.conformer_env.ConformerEnv._step" title="conformer_rl.environments.conformer_env.ConformerEnv._step"><code class="xref py py-meth docutils literal notranslate"><span class="pre">_step()</span></code></a> method of
+<a class="reference internal" href="conformer_env.html#conformer_rl.environments.conformer_env.ConformerEnv" title="conformer_rl.environments.conformer_env.ConformerEnv"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConformerEnv</span></code></a>,
+which determines how the molecule is modified given some action.</p></li>
+<li><p><strong>Reward Handler</strong> refers to overriding of the <a class="reference internal" href="conformer_env.html#conformer_rl.environments.conformer_env.ConformerEnv._reward" title="conformer_rl.environments.conformer_env.ConformerEnv._reward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">_reward()</span></code></a> method of
+<a class="reference internal" href="conformer_env.html#conformer_rl.environments.conformer_env.ConformerEnv" title="conformer_rl.environments.conformer_env.ConformerEnv"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConformerEnv</span></code></a>,
+which determines how the reward is calculated based on the current configuration of the molecule.</p></li>
+<li><p><strong>Observation Handler</strong> refers to overriding of the <a class="reference internal" href="conformer_env.html#conformer_rl.environments.conformer_env.ConformerEnv._obs" title="conformer_rl.environments.conformer_env.ConformerEnv._obs"><code class="xref py py-meth docutils literal notranslate"><span class="pre">_obs()</span></code></a> method of
+<a class="reference internal" href="conformer_env.html#conformer_rl.environments.conformer_env.ConformerEnv" title="conformer_rl.environments.conformer_env.ConformerEnv"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConformerEnv</span></code></a>,
+which returns an observation object based on hte current configuration of the molecule and is a compatible input for the neural net being used for training.</p></li>
+</ul>
+<p>All pre-built environments inherit from <a class="reference internal" href="conformer_env.html#conformer_rl.environments.conformer_env.ConformerEnv" title="conformer_rl.environments.conformer_env.ConformerEnv"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConformerEnv</span></code></a> and share the same constructor.</p>
+<dl class="py class">
+<dt id="conformer_rl.environments.environments.DiscreteActionEnv">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">conformer_rl.environments.environments.</span></code><code class="sig-name descname"><span class="pre">DiscreteActionEnv</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol_config</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="../config/mol_config.html#conformer_rl.config.mol_config.MolConfig" title="conformer_rl.config.mol_config.MolConfig"><span class="pre">conformer_rl.config.mol_config.MolConfig</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#conformer_rl.environments.environments.DiscreteActionEnv" title="Permalink to this definition">¶</a></dt>
+<dd><ul class="simple">
+<li><p>Action Handler: <a class="reference internal" href="components/action_mixins.html#conformer_rl.environments.environment_components.action_mixins.DiscreteActionMixin" title="conformer_rl.environments.environment_components.action_mixins.DiscreteActionMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">DiscreteActionMixin</span></code></a></p></li>
+<li><p>Reward Handler: default reward handler from <a class="reference internal" href="conformer_env.html#conformer_rl.environments.conformer_env.ConformerEnv" title="conformer_rl.environments.conformer_env.ConformerEnv"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConformerEnv</span></code></a></p></li>
+<li><p>Observation Handler: <a class="reference internal" href="components/obs_mixins.html#conformer_rl.environments.environment_components.obs_mixins.GraphObsMixin" title="conformer_rl.environments.environment_components.obs_mixins.GraphObsMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphObsMixin</span></code></a></p></li>
+</ul>
+</dd></dl>
+
+<dl class="py class">
+<dt id="conformer_rl.environments.environments.GibbsScoreEnv">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">conformer_rl.environments.environments.</span></code><code class="sig-name descname"><span class="pre">GibbsScoreEnv</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol_config</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="../config/mol_config.html#conformer_rl.config.mol_config.MolConfig" title="conformer_rl.config.mol_config.MolConfig"><span class="pre">conformer_rl.config.mol_config.MolConfig</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#conformer_rl.environments.environments.GibbsScoreEnv" title="Permalink to this definition">¶</a></dt>
+<dd><ul class="simple">
+<li><p>Action Handler: <a class="reference internal" href="components/action_mixins.html#conformer_rl.environments.environment_components.action_mixins.DiscreteActionMixin" title="conformer_rl.environments.environment_components.action_mixins.DiscreteActionMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">DiscreteActionMixin</span></code></a></p></li>
+<li><p>Reward Handler: <a class="reference internal" href="components/reward_mixins.html#conformer_rl.environments.environment_components.reward_mixins.GibbsRewardMixin" title="conformer_rl.environments.environment_components.reward_mixins.GibbsRewardMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">GibbsRewardMixin</span></code></a></p></li>
+<li><p>Observation Handler: <a class="reference internal" href="components/obs_mixins.html#conformer_rl.environments.environment_components.obs_mixins.AtomCoordsTypeGraphObsMixin" title="conformer_rl.environments.environment_components.obs_mixins.AtomCoordsTypeGraphObsMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">AtomCoordsTypeGraphObsMixin</span></code></a></p></li>
+</ul>
+</dd></dl>
+
+<dl class="py class">
+<dt id="conformer_rl.environments.environments.GibbsScorePruningEnv">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">conformer_rl.environments.environments.</span></code><code class="sig-name descname"><span class="pre">GibbsScorePruningEnv</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol_config</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="../config/mol_config.html#conformer_rl.config.mol_config.MolConfig" title="conformer_rl.config.mol_config.MolConfig"><span class="pre">conformer_rl.config.mol_config.MolConfig</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#conformer_rl.environments.environments.GibbsScorePruningEnv" title="Permalink to this definition">¶</a></dt>
+<dd><ul class="simple">
+<li><p>Action Handler: <a class="reference internal" href="components/action_mixins.html#conformer_rl.environments.environment_components.action_mixins.DiscreteActionMixin" title="conformer_rl.environments.environment_components.action_mixins.DiscreteActionMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">DiscreteActionMixin</span></code></a></p></li>
+<li><p>Reward Handler: <a class="reference internal" href="components/reward_mixins.html#conformer_rl.environments.environment_components.reward_mixins.GibbsPruningRewardMixin" title="conformer_rl.environments.environment_components.reward_mixins.GibbsPruningRewardMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">GibbsPruningRewardMixin</span></code></a></p></li>
+<li><p>Observation Handler: <a class="reference internal" href="components/obs_mixins.html#conformer_rl.environments.environment_components.obs_mixins.AtomCoordsTypeGraphObsMixin" title="conformer_rl.environments.environment_components.obs_mixins.AtomCoordsTypeGraphObsMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">AtomCoordsTypeGraphObsMixin</span></code></a></p></li>
+</ul>
+</dd></dl>
+
+<dl class="py class">
+<dt id="conformer_rl.environments.environments.GibbsScoreEndPruningEnv">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">conformer_rl.environments.environments.</span></code><code class="sig-name descname"><span class="pre">GibbsScoreEndPruningEnv</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol_config</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="../config/mol_config.html#conformer_rl.config.mol_config.MolConfig" title="conformer_rl.config.mol_config.MolConfig"><span class="pre">conformer_rl.config.mol_config.MolConfig</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#conformer_rl.environments.environments.GibbsScoreEndPruningEnv" title="Permalink to this definition">¶</a></dt>
+<dd><ul class="simple">
+<li><p>Action Handler: <a class="reference internal" href="components/action_mixins.html#conformer_rl.environments.environment_components.action_mixins.DiscreteActionMixin" title="conformer_rl.environments.environment_components.action_mixins.DiscreteActionMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">DiscreteActionMixin</span></code></a></p></li>
+<li><p>Reward Handler: <a class="reference internal" href="components/reward_mixins.html#conformer_rl.environments.environment_components.reward_mixins.GibbsEndPruningRewardMixin" title="conformer_rl.environments.environment_components.reward_mixins.GibbsEndPruningRewardMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">GibbsEndPruningRewardMixin</span></code></a></p></li>
+<li><p>Observation Handler: <a class="reference internal" href="components/obs_mixins.html#conformer_rl.environments.environment_components.obs_mixins.AtomCoordsTypeGraphObsMixin" title="conformer_rl.environments.environment_components.obs_mixins.AtomCoordsTypeGraphObsMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">AtomCoordsTypeGraphObsMixin</span></code></a></p></li>
+</ul>
+</dd></dl>
+
+<dl class="py class">
+<dt id="conformer_rl.environments.environments.GibbsScoreLogPruningEnv">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">conformer_rl.environments.environments.</span></code><code class="sig-name descname"><span class="pre">GibbsScoreLogPruningEnv</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol_config</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="../config/mol_config.html#conformer_rl.config.mol_config.MolConfig" title="conformer_rl.config.mol_config.MolConfig"><span class="pre">conformer_rl.config.mol_config.MolConfig</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#conformer_rl.environments.environments.GibbsScoreLogPruningEnv" title="Permalink to this definition">¶</a></dt>
+<dd><ul class="simple">
+<li><p>Action Handler: <a class="reference internal" href="components/action_mixins.html#conformer_rl.environments.environment_components.action_mixins.DiscreteActionMixin" title="conformer_rl.environments.environment_components.action_mixins.DiscreteActionMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">DiscreteActionMixin</span></code></a></p></li>
+<li><p>Reward Handler: <a class="reference internal" href="components/reward_mixins.html#conformer_rl.environments.environment_components.reward_mixins.GibbsLogPruningRewardMixin" title="conformer_rl.environments.environment_components.reward_mixins.GibbsLogPruningRewardMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">GibbsLogPruningRewardMixin</span></code></a></p></li>
+<li><p>Observation Handler: <a class="reference internal" href="components/obs_mixins.html#conformer_rl.environments.environment_components.obs_mixins.AtomCoordsTypeGraphObsMixin" title="conformer_rl.environments.environment_components.obs_mixins.AtomCoordsTypeGraphObsMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">AtomCoordsTypeGraphObsMixin</span></code></a></p></li>
+</ul>
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">conformer_rl</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p><span class="caption-text">API reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../agents/agents.html">Agents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../models/models.html">Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../config/config.html">Config</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="environments.html">Environments</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Pre-built Environments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="conformer_env.html">Conformer_env</a></li>
+<li class="toctree-l2"><a class="reference internal" href="components/environment_components.html">Environment Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="environment_wrapper.html">Environment_wrapper</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../molecule_generation/molecule_generation.html">Molecule Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../logging/logging.html">Logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analysis/analysis.html">Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../utils/utils.html">Utilities</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="environments.html">Environments</a><ul>
+      <li>Previous: <a href="environments.html" title="previous chapter">Environments</a></li>
+      <li>Next: <a href="conformer_env.html" title="next chapter">Conformer_env</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Runxuan Jiang.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/environments/prebuilt_environments.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

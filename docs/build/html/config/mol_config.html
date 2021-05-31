@@ -1,0 +1,204 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+
+    <title>Mol_config &#8212; conformer_rl 1.0.0 documentation</title>
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Environments" href="../environments/environments.html" />
+    <link rel="prev" title="Agent_config" href="agent_config.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <span class="target" id="module-conformer_rl.config.mol_config"></span><section id="mol-config">
+<h1>Mol_config<a class="headerlink" href="#mol-config" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="conformer_rl.config.mol_config.MolConfig">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">conformer_rl.config.mol_config.</span></code><code class="sig-name descname"><span class="pre">MolConfig</span></code><a class="headerlink" href="#conformer_rl.config.mol_config.MolConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Configuration object for environments.</p>
+<p>Specifies parameters for <a class="reference internal" href="../environments/conformer_env.html#conformer_rl.environments.conformer_env.ConformerEnv" title="conformer_rl.environments.conformer_env.ConformerEnv"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConformerEnv</span></code></a>
+conformer environments.</p>
+<dl class="py attribute">
+<dt id="conformer_rl.config.mol_config.MolConfig.mol">
+<code class="sig-name descname"><span class="pre">mol</span></code><a class="headerlink" href="#conformer_rl.config.mol_config.MolConfig.mol" title="Permalink to this definition">¶</a></dt>
+<dd><p>The molecule to be used by the environment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>rdkit Mol, required for all environments</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="conformer_rl.config.mol_config.MolConfig.seed">
+<code class="sig-name descname"><span class="pre">seed</span></code><a class="headerlink" href="#conformer_rl.config.mol_config.MolConfig.seed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Seed for generating initial conformers for the molecule. If set to -1,
+the seed is randomized.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int, required for all environments</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="conformer_rl.config.mol_config.MolConfig.E0">
+<code class="sig-name descname"><span class="pre">E0</span></code><a class="headerlink" href="#conformer_rl.config.mol_config.MolConfig.E0" title="Permalink to this definition">¶</a></dt>
+<dd><p>The normalizing <span class="math notranslate nohighlight">\(E_0\)</span> parameter for calculating Gibbs Score for the molecule. See <a class="footnote-reference brackets" href="#id4" id="id1">1</a> for more details.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float, required for environments that use Gibbs score reward.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="conformer_rl.config.mol_config.MolConfig.Z0">
+<code class="sig-name descname"><span class="pre">Z0</span></code><a class="headerlink" href="#conformer_rl.config.mol_config.MolConfig.Z0" title="Permalink to this definition">¶</a></dt>
+<dd><p>The normalizing <span class="math notranslate nohighlight">\(Z_0\)</span> parameter for calculating Gibbs score for the molecule. See <a class="footnote-reference brackets" href="#id4" id="id2">1</a> for more details.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float, required for environments that use Gibbs score reward.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="conformer_rl.config.mol_config.MolConfig.tau">
+<code class="sig-name descname"><span class="pre">tau</span></code><a class="headerlink" href="#conformer_rl.config.mol_config.MolConfig.tau" title="Permalink to this definition">¶</a></dt>
+<dd><p>The temperature (τ) parameter for calculating Gibbs Score for the molecule. See <a class="footnote-reference brackets" href="#id4" id="id3">1</a> for more details.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float, required for environments that use Gibbs score reward.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="conformer_rl.config.mol_config.MolConfig.pruning_thresh">
+<code class="sig-name descname"><span class="pre">pruning_thresh</span></code><a class="headerlink" href="#conformer_rl.config.mol_config.MolConfig.pruning_thresh" title="Permalink to this definition">¶</a></dt>
+<dd><p>The minimum allowed TFD (torsional fingerprint deviation) between conformers when pruning.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float, required for environments that use pruning.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">References</p>
+<dl class="footnote brackets">
+<dt class="label" id="id4"><span class="brackets">1</span><span class="fn-backref">(<a href="#id1">1</a>,<a href="#id2">2</a>,<a href="#id3">3</a>)</span></dt>
+<dd><p><a class="reference external" href="https://arxiv.org/abs/2006.07078">TorsionNet paper</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">conformer_rl</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p><span class="caption-text">API reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../agents/agents.html">Agents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../models/models.html">Models</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="config.html">Config</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="agent_config.html">Agent_config</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Mol_config</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../environments/environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../molecule_generation/molecule_generation.html">Molecule Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../logging/logging.html">Logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analysis/analysis.html">Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../utils/utils.html">Utilities</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="config.html">Config</a><ul>
+      <li>Previous: <a href="agent_config.html" title="previous chapter">Agent_config</a></li>
+      <li>Next: <a href="../environments/environments.html" title="next chapter">Environments</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Runxuan Jiang.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/config/mol_config.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,163 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+
+    <title>Reward_mixins &#8212; conformer_rl 1.0.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Molecule_features" href="molecule_features.html" />
+    <link rel="prev" title="Observation_mixins" href="obs_mixins.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <span class="target" id="module-conformer_rl.environments.environment_components.reward_mixins"></span><section id="reward-mixins">
+<h1>Reward_mixins<a class="headerlink" href="#reward-mixins" title="Permalink to this headline">¶</a></h1>
+<p>Pre-built reward handlers.</p>
+<dl class="py class">
+<dt id="conformer_rl.environments.environment_components.reward_mixins.GibbsRewardMixin">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">conformer_rl.environments.environment_components.reward_mixins.</span></code><code class="sig-name descname"><span class="pre">GibbsRewardMixin</span></code><a class="headerlink" href="#conformer_rl.environments.environment_components.reward_mixins.GibbsRewardMixin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Implements the Gibbs Score reward <a class="footnote-reference brackets" href="#id2" id="id1">1</a>, but distance metric between conformers are judged by
+whether the conformers were produced by the same action input, instead of with TFD (Torsional Fingerprint Deviation).</p>
+<p class="rubric">References</p>
+<dl class="footnote brackets">
+<dt class="label" id="id2"><span class="brackets">1</span><span class="fn-backref">(<a href="#id1">1</a>,<a href="#id3">2</a>,<a href="#id4">3</a>,<a href="#id5">4</a>)</span></dt>
+<dd><p><a class="reference external" href="https://arxiv.org/abs/2006.07078">TorsionNet paper</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt id="conformer_rl.environments.environment_components.reward_mixins.GibbsEndPruningRewardMixin">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">conformer_rl.environments.environment_components.reward_mixins.</span></code><code class="sig-name descname"><span class="pre">GibbsEndPruningRewardMixin</span></code><a class="headerlink" href="#conformer_rl.environments.environment_components.reward_mixins.GibbsEndPruningRewardMixin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Implements the Gibbs Score reward <a class="footnote-reference brackets" href="#id2" id="id3">1</a>, except overly similar conformers are only pruned at the end of an episode
+and therefore is only reflected in the final reward in each episode.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="conformer_rl.environments.environment_components.reward_mixins.GibbsPruningRewardMixin">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">conformer_rl.environments.environment_components.reward_mixins.</span></code><code class="sig-name descname"><span class="pre">GibbsPruningRewardMixin</span></code><a class="headerlink" href="#conformer_rl.environments.environment_components.reward_mixins.GibbsPruningRewardMixin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Implements the Gibbs Score reward <a class="footnote-reference brackets" href="#id2" id="id4">1</a>.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="conformer_rl.environments.environment_components.reward_mixins.GibbsLogPruningRewardMixin">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">conformer_rl.environments.environment_components.reward_mixins.</span></code><code class="sig-name descname"><span class="pre">GibbsLogPruningRewardMixin</span></code><a class="headerlink" href="#conformer_rl.environments.environment_components.reward_mixins.GibbsLogPruningRewardMixin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#conformer_rl.environments.environment_components.reward_mixins.GibbsPruningRewardMixin" title="conformer_rl.environments.environment_components.reward_mixins.GibbsPruningRewardMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">conformer_rl.environments.environment_components.reward_mixins.GibbsPruningRewardMixin</span></code></a></p>
+<p>Implements the log of the Gibbs Score reward <a class="footnote-reference brackets" href="#id2" id="id5">1</a>.</p>
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">conformer_rl</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p><span class="caption-text">API reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../agents/agents.html">Agents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../models/models.html">Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../config/config.html">Config</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../environments.html">Environments</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../prebuilt_environments.html">Pre-built Environments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../conformer_env.html">Conformer_env</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="environment_components.html">Environment Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../environment_wrapper.html">Environment_wrapper</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../molecule_generation/molecule_generation.html">Molecule Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../logging/logging.html">Logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../analysis/analysis.html">Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../utils/utils.html">Utilities</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../environments.html">Environments</a><ul>
+  <li><a href="environment_components.html">Environment Components</a><ul>
+      <li>Previous: <a href="obs_mixins.html" title="previous chapter">Observation_mixins</a></li>
+      <li>Next: <a href="molecule_features.html" title="next chapter">Molecule_features</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Runxuan Jiang.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../_sources/environments/components/reward_mixins.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

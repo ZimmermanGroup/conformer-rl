@@ -1,0 +1,218 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+
+    <title>PPO_recurrent_agent &#8212; conformer_rl 1.0.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Base Agent and Utility Classes" href="../base.html" />
+    <link rel="prev" title="PPO_agent" href="PPO_agent.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <span class="target" id="module-conformer_rl.agents.PPO.PPO_recurrent_agent"></span><section id="ppo-recurrent-agent">
+<h1>PPO_recurrent_agent<a class="headerlink" href="#ppo-recurrent-agent" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="conformer_rl.agents.PPO.PPO_recurrent_agent.PPORecurrentAgent">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">conformer_rl.agents.PPO.PPO_recurrent_agent.</span></code><code class="sig-name descname"><span class="pre">PPORecurrentAgent</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="../../config/agent_config.html#conformer_rl.config.agent_config.Config" title="conformer_rl.config.agent_config.Config"><span class="pre">conformer_rl.config.agent_config.Config</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#conformer_rl.agents.PPO.PPO_recurrent_agent.PPORecurrentAgent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="../base_agents/base_ac_agent_recurrent.html#conformer_rl.agents.base_ac_agent_recurrent.BaseACAgentRecurrent" title="conformer_rl.agents.base_ac_agent_recurrent.BaseACAgentRecurrent"><code class="xref py py-class docutils literal notranslate"><span class="pre">conformer_rl.agents.base_ac_agent_recurrent.BaseACAgentRecurrent</span></code></a></p>
+<p>Implements agent that uses the PPO (proximal policy optimization) <a class="footnote-reference brackets" href="#id2" id="id1">1</a> algorithm
+with support for recurrent neural networks.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="../../config/agent_config.html#conformer_rl.config.agent_config.Config" title="conformer_rl.config.agent_config.Config"><code class="xref py py-class docutils literal notranslate"><span class="pre">Config</span></code></a>) – Configuration object for the agent. See notes for a list of config
+parameters used by this agent.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p><em>Config parameters:</em> The following parameters are required in the <cite>config</cite> object. See <a class="reference internal" href="../../config/agent_config.html#conformer_rl.config.agent_config.Config" title="conformer_rl.config.agent_config.Config"><code class="xref py py-class docutils literal notranslate"><span class="pre">Config</span></code></a>
+for more details on the parameters.</p>
+<ul class="simple">
+<li><p>tag</p></li>
+<li><p>train_env</p></li>
+<li><p>eval_env</p></li>
+<li><p>optimizer_fn</p></li>
+<li><p>network</p></li>
+<li><p>num_workers</p></li>
+<li><p>rollout_length</p></li>
+<li><p>max_steps</p></li>
+<li><p>save_interval</p></li>
+<li><p>eval_interval</p></li>
+<li><p>eval_episodes</p></li>
+<li><p>recurrence</p></li>
+<li><p>optimization_epochs</p></li>
+<li><p>mini_batch_size</p></li>
+<li><p>discount</p></li>
+<li><p>use_gae</p></li>
+<li><p>gae_lambda</p></li>
+<li><p>entropy_weight</p></li>
+<li><p>value_loss_coefficient</p></li>
+<li><p>gradient_clip</p></li>
+<li><p>ppo_ratio_clip</p></li>
+<li><p>data_dir</p></li>
+<li><p>use_tensorboard</p></li>
+</ul>
+<p class="rubric">References</p>
+<dl class="footnote brackets">
+<dt class="label" id="id2"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd><p><a class="reference external" href="https://arxiv.org/abs/1707.06347">PPO Paper</a></p>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="conformer_rl.agents.PPO.PPO_recurrent_agent.PPORecurrentAgent.evaluate">
+<code class="sig-name descname"><span class="pre">evaluate</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#conformer_rl.agents.PPO.PPO_recurrent_agent.PPORecurrentAgent.evaluate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluates the agent on the evaluation environment.</p>
+<p>Information dict returned by the environment’s <a class="reference internal" href="../../environments/conformer_env.html#conformer_rl.environments.conformer_env.ConformerEnv.step" title="conformer_rl.environments.conformer_env.ConformerEnv.step"><code class="xref py py-meth docutils literal notranslate"><span class="pre">conformer_rl.environments.conformer_env.ConformerEnv.step()</span></code></a> method
+is logged by the <cite>eval_logger</cite> and saved.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="conformer_rl.agents.PPO.PPO_recurrent_agent.PPORecurrentAgent.load">
+<code class="sig-name descname"><span class="pre">load</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#conformer_rl.agents.PPO.PPO_recurrent_agent.PPORecurrentAgent.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads the neural network with weights.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – The path where the neural network weights are saved.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="conformer_rl.agents.PPO.PPO_recurrent_agent.PPORecurrentAgent.run_steps">
+<code class="sig-name descname"><span class="pre">run_steps</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#conformer_rl.agents.PPO.PPO_recurrent_agent.PPORecurrentAgent.run_steps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Trains the agent.</p>
+<p>Trains the agent until the maximum number of steps (specified by config) is reached.
+Also periodically saves neural network parameters and performs evaluations on the agent,
+if specified in the config.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="conformer_rl.agents.PPO.PPO_recurrent_agent.PPORecurrentAgent.save">
+<code class="sig-name descname"><span class="pre">save</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#conformer_rl.agents.PPO.PPO_recurrent_agent.PPORecurrentAgent.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves the neural network weights to a file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – The path where the neural network weights are to be saved.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="conformer_rl.agents.PPO.PPO_recurrent_agent.PPORecurrentAgent.step">
+<code class="sig-name descname"><span class="pre">step</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#conformer_rl.agents.PPO.PPO_recurrent_agent.PPORecurrentAgent.step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs one iteration of acquiring samples on the environment
+and then trains on the acquired samples.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">conformer_rl</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p><span class="caption-text">API reference</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../agents.html">Agents</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../prebuilt.html">Pre-built agents</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../base.html">Base Agent and Utility Classes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../models/models.html">Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../config/config.html">Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../environments/environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../molecule_generation/molecule_generation.html">Molecule Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../logging/logging.html">Logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../analysis/analysis.html">Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../utils/utils.html">Utilities</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../agents.html">Agents</a><ul>
+  <li><a href="../prebuilt.html">Pre-built agents</a><ul>
+      <li>Previous: <a href="PPO_agent.html" title="previous chapter">PPO_agent</a></li>
+      <li>Next: <a href="../base.html" title="next chapter">Base Agent and Utility Classes</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Runxuan Jiang.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../_sources/agents/PPO/PPO_recurrent_agent.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

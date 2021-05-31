@@ -1,0 +1,264 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+
+    <title>Base_agent &#8212; conformer_rl 1.0.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Base_agent_recurrent" href="base_agent_recurrent.html" />
+    <link rel="prev" title="Base Agent and Utility Classes" href="../base.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <span class="target" id="module-conformer_rl.agents.base_agent"></span><section id="base-agent">
+<h1>Base_agent<a class="headerlink" href="#base-agent" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="conformer_rl.agents.base_agent.BaseAgent">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">conformer_rl.agents.base_agent.</span></code><code class="sig-name descname"><span class="pre">BaseAgent</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="../../config/agent_config.html#conformer_rl.config.agent_config.Config" title="conformer_rl.config.agent_config.Config"><span class="pre">conformer_rl.config.agent_config.Config</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#conformer_rl.agents.base_agent.BaseAgent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base interface for building reinforcement learning agents.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="../../config/agent_config.html#conformer_rl.config.agent_config.Config" title="conformer_rl.config.agent_config.Config"><code class="xref py py-class docutils literal notranslate"><span class="pre">Config</span></code></a>) – Configuration object for the agent. See notes for a list of config
+parameters used by specific pre-built agents.</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt id="conformer_rl.agents.base_agent.BaseAgent.config">
+<code class="sig-name descname"><span class="pre">config</span></code><a class="headerlink" href="#conformer_rl.agents.base_agent.BaseAgent.config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Configuration object used for the agent.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="../../config/agent_config.html#conformer_rl.config.agent_config.Config" title="conformer_rl.config.agent_config.Config"><code class="xref py py-class docutils literal notranslate"><span class="pre">Config</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="conformer_rl.agents.base_agent.BaseAgent.unique_tag">
+<code class="sig-name descname"><span class="pre">unique_tag</span></code><a class="headerlink" href="#conformer_rl.agents.base_agent.BaseAgent.unique_tag" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unique identifier string for the current training session. Used to identify
+this session in logging.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="conformer_rl.agents.base_agent.BaseAgent.eval_logger">
+<code class="sig-name descname"><span class="pre">eval_logger</span></code><a class="headerlink" href="#conformer_rl.agents.base_agent.BaseAgent.eval_logger" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used for logging environment data when evaluating agent.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="../../logging/env_logger.html#conformer_rl.logging.env_logger.EnvLogger" title="conformer_rl.logging.env_logger.EnvLogger"><code class="xref py py-class docutils literal notranslate"><span class="pre">EnvLogger</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="conformer_rl.agents.base_agent.BaseAgent.train_logger">
+<code class="sig-name descname"><span class="pre">train_logger</span></code><a class="headerlink" href="#conformer_rl.agents.base_agent.BaseAgent.train_logger" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used for logging agent data while training.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="../../logging/train_logger.html#conformer_rl.logging.train_logger.TrainLogger" title="conformer_rl.logging.train_logger.TrainLogger"><code class="xref py py-class docutils literal notranslate"><span class="pre">TrainLogger</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="conformer_rl.agents.base_agent.BaseAgent.total_steps">
+<code class="sig-name descname"><span class="pre">total_steps</span></code><a class="headerlink" href="#conformer_rl.agents.base_agent.BaseAgent.total_steps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Total number of environment interactions/steps taken by the agent.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="conformer_rl.agents.base_agent.BaseAgent.storage">
+<code class="sig-name descname"><span class="pre">storage</span></code><a class="headerlink" href="#conformer_rl.agents.base_agent.BaseAgent.storage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used to save environment samples, analogous to a replay buffer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="storage.html#conformer_rl.agents.storage.Storage" title="conformer_rl.agents.storage.Storage"><code class="xref py py-class docutils literal notranslate"><span class="pre">Storage</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="conformer_rl.agents.base_agent.BaseAgent.run_steps">
+<code class="sig-name descname"><span class="pre">run_steps</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#conformer_rl.agents.base_agent.BaseAgent.run_steps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Trains the agent.</p>
+<p>Trains the agent until the maximum number of steps (specified by config) is reached.
+Also periodically saves neural network parameters and performs evaluations on the agent,
+if specified in the config.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="conformer_rl.agents.base_agent.BaseAgent.step">
+<code class="sig-name descname"><span class="pre">step</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#conformer_rl.agents.base_agent.BaseAgent.step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs one iteration of acquiring samples on the environment
+and then trains on the acquired samples.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="conformer_rl.agents.base_agent.BaseAgent._eval_episode">
+<code class="sig-name descname"><span class="pre">_eval_episode</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">dict</span><a class="headerlink" href="#conformer_rl.agents.base_agent.BaseAgent._eval_episode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evalutes the agent on a single episode of the evaluation environment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Information from the evaluation environment to be logged by the
+<cite>eval_logger</cite>.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="conformer_rl.agents.base_agent.BaseAgent.evaluate">
+<code class="sig-name descname"><span class="pre">evaluate</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#conformer_rl.agents.base_agent.BaseAgent.evaluate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluates the agent on the evaluation environment.</p>
+<p>Information dict returned by the environment’s <a class="reference internal" href="../../environments/conformer_env.html#conformer_rl.environments.conformer_env.ConformerEnv.step" title="conformer_rl.environments.conformer_env.ConformerEnv.step"><code class="xref py py-meth docutils literal notranslate"><span class="pre">conformer_rl.environments.conformer_env.ConformerEnv.step()</span></code></a> method
+is logged by the <cite>eval_logger</cite> and saved.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="conformer_rl.agents.base_agent.BaseAgent.load">
+<code class="sig-name descname"><span class="pre">load</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#conformer_rl.agents.base_agent.BaseAgent.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads the neural network with weights.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – The path where the neural network weights are saved.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="conformer_rl.agents.base_agent.BaseAgent.save">
+<code class="sig-name descname"><span class="pre">save</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#conformer_rl.agents.base_agent.BaseAgent.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves the neural network weights to a file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – The path where the neural network weights are to be saved.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">conformer_rl</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p><span class="caption-text">API reference</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../agents.html">Agents</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../prebuilt.html">Pre-built agents</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../base.html">Base Agent and Utility Classes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../models/models.html">Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../config/config.html">Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../environments/environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../molecule_generation/molecule_generation.html">Molecule Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../logging/logging.html">Logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../analysis/analysis.html">Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../utils/utils.html">Utilities</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../agents.html">Agents</a><ul>
+  <li><a href="../base.html">Base Agent and Utility Classes</a><ul>
+      <li>Previous: <a href="../base.html" title="previous chapter">Base Agent and Utility Classes</a></li>
+      <li>Next: <a href="base_agent_recurrent.html" title="next chapter">Base_agent_recurrent</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Runxuan Jiang.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../_sources/agents/base_agents/base_agent.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
