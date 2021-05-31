@@ -6,4 +6,6 @@ sphinx:
 python:
   install:
     - requirements: docs/requirements.txt
+    - path: .
   version: 3.7
+
