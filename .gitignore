@@ -4,6 +4,9 @@ model_data
 train_data
 molecule_data
 
+# documentation build
+docs/build/
+
 
 #python utility files
 __pycache__/
