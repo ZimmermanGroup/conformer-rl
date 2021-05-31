@@ -20,12 +20,13 @@ def bond_type(bond: Chem.Bond) -> List[bool]:
     -------
     List of bools of length 6
     Each element corresponds to, respectively, whether the bond is
-    * A single bond
-    * A double bond
-    * A triple bond
-    * An aromatic bond
-    * Is conjugated
-    * Is in a ring structure
+    
+        * A single bond
+        * A double bond
+        * A triple bond
+        * An aromatic bond
+        * Is conjugated
+        * Is in a ring structure
 
     """
 
