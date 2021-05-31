@@ -1,0 +1,214 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+
+    <title>Chemistry Utilities &#8212; conformer_rl 1.0.0 documentation</title>
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Miscellaneous Utilities" href="misc_utils.html" />
+    <link rel="prev" title="Utilities" href="utils.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <span class="target" id="module-conformer_rl.utils.chem_utils"></span><section id="chemistry-utilities">
+<h1>Chemistry Utilities<a class="headerlink" href="#chemistry-utilities" title="Permalink to this headline">¶</a></h1>
+<p>Chemistry and molecule utility functions.</p>
+<dl class="py function">
+<dt id="conformer_rl.utils.chem_utils.get_conformer_energies">
+<code class="sig-prename descclassname"><span class="pre">conformer_rl.utils.chem_utils.</span></code><code class="sig-name descname"><span class="pre">get_conformer_energies</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">rdkit.Chem.rdchem.Mol</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#conformer_rl.utils.chem_utils.get_conformer_energies" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of energies for each conformer in <cite>mol</cite>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="conformer_rl.utils.chem_utils.get_conformer_energy">
+<code class="sig-prename descclassname"><span class="pre">conformer_rl.utils.chem_utils.</span></code><code class="sig-name descname"><span class="pre">get_conformer_energy</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">rdkit.Chem.rdchem.Mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confId</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">float</span><a class="headerlink" href="#conformer_rl.utils.chem_utils.get_conformer_energy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the energy of the conformer with <cite>confId</cite> in <cite>mol</cite>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="conformer_rl.utils.chem_utils.prune_last_conformer">
+<code class="sig-prename descclassname"><span class="pre">conformer_rl.utils.chem_utils.</span></code><code class="sig-name descname"><span class="pre">prune_last_conformer</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">rdkit.Chem.rdchem.Mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tfd_thresh</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energies</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">rdkit.Chem.rdchem.Mol</span><span class="p"><span class="pre">,</span> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#conformer_rl.utils.chem_utils.prune_last_conformer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prunes the last conformer of the molecule.</p>
+<p>If no conformers in <cite>mol</cite> have a TFD (Torsional Fingerprint Deviation) with the last conformer of less than <cite>tfd_thresh</cite>,
+the last conformer is kept. Otherwise, the lowest energy conformer with TFD less than tfd_thresh is kept and all other conformers
+are discarded.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mol</strong> (<em>RDKit Mol</em>) – The molecule to be pruned. The conformers in the molecule should be ordered by ascending energy.</p></li>
+<li><p><strong>tfd_thresh</strong> (<em>float</em>) – The minimum threshold for TFD between conformers.</p></li>
+<li><p><strong>energies</strong> (<em>list of float</em>) – A list of of all the energies of the conformers in <cite>mol</cite>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>mol</strong> (<em>RDKit Mol</em>) – The updated molecule after pruning, with conformers sorted by ascending energy.</p></li>
+<li><p><strong>energies</strong> (<em>list of float</em>) – A list of all the energies of the conformers in <cite>mol</cite> after pruning and sorting by ascending energy.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="conformer_rl.utils.chem_utils.prune_conformers">
+<code class="sig-prename descclassname"><span class="pre">conformer_rl.utils.chem_utils.</span></code><code class="sig-name descname"><span class="pre">prune_conformers</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">rdkit.Chem.rdchem.Mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tfd_thresh</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">rdkit.Chem.rdchem.Mol</span><a class="headerlink" href="#conformer_rl.utils.chem_utils.prune_conformers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prunes the all conformers in the molecule.</p>
+<p>Removes conformers that have a TFD (torsional fingerprint deviation) lower than
+tfd_thresh with other conformers. Lowest energy conformers are kept.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mol</strong> (<em>RDKit Mol</em>) – The molecule to be pruned.</p></li>
+<li><p><strong>tfd_thresh</strong> (<em>float</em>) – The minimum threshold for TFD between conformers.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>mol</strong> – The updated molecule after pruning.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>RDKit Mol</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="conformer_rl.utils.chem_utils.tfd_matrix">
+<code class="sig-prename descclassname"><span class="pre">conformer_rl.utils.chem_utils.</span></code><code class="sig-name descname"><span class="pre">tfd_matrix</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">rdkit.Chem.rdchem.Mol</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">numpy.array</span><a class="headerlink" href="#conformer_rl.utils.chem_utils.tfd_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the TFD matrix for all conformers in a molecule.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="conformer_rl.utils.chem_utils.calculate_normalizers">
+<code class="sig-prename descclassname"><span class="pre">conformer_rl.utils.chem_utils.</span></code><code class="sig-name descname"><span class="pre">calculate_normalizers</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">rdkit.Chem.rdchem.Mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_confs</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pruning_thresh</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">float</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">0.05</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#conformer_rl.utils.chem_utils.calculate_normalizers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the E0 and Z0 normalizing constants for a molecule used in the TorsionNet <a class="footnote-reference brackets" href="#id2" id="id1">1</a> paper.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mol</strong> (<em>RDKit Mol</em>) – The molecule of interest.</p></li>
+<li><p><strong>num_confs</strong> (<em>int</em>) – The number of conformers to generate when calculating the constants. Should equal
+the number of steps for each episode of the environment containing this molecule.</p></li>
+<li><p><strong>pruning_thresh</strong> (<em>float</em>) – TFD threshold for pruning the conformers of <cite>mol</cite>.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<dl class="footnote brackets">
+<dt class="label" id="id2"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd><p><a class="reference external" href="https://arxiv.org/abs/2006.07078">TorsionNet paper</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">conformer_rl</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/quick_start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/customizing_env_basic.html">Customizing Environment - basic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/customizing_env_advanced.html">Customizing Environment - advanced</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../agents/agents.html">Agents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../models/models.html">Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../config/config.html">Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../environments/environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../molecule_generation/molecule_generation.html">Molecule Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../logging/logging.html">Logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analysis/analysis.html">Analysis</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="utils.html">Utilities</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Chemistry Utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="misc_utils.html">Miscellaneous Utilities</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="utils.html">Utilities</a><ul>
+      <li>Previous: <a href="utils.html" title="previous chapter">Utilities</a></li>
+      <li>Next: <a href="misc_utils.html" title="next chapter">Miscellaneous Utilities</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Runxuan Jiang.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/utils/chem_utils.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

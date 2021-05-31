@@ -1,0 +1,174 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+
+    <title>Action_mixins &#8212; conformer_rl 1.0.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Observation_mixins" href="obs_mixins.html" />
+    <link rel="prev" title="Environment Components" href="environment_components.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <span class="target" id="module-conformer_rl.environments.environment_components.action_mixins"></span><section id="action-mixins">
+<h1>Action_mixins<a class="headerlink" href="#action-mixins" title="Permalink to this headline">¶</a></h1>
+<p>Pre-built action handlers.</p>
+<dl class="py class">
+<dt id="conformer_rl.environments.environment_components.action_mixins.ContinuousActionMixin">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">conformer_rl.environments.environment_components.action_mixins.</span></code><code class="sig-name descname"><span class="pre">ContinuousActionMixin</span></code><a class="headerlink" href="#conformer_rl.environments.environment_components.action_mixins.ContinuousActionMixin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>For each torsion of the molecule, modifies the torsion given an angle from a continuous range.</p>
+<dl class="py method">
+<dt id="conformer_rl.environments.environment_components.action_mixins.ContinuousActionMixin._step">
+<code class="sig-name descname"><span class="pre">_step</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">action</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#conformer_rl.environments.environment_components.action_mixins.ContinuousActionMixin._step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the torsion angles of the molecule.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>action</strong> (<em>list of float</em>) – Each element of <cite>action</cite> specifies the angle (in degrees) to set the angle of the corresponding
+torsion in the molecule.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Logged parameters:
+* conf: the current generated conformer is saved to the episodic mol object.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="conformer_rl.environments.environment_components.action_mixins.DiscreteActionMixin">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">conformer_rl.environments.environment_components.action_mixins.</span></code><code class="sig-name descname"><span class="pre">DiscreteActionMixin</span></code><a class="headerlink" href="#conformer_rl.environments.environment_components.action_mixins.DiscreteActionMixin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>For each torsion of the molecule, modifies the torsion given an angle from a discrete set of possible angles.</p>
+<dl class="py method">
+<dt id="conformer_rl.environments.environment_components.action_mixins.DiscreteActionMixin._step">
+<code class="sig-name descname"><span class="pre">_step</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">action</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#conformer_rl.environments.environment_components.action_mixins.DiscreteActionMixin._step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the torsion angles of the molecule.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>action</strong> (<em>list of int between 0 and 5</em>) – For each element of <cite>action</cite>, sets the corresponding torsion angle to 60 times the element degrees.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Logged parameters:
+* conf: the current generated conformer is saved to the episodic mol object.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">conformer_rl</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial/quick_start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial/customizing_env_basic.html">Customizing Environment - basic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial/customizing_env_advanced.html">Customizing Environment - advanced</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../agents/agents.html">Agents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../models/models.html">Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../config/config.html">Config</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../environments.html">Environments</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../prebuilt_environments.html">Pre-built Environments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../conformer_env.html">Conformer_env</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="environment_components.html">Environment Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../environment_wrapper.html">Environment_wrapper</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../molecule_generation/molecule_generation.html">Molecule Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../logging/logging.html">Logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../analysis/analysis.html">Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../utils/utils.html">Utilities</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../environments.html">Environments</a><ul>
+  <li><a href="environment_components.html">Environment Components</a><ul>
+      <li>Previous: <a href="environment_components.html" title="previous chapter">Environment Components</a></li>
+      <li>Next: <a href="obs_mixins.html" title="next chapter">Observation_mixins</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Runxuan Jiang.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../_sources/environments/components/action_mixins.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

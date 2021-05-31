@@ -1,0 +1,161 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+
+    <title>Miscellaneous Utilities &#8212; conformer_rl 1.0.0 documentation</title>
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Chemistry Utilities" href="chem_utils.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <span class="target" id="module-conformer_rl.utils.misc_utils"></span><section id="miscellaneous-utilities">
+<h1>Miscellaneous Utilities<a class="headerlink" href="#miscellaneous-utilities" title="Permalink to this headline">¶</a></h1>
+<p>Miscellaneous utility functions.</p>
+<dl class="py function">
+<dt id="conformer_rl.utils.misc_utils.current_time">
+<code class="sig-prename descclassname"><span class="pre">conformer_rl.utils.misc_utils.</span></code><code class="sig-name descname"><span class="pre">current_time</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span><a class="headerlink" href="#conformer_rl.utils.misc_utils.current_time" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a string containing the current date and time.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="conformer_rl.utils.misc_utils.set_one_thread">
+<code class="sig-prename descclassname"><span class="pre">conformer_rl.utils.misc_utils.</span></code><code class="sig-name descname"><span class="pre">set_one_thread</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#conformer_rl.utils.misc_utils.set_one_thread" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the number of CPU threads to 1 for each Python process.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="conformer_rl.utils.misc_utils.mkdir">
+<code class="sig-prename descclassname"><span class="pre">conformer_rl.utils.misc_utils.</span></code><code class="sig-name descname"><span class="pre">mkdir</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#conformer_rl.utils.misc_utils.mkdir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates directory specified by the input string.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="conformer_rl.utils.misc_utils.to_np">
+<code class="sig-prename descclassname"><span class="pre">conformer_rl.utils.misc_utils.</span></code><code class="sig-name descname"><span class="pre">to_np</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">None._VariableFunctionsClass.tensor</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">numpy.array</span><a class="headerlink" href="#conformer_rl.utils.misc_utils.to_np" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts a PyTorch tensor to a Numpy array.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="conformer_rl.utils.misc_utils.save_model">
+<code class="sig-prename descclassname"><span class="pre">conformer_rl.utils.misc_utils.</span></code><code class="sig-name descname"><span class="pre">save_model</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">torch.nn.modules.module.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#conformer_rl.utils.misc_utils.save_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves model parameters of a PyTorch neural network to a file.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="conformer_rl.utils.misc_utils.load_model">
+<code class="sig-prename descclassname"><span class="pre">conformer_rl.utils.misc_utils.</span></code><code class="sig-name descname"><span class="pre">load_model</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">torch.nn.modules.module.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#conformer_rl.utils.misc_utils.load_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads model parameters of a PyTorch network from a file.</p>
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">conformer_rl</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/quick_start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/customizing_env_basic.html">Customizing Environment - basic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/customizing_env_advanced.html">Customizing Environment - advanced</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../agents/agents.html">Agents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../models/models.html">Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../config/config.html">Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../environments/environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../molecule_generation/molecule_generation.html">Molecule Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../logging/logging.html">Logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analysis/analysis.html">Analysis</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="utils.html">Utilities</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="chem_utils.html">Chemistry Utilities</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Miscellaneous Utilities</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="utils.html">Utilities</a><ul>
+      <li>Previous: <a href="chem_utils.html" title="previous chapter">Chemistry Utilities</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Runxuan Jiang.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/utils/misc_utils.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

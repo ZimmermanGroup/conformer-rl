@@ -1,0 +1,174 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+
+    <title>Molecule_features &#8212; conformer_rl 1.0.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Environment_wrapper" href="../environment_wrapper.html" />
+    <link rel="prev" title="Reward_mixins" href="reward_mixins.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <span class="target" id="module-conformer_rl.environments.environment_components.molecule_features"></span><section id="molecule-features">
+<h1>Molecule_features<a class="headerlink" href="#molecule-features" title="Permalink to this headline">¶</a></h1>
+<p>Helper functions for extracting features from molecules conformers
+to generate graph representations in <a class="reference internal" href="obs_mixins.html#module-conformer_rl.environments.environment_components.obs_mixins" title="conformer_rl.environments.environment_components.obs_mixins"><code class="xref py py-mod docutils literal notranslate"><span class="pre">conformer_rl.environments.environment_components.obs_mixins</span></code></a>.</p>
+<dl class="py function">
+<dt id="conformer_rl.environments.environment_components.molecule_features.bond_type">
+<code class="sig-prename descclassname"><span class="pre">conformer_rl.environments.environment_components.molecule_features.</span></code><code class="sig-name descname"><span class="pre">bond_type</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bond</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">rdkit.Chem.rdchem.Bond</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#conformer_rl.environments.environment_components.molecule_features.bond_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extracts features from a bond in a molecule.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>bond</strong> (<em>rdkit Bond object</em>) – The bond to extract features from</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>List of bools of length 6</em></p></li>
+<li><p><em>Each element corresponds to, respectively, whether the bond is</em></p></li>
+<li><p><em>* A single bond</em></p></li>
+<li><p><em>* A double bond</em></p></li>
+<li><p><em>* A triple bond</em></p></li>
+<li><p><em>* An aromatic bond</em></p></li>
+<li><p><em>* Is conjugated</em></p></li>
+<li><p><em>* Is in a ring structure</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="conformer_rl.environments.environment_components.molecule_features.get_bond_pairs">
+<code class="sig-prename descclassname"><span class="pre">conformer_rl.environments.environment_components.molecule_features.</span></code><code class="sig-name descname"><span class="pre">get_bond_pairs</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">rdkit.Chem.rdchem.Mol</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#conformer_rl.environments.environment_components.molecule_features.get_bond_pairs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of all pairs of atoms that have a bond between each other.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="conformer_rl.environments.environment_components.molecule_features.atom_coords">
+<code class="sig-prename descclassname"><span class="pre">conformer_rl.environments.environment_components.molecule_features.</span></code><code class="sig-name descname"><span class="pre">atom_coords</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">rdkit.Chem.rdchem.Atom</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conf</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">rdkit.Chem.rdchem.Conformer</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#conformer_rl.environments.environment_components.molecule_features.atom_coords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the x, y, and z coordinates of an atom in a molecule conformer.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="conformer_rl.environments.environment_components.molecule_features.atom_type_CO">
+<code class="sig-prename descclassname"><span class="pre">conformer_rl.environments.environment_components.molecule_features.</span></code><code class="sig-name descname"><span class="pre">atom_type_CO</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">atom</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">rdkit.Chem.rdchem.Atom</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#conformer_rl.environments.environment_components.molecule_features.atom_type_CO" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a one-hot list of length 2 for whether <cite>atom</cite> is a carbon or oxygen atom.</p>
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">conformer_rl</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial/quick_start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial/customizing_env_basic.html">Customizing Environment - basic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial/customizing_env_advanced.html">Customizing Environment - advanced</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../agents/agents.html">Agents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../models/models.html">Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../config/config.html">Config</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../environments.html">Environments</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../prebuilt_environments.html">Pre-built Environments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../conformer_env.html">Conformer_env</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="environment_components.html">Environment Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../environment_wrapper.html">Environment_wrapper</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../molecule_generation/molecule_generation.html">Molecule Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../logging/logging.html">Logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../analysis/analysis.html">Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../utils/utils.html">Utilities</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../environments.html">Environments</a><ul>
+  <li><a href="environment_components.html">Environment Components</a><ul>
+      <li>Previous: <a href="reward_mixins.html" title="previous chapter">Reward_mixins</a></li>
+      <li>Next: <a href="../environment_wrapper.html" title="next chapter">Environment_wrapper</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Runxuan Jiang.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../_sources/environments/components/molecule_features.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
