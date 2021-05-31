@@ -31,6 +31,7 @@ class GibbsRewardMixin:
         Notes
         -----
         Logged parameters:
+
         * energy (float): the energy of the current conformer
         * repeat (int): total number of repeated actions so far in the episode
         """
@@ -63,6 +64,7 @@ class GibbsEndPruningRewardMixin:
         Notes
         -----
         Logged parameters:
+
         * energy (float): the energy of the current conformer
         """
         config = self.config
@@ -102,6 +104,7 @@ class GibbsPruningRewardMixin:
         Notes
         -----
         Logged parameters:
+
         * energy (float): the energy of the current conformer
         """
         config = self.config
@@ -130,6 +133,7 @@ class GibbsLogPruningRewardMixin(GibbsPruningRewardMixin):
         Notes
         -----
         Logged parameters:
+        
         * energy (float): the energy of the current conformer
         """
         config = self.config

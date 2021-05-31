@@ -1,0 +1,373 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Env_logger &mdash; conformer_rl 1.0.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Train_logger" href="train_logger.html" />
+    <link rel="prev" title="Logging" href="logging.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> conformer_rl
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Tutorial</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/quick_start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/customizing_env_basic.html">Customizing Environment - basic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/customizing_env_advanced.html">Customizing Environment - advanced</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../agents/agents.html">Agents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../models/models.html">Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../config/config.html">Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../environments/environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../molecule_generation/molecule_generation.html">Molecule Generation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="logging.html">Logging</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Env_logger</a></li>
+<li class="toctree-l2"><a class="reference internal" href="train_logger.html">Train_logger</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../analysis/analysis.html">Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../utils/utils.html">Utilities</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">conformer_rl</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="logging.html">Logging</a> &raquo;</li>
+        
+      <li>Env_logger</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/logging/env_logger.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <span class="target" id="module-conformer_rl.logging.env_logger"></span><div class="section" id="env-logger">
+<h1>Env_logger<a class="headerlink" href="#env-logger" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="conformer_rl.logging.env_logger.EnvLogger">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">conformer_rl.logging.env_logger.</span></code><code class="sig-name descname"><span class="pre">EnvLogger</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tag</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dir</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'data'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#conformer_rl.logging.env_logger.EnvLogger" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used by the agent for logging metrics produced by the environment.
+E.g., observations, rewards, renders, etc.
+Supports saving data to pickle and saving molecules as .mol files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tag</strong> (<em>str</em>) – Unique tag for identifying the logging session.</p></li>
+<li><p><strong>dir</strong> (<em>str</em>) – Path to root directory for where logging results should be saved.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt id="conformer_rl.logging.env_logger.EnvLogger.step_data">
+<code class="sig-name descname"><span class="pre">step_data</span></code><a class="headerlink" href="#conformer_rl.logging.env_logger.EnvLogger.step_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used for storing data for each and every step of a single episode.
+Maps from strings to lists, where each index of the list corresponds
+to the data for that corresponding step within the episode.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="conformer_rl.logging.env_logger.EnvLogger.episode_data">
+<code class="sig-name descname"><span class="pre">episode_data</span></code><a class="headerlink" href="#conformer_rl.logging.env_logger.EnvLogger.episode_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used for storing information for a single episode. Used to store the self.step_data
+for that episode and metadata global to the entire episode.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="conformer_rl.logging.env_logger.EnvLogger.self.cache">
+<code class="sig-prename descclassname"><span class="pre">self.</span></code><code class="sig-name descname"><span class="pre">cache</span></code><a class="headerlink" href="#conformer_rl.logging.env_logger.EnvLogger.self.cache" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used for storing data across several episodes. Maps from strings to lists, where each
+index of the list corresponds to an episode.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="conformer_rl.logging.env_logger.EnvLogger.clear_data">
+<code class="sig-name descname"><span class="pre">clear_data</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#conformer_rl.logging.env_logger.EnvLogger.clear_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resets the logger.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="conformer_rl.logging.env_logger.EnvLogger.clear_episode">
+<code class="sig-name descname"><span class="pre">clear_episode</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#conformer_rl.logging.env_logger.EnvLogger.clear_episode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clears episode and step data.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="conformer_rl.logging.env_logger.EnvLogger.log_step_item">
+<code class="sig-name descname"><span class="pre">log_step_item</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#conformer_rl.logging.env_logger.EnvLogger.log_step_item" title="Permalink to this definition">¶</a></dt>
+<dd><p>Logs a single key value pair for current step.</p>
+<p>If an existing key is found, the value is appended
+to the list associated with that key.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key</strong> (<em>str</em>) – the key for the data to be added.</p></li>
+<li><p><strong>val</strong> (<em>Any</em>) – the value of the data to be added.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="conformer_rl.logging.env_logger.EnvLogger.log_step">
+<code class="sig-name descname"><span class="pre">log_step</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">step_data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#conformer_rl.logging.env_logger.EnvLogger.log_step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Logs each key-value pair for current step.</p>
+<p>If an existing key is found, the value is appended
+to the list associated with that key.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>step_data</strong> (<em>dict</em>) – Contains key-value pairs to be logged.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="conformer_rl.logging.env_logger.EnvLogger.log_episode_item">
+<code class="sig-name descname"><span class="pre">log_episode_item</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#conformer_rl.logging.env_logger.EnvLogger.log_episode_item" title="Permalink to this definition">¶</a></dt>
+<dd><p>Logs a single key-value pair to the per-episode data.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="conformer_rl.logging.env_logger.EnvLogger.log_episode">
+<code class="sig-name descname"><span class="pre">log_episode</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">episode_data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#conformer_rl.logging.env_logger.EnvLogger.log_episode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Logs each key-value pair to the per-episode data.</p>
+<p>Also adds <cite>step_data</cite> to the per-episode data with corresponding key
+‘step_data’. Existing keys will be overwritten.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>episode_data</strong> (<em>dict</em>) – Contains key-value pairs to be logged.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="conformer_rl.logging.env_logger.EnvLogger.save_episode">
+<code class="sig-name descname"><span class="pre">save_episode</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subdir</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_pickle</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_molecules</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_cache</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#conformer_rl.logging.env_logger.EnvLogger.save_episode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves current episode_data with options for dumping to pickle file,
+saving data to a cache dict, and saving the rdkit molecules as .mol files.
+Clears the current episode and step data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>subdir</strong> (<em>str</em>) – The directory for episode data to be saved (relative to self.dir)</p></li>
+<li><p><strong>save_pickle</strong> (<em>bool</em>) – If True, dumps episode_data as a .pickle file.</p></li>
+<li><p><strong>save_molecules</strong> (<em>bool</em>) – If True, and ‘molecule’ key exists in step_data, dumps each molecule generated
+throughout the episode as a .mol file uniquely named by the step number.</p></li>
+<li><p><strong>save_cache</strong> (<em>bool</em>) – If True, episode data is cached to self.data.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="conformer_rl.logging.env_logger.EnvLogger._add_to_cache">
+<code class="sig-name descname"><span class="pre">_add_to_cache</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#conformer_rl.logging.env_logger.EnvLogger._add_to_cache" title="Permalink to this definition">¶</a></dt>
+<dd><p>Logs each key-value pair in data to self.cache.
+If an existing key is found, the value is appended
+to the list associated with that key.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>dict</em>) – contains key-value pairs to be logged.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="train_logger.html" class="btn btn-neutral float-right" title="Train_logger" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="logging.html" class="btn btn-neutral float-left" title="Logging" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Runxuan Jiang.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

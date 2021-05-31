@@ -51,6 +51,7 @@ class PPOAgent(BaseACAgent):
     * use_tensorboard
 
     *Logged values*: The following values are logged during training:
+    
     * advantages
     * loss
     * policy_loss

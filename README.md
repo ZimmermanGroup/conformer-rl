@@ -2,7 +2,7 @@
 An open-source deep reinforcement learning library for conformer generation.
 
 ## Documentation
-Documentation can be found at <conformer-rl.readthedocs.io>.
+Documentation can be found at <https://conformer-rl.readthedocs.io/>.
 
 ## Installation
 
@@ -36,4 +36,4 @@ any molecule.
 
 ## Quick Start
 The `examples` directory contain several scripts for training on pre-built agents and environments.
-Visit the [Quick Start]() to get started.
+Visit the [Quick Start](https://conformer-rl.readthedocs.io/en/latest/tutorial/quick_start.html) to get started.

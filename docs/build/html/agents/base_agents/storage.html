@@ -1,0 +1,324 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Storage &mdash; conformer_rl 1.0.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Models" href="../../models/models.html" />
+    <link rel="prev" title="Base_ac_agent_recurrent" href="base_ac_agent_recurrent.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> conformer_rl
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Tutorial</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial/quick_start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial/customizing_env_basic.html">Customizing Environment - basic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial/customizing_env_advanced.html">Customizing Environment - advanced</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API Reference</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../agents.html">Agents</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../prebuilt.html">Pre-built agents</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../base.html">Base Agent and Utility Classes</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="base_agent.html">Base_agent</a></li>
+<li class="toctree-l3"><a class="reference internal" href="base_agent_recurrent.html">Base_agent_recurrent</a></li>
+<li class="toctree-l3"><a class="reference internal" href="base_ac_agent.html">Base_ac_agent</a></li>
+<li class="toctree-l3"><a class="reference internal" href="base_ac_agent_recurrent.html">Base_ac_agent_recurrent</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Storage</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../models/models.html">Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../config/config.html">Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../environments/environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../molecule_generation/molecule_generation.html">Molecule Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../logging/logging.html">Logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../analysis/analysis.html">Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../utils/utils.html">Utilities</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">conformer_rl</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../agents.html">Agents</a> &raquo;</li>
+        
+          <li><a href="../base.html">Base Agent and Utility Classes</a> &raquo;</li>
+        
+      <li>Storage</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../../_sources/agents/base_agents/storage.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <span class="target" id="module-conformer_rl.agents.storage"></span><div class="section" id="storage">
+<h1>Storage<a class="headerlink" href="#storage" title="Permalink to this headline">¶</a></h1>
+<p>Storage utility class for agents.</p>
+<dl class="py class">
+<dt id="conformer_rl.agents.storage.Storage">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">conformer_rl.agents.storage.</span></code><code class="sig-name descname"><span class="pre">Storage</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rollout</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">workers</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#conformer_rl.agents.storage.Storage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves and stores experiences from the agent.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>rollout</strong> (<em>int</em>) – The rollout length of the agent in each sampling iteration (per worker).</p></li>
+<li><p><strong>workers</strong> (<em>int</em>) – The number of workers used for sampling by the agent.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="conformer_rl.agents.storage.Storage.__getitem__">
+<code class="sig-name descname"><span class="pre">__getitem__</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">list</span><a class="headerlink" href="#conformer_rl.agents.storage.Storage.__getitem__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns all batched items in storage with the given <cite>key</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>key</strong> (<em>str</em>) – The key of the items to be accessed.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A list of all the items with the associated <cite>key</cite>
+previously appended to the storage.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="conformer_rl.agents.storage.Storage.append">
+<code class="sig-name descname"><span class="pre">append</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#conformer_rl.agents.storage.Storage.append" title="Permalink to this definition">¶</a></dt>
+<dd><p>Appends item(s) to the storage</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>dict</em>) – The items to be appended.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="conformer_rl.agents.storage.Storage.order">
+<code class="sig-name descname"><span class="pre">order</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">list</span><a class="headerlink" href="#conformer_rl.agents.storage.Storage.order" title="Permalink to this definition">¶</a></dt>
+<dd><p>Splits each batch of items associated with <cite>key</cite> by worker, and then
+orders the items into a list sorted firstly by worker and secondly by the
+order the items were appended to storage.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>key</strong> (<em>str</em>) – The key associated with the item to be retrieved.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The list of the items, split by batch and ordered.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>An example of how the ordering is performed: Suppose the storage is initialized
+with <cite>rollout=3</cite> and <cite>workers=2</cite>. Then in each sampling iteration of the agent,
+a batch of 2 items (one for each worker) will be appended to storage for a total
+of 3 iterations. Thus, at the end of the iterations, the storage value for any given item
+will look similar to this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[[</span><span class="n">worker</span> <span class="mi">1</span> <span class="n">sample</span> <span class="mi">1</span><span class="p">,</span> <span class="n">worker</span> <span class="mi">2</span> <span class="n">sample</span> <span class="mi">1</span><span class="p">],</span>
+ <span class="p">[</span><span class="n">worker</span> <span class="mi">1</span> <span class="n">sample</span> <span class="mi">2</span><span class="p">,</span> <span class="n">worker</span> <span class="mi">2</span> <span class="n">sample</span> <span class="mi">2</span><span class="p">],</span>
+ <span class="p">[</span><span class="n">worker</span> <span class="mi">1</span> <span class="n">sample</span> <span class="mi">3</span><span class="p">,</span> <span class="n">worker</span> <span class="mi">2</span> <span class="n">sample</span> <span class="mi">3</span><span class="p">]]</span><span class="o">.</span>
+</pre></div>
+</div>
+<p>The list returned by <a class="reference internal" href="#conformer_rl.agents.storage.Storage.order" title="conformer_rl.agents.storage.Storage.order"><code class="xref py py-meth docutils literal notranslate"><span class="pre">order()</span></code></a> would then be:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">worker</span> <span class="mi">1</span> <span class="n">sample</span> <span class="mi">1</span><span class="p">,</span> <span class="n">worker</span> <span class="mi">1</span> <span class="n">sample</span> <span class="mi">2</span><span class="p">,</span> <span class="n">worker</span> <span class="mi">1</span> <span class="n">sample</span> <span class="mi">3</span><span class="p">,</span>
+<span class="n">worker</span> <span class="mi">2</span> <span class="n">sample</span> <span class="mi">1</span><span class="p">,</span> <span class="n">worker</span> <span class="mi">2</span> <span class="n">sample</span> <span class="mi">2</span><span class="p">,</span> <span class="n">worker</span> <span class="mi">3</span> <span class="n">sample</span> <span class="mi">3</span><span class="p">]</span><span class="o">.</span>
+</pre></div>
+</div>
+<p>The purpose of this ordering is to maintain chronologically consecutive blocks of rollout samples,
+which is useful for agents with recursive components.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="conformer_rl.agents.storage.Storage.reset">
+<code class="sig-name descname"><span class="pre">reset</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#conformer_rl.agents.storage.Storage.reset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Empties the storage.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="../../models/models.html" class="btn btn-neutral float-right" title="Models" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="base_ac_agent_recurrent.html" class="btn btn-neutral float-left" title="Base_ac_agent_recurrent" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Runxuan Jiang.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

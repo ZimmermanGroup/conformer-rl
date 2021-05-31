@@ -91,6 +91,7 @@ class ConformerEnv(gym.Env):
         Notes
         -----
         Logged parameters:
+
         * reward (float): the reward for the current step
         """
         self.action = action
@@ -134,6 +135,7 @@ class ConformerEnv(gym.Env):
         Notes
         -----
         Logged parameters:
+
         * conf: the current generated conformer is saved to the episodic mol object.
         """
         self.episode_info['mol'].AddConformer(self.conf, assignId=True)
@@ -150,6 +152,7 @@ class ConformerEnv(gym.Env):
         Notes
         -----
         Logged parameters:
+
         * energy (float): the energy of the current conformer
         """
         energy = get_conformer_energy(self.mol)
@@ -170,6 +173,7 @@ class ConformerEnv(gym.Env):
         Notes
         -----
         Logged parameters:
+        
         * total_reward (float): total reward of the episode is updated
         """
         if self._done():

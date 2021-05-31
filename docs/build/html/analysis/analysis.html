@@ -1,0 +1,377 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Analysis &mdash; conformer_rl 1.0.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Utilities" href="../utils/utils.html" />
+    <link rel="prev" title="Train_logger" href="../logging/train_logger.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> conformer_rl
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Tutorial</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/quick_start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/customizing_env_basic.html">Customizing Environment - basic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/customizing_env_advanced.html">Customizing Environment - advanced</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../agents/agents.html">Agents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../models/models.html">Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../config/config.html">Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../environments/environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../molecule_generation/molecule_generation.html">Molecule Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../logging/logging.html">Logging</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../utils/utils.html">Utilities</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">conformer_rl</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Analysis</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/analysis/analysis.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <span class="target" id="module-conformer_rl.analysis.analysis"></span><div class="section" id="analysis">
+<h1>Analysis<a class="headerlink" href="#analysis" title="Permalink to this headline">¶</a></h1>
+<p>Functions for analyzing and visualizing (in Jupyter/IPython notebook) logged
+environment data. The functions for visualizations here provide a basic set of functionality
+to guide users in understanding the format of the logged environment data.
+Users are encouraged to generate their own plots and visualizations based on their specific needs.</p>
+<dl class="py function">
+<dt id="conformer_rl.analysis.analysis._load_from_pickle">
+<code class="sig-prename descclassname"><span class="pre">conformer_rl.analysis.analysis.</span></code><code class="sig-name descname"><span class="pre">_load_from_pickle</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Any</span><a class="headerlink" href="#conformer_rl.analysis.analysis._load_from_pickle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads an object from a .pickle file.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="conformer_rl.analysis.analysis.load_data_from_pickle">
+<code class="sig-prename descclassname"><span class="pre">conformer_rl.analysis.analysis.</span></code><code class="sig-name descname"><span class="pre">load_data_from_pickle</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">paths</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indices</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">dict</span><a class="headerlink" href="#conformer_rl.analysis.analysis.load_data_from_pickle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads saved pickled environment data from multiple runs into a combined data dict.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>paths</strong> (<em>list of str</em>) – List of paths to .pickle files corresponding to the environment data from the runs of interest.</p></li>
+<li><p><strong>indices</strong> (<em>list of str</em><em>, </em><em>optional</em>) – Specifies custom indices/labels to be displayed in generated Seaborn graphs for each run. Should be
+same length as <cite>paths</cite>. If not specified, the labels default to <code class="docutils literal notranslate"><span class="pre">test0,</span> <span class="pre">test1,</span> <span class="pre">test2,</span> <span class="pre">...</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The str corresponds to the key for the data in the original pickled dict object. The list contains
+the data for each of the environment data sets specified in <cite>paths</cite>, in the same order they were
+given in <cite>paths</cite>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict mapping from str to list</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">.pickle</span></code> files specified by <cite>paths</cite> should be dumped directly by <a class="reference internal" href="../logging/env_logger.html#conformer_rl.logging.env_logger.EnvLogger" title="conformer_rl.logging.env_logger.EnvLogger"><code class="xref py py-class docutils literal notranslate"><span class="pre">EnvLogger</span></code></a>,
+and should correspond to a single evaluation episode.
+See <a class="reference internal" href="../logging/env_logger.html#conformer_rl.logging.env_logger.EnvLogger.save_episode" title="conformer_rl.logging.env_logger.EnvLogger.save_episode"><code class="xref py py-meth docutils literal notranslate"><span class="pre">conformer_rl.logging.env_logger.EnvLogger.save_episode()</span></code></a> for more details on the dumped format.</p>
+<p>An example of how the function operates: Suppose that our paths are:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="s1">&#39;data1.pickle&#39;</span><span class="p">,</span> <span class="s1">&#39;data2.pickle&#39;</span><span class="p">,</span> <span class="s1">&#39;data3.pickle&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>And each pickle object contains corresponding data:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">data1</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;total_rewards&#39;</span><span class="p">:</span> <span class="n">data1_total_rewards</span><span class="p">,</span>
+    <span class="s1">&#39;mol&#39;</span><span class="p">:</span> <span class="n">data1_molecule</span><span class="p">,</span>
+    <span class="s1">&#39;rewards&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">data1_step1_rewards</span><span class="p">,</span> <span class="n">data1_step2_rewards</span><span class="p">,</span> <span class="n">data1_step3_rewards</span><span class="p">,</span> <span class="n">data1_step4_rewards</span><span class="p">]</span>
+<span class="p">}</span>
+<span class="n">data2</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;total_rewards&#39;</span><span class="p">:</span> <span class="n">data2_total_rewards</span><span class="p">,</span>
+    <span class="s1">&#39;mol&#39;</span><span class="p">:</span> <span class="n">data2_molecule</span><span class="p">,</span>
+    <span class="s1">&#39;rewards&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">data2_step1_rewards</span><span class="p">,</span> <span class="n">data2_step2_rewards</span><span class="p">,</span> <span class="n">data2_step3_rewards</span><span class="p">,</span> <span class="n">data2_step4_rewards</span><span class="p">]</span>
+<span class="p">}</span>
+<span class="n">data3</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;total_rewards&#39;</span><span class="p">:</span> <span class="n">data3_total_rewards</span><span class="p">,</span>
+    <span class="s1">&#39;mol&#39;</span><span class="p">:</span> <span class="n">data3_molecule</span><span class="p">,</span>
+    <span class="s1">&#39;rewards&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">data3_step1_rewards</span><span class="p">,</span> <span class="n">data3_step2_rewards</span><span class="p">,</span> <span class="n">data3_step3_rewards</span><span class="p">,</span> <span class="n">data3_step4_rewards</span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Suppose that data1 corresponds to some eval data obtained from training with the PPO agent, data2 was obtained
+from the PPORecurrent agent, and data3 was obtained from training with the A2C agent. Then we can input custom <cite>indices</cite>
+to help us understand each dataset better:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">indices</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;PPO&#39;</span><span class="p">,</span> <span class="s1">&#39;PPO_recurrent&#39;</span><span class="p">,</span> <span class="s1">&#39;A2C&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Given this data and indices, <a class="reference internal" href="#conformer_rl.analysis.analysis.load_data_from_pickle" title="conformer_rl.analysis.analysis.load_data_from_pickle"><code class="xref py py-func docutils literal notranslate"><span class="pre">load_data_from_pickle()</span></code></a> would return the following dict:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s1">&#39;indices&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;PPO&#39;</span><span class="p">,</span> <span class="s1">&#39;PPO_recurrent&#39;</span><span class="p">,</span> <span class="s1">&#39;A2C&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;total_rewards&#39;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="n">data1_total_rewards</span><span class="p">,</span>
+        <span class="n">data2_total_rewards</span><span class="p">,</span>
+        <span class="n">data3_total_rewards</span>
+    <span class="p">]</span>
+    <span class="s1">&#39;mol&#39;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="n">data1_molecule</span><span class="p">,</span>
+        <span class="n">data2_molecule</span><span class="p">,</span>
+        <span class="n">data3_molecule</span>
+    <span class="p">]</span>
+    <span class="s1">&#39;rewards&#39;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">[</span><span class="n">data1_step1_rewards</span><span class="p">,</span> <span class="n">data1_step2_rewards</span><span class="p">,</span> <span class="n">data1_step3_rewards</span><span class="p">,</span> <span class="n">data1_step4_rewards</span><span class="p">],</span>
+        <span class="p">[</span><span class="n">data2_step1_rewards</span><span class="p">,</span> <span class="n">data2_step2_rewards</span><span class="p">,</span> <span class="n">data2_step3_rewards</span><span class="p">,</span> <span class="n">data2_step4_rewards</span><span class="p">],</span>
+        <span class="p">[</span><span class="n">data3_step1_rewards</span><span class="p">,</span> <span class="n">data3_step2_rewards</span><span class="p">,</span> <span class="n">data3_step3_rewards</span><span class="p">,</span> <span class="n">data3_step4_rewards</span><span class="p">]</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>This format consolidates all the data into a single dict and is compatible with the other visualization
+functions in this module. Furthermore, it is also easy to convert a dict of this format into a Pandas dataframe
+or other tabular formats if needed.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="conformer_rl.analysis.analysis.list_keys">
+<code class="sig-prename descclassname"><span class="pre">conformer_rl.analysis.analysis.</span></code><code class="sig-name descname"><span class="pre">list_keys</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#conformer_rl.analysis.analysis.list_keys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list of all keys in a dict.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="conformer_rl.analysis.analysis.bar_plot_episodic">
+<code class="sig-prename descclassname"><span class="pre">conformer_rl.analysis.analysis.</span></code><code class="sig-name descname"><span class="pre">bar_plot_episodic</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">matplotlib.axes._axes.Axes</span><a class="headerlink" href="#conformer_rl.analysis.analysis.bar_plot_episodic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots a bar plot comparing a scaler value across all episodes loaded in <cite>data</cite>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="conformer_rl.analysis.analysis.histogram_episodic">
+<code class="sig-prename descclassname"><span class="pre">conformer_rl.analysis.analysis.</span></code><code class="sig-name descname"><span class="pre">histogram_episodic</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">matplotlib.axes._axes.Axes</span><a class="headerlink" href="#conformer_rl.analysis.analysis.histogram_episodic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots histogram(s) for number of ocurrences in list data corresponding to <cite>key</cite> across all episodes
+loaded in ‘data’.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="conformer_rl.analysis.analysis.heatmap_episodic">
+<code class="sig-prename descclassname"><span class="pre">conformer_rl.analysis.analysis.</span></code><code class="sig-name descname"><span class="pre">heatmap_episodic</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">matplotlib.axes._axes.Axes</span><a class="headerlink" href="#conformer_rl.analysis.analysis.heatmap_episodic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots heatmap(s) for matrix data corresponding to <cite>key</cite> across all episodes
+loaded in <cite>data</cite>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="conformer_rl.analysis.analysis.calculate_tfd">
+<code class="sig-prename descclassname"><span class="pre">conformer_rl.analysis.analysis.</span></code><code class="sig-name descname"><span class="pre">calculate_tfd</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#conformer_rl.analysis.analysis.calculate_tfd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates data with the TFD (Torsion Fingerprint Deviation) matrix (with key ‘tfd_matrix’) and sum of the TFD matrix
+(with key ‘tfd_total’) for the molecule conformers across each episode loaded in <cite>data</cite>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="conformer_rl.analysis.analysis.drawConformer">
+<code class="sig-prename descclassname"><span class="pre">conformer_rl.analysis.analysis.</span></code><code class="sig-name descname"><span class="pre">drawConformer</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mol</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">rdkit.Chem.Mol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confId</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">-</span> <span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">(300,</span> <span class="pre">300)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">style</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'stick'</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">py3Dmol.view</span><a class="headerlink" href="#conformer_rl.analysis.analysis.drawConformer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Displays interactive 3-dimensional representation of specified conformer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mol</strong> (<em>rdkit Mol object</em>) – The molecule containing the conformer to be displayed.</p></li>
+<li><p><strong>confId</strong> (<em>int</em>) – The ID of the conformer to be displayed.</p></li>
+<li><p><strong>size</strong> (<em>Tuple</em><em>[</em><em>int</em><em>, </em><em>int</em><em>]</em>) – The size of the display (width, height).</p></li>
+<li><p><strong>style</strong> (<em>str</em>) – The drawing style for displaying the molecule. Can be sphere, stick, line, cross, cartoon, and surface.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="conformer_rl.analysis.analysis.drawConformer_episodic">
+<code class="sig-prename descclassname"><span class="pre">conformer_rl.analysis.analysis.</span></code><code class="sig-name descname"><span class="pre">drawConformer_episodic</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confIds</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">(300,</span> <span class="pre">300)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">style</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'stick'</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">py3Dmol.view</span><a class="headerlink" href="#conformer_rl.analysis.analysis.drawConformer_episodic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Displays a specified conformer for each episode loaded in <cite>data</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>dict from string to list</em>) – Contains the loaded episode information. ‘mol’ must be a key in data and the corresponding list must contain
+rdkit Mol objects.</p></li>
+<li><p><strong>confIds</strong> (<em>list of int</em>) – The indices for the conformers to be displayed (for each episode loaded in data).</p></li>
+<li><p><strong>size</strong> (<em>Tuple</em><em>[</em><em>int</em><em>, </em><em>int</em><em>]</em>) – The size of the display for each individual molecule (width, height).</p></li>
+<li><p><strong>style</strong> (<em>str</em>) – The drawing style for displaying the molecule. Can be sphere, stick, line, cross, cartoon, and surface.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="../utils/utils.html" class="btn btn-neutral float-right" title="Utilities" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../logging/train_logger.html" class="btn btn-neutral float-left" title="Train_logger" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Runxuan Jiang.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
