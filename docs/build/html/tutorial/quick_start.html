@@ -1,56 +1,200 @@
 
+
 <!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Quick Start &mdash; conformer_rl 1.0.0 documentation</title>
+  
 
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
 
-    <title>Quick Start &#8212; conformer_rl 1.0.0 documentation</title>
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-    <script src="../_static/jquery.js"></script>
-    <script src="../_static/underscore.js"></script>
-    <script src="../_static/doctools.js"></script>
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Customizing Environment - basic" href="customizing_env_basic.html" />
-    <link rel="prev" title="conformer_rl Documentation" href="../index.html" />
+    <link rel="prev" title="Introduction" href="../index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
    
-  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
-  
-  
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
-
-  </head><body>
-  
-
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
           
 
-          <div class="body" role="main">
+          
+            <a href="../index.html" class="icon icon-home"> conformer_rl
+          
+
+          
+          </a>
+
+          
             
-  <section id="quick-start">
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Tutorial</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Quick Start</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#creating-a-training-script">Creating a training script</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#setting-up-the-environment">Setting up the environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#configuring-the-agent">Configuring the agent</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tuning-hyperparameters">Tuning hyperparameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#running-the-agent">Running the agent</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#viewing-results">Viewing results</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="customizing_env_basic.html">Customizing Environment - basic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="customizing_env_advanced.html">Customizing Environment - advanced</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../agents/agents.html">Agents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../models/models.html">Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../config/config.html">Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../environments/environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../molecule_generation/molecule_generation.html">Molecule Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../logging/logging.html">Logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analysis/analysis.html">Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../utils/utils.html">Utilities</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">conformer_rl</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Quick Start</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/tutorial/quick_start.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="quick-start">
 <h1>Quick Start<a class="headerlink" href="#quick-start" title="Permalink to this headline">¶</a></h1>
 <p>This section walks through how to write a training script
 using the pre-built environments and agents in <code class="xref py py-mod docutils literal notranslate"><span class="pre">conformer_rl</span></code>.</p>
-<p>Several example scripts are available in the <code class="docutils literal notranslate"><span class="pre">examples</span></code> directory.</p>
-<section id="creating-a-training-script">
+<p>Several example scripts are available in the <a class="reference external" href="https://github.com/ZimmermanGroup/conformer-rl/tree/master/examples">examples</a> directory.</p>
+<div class="section" id="creating-a-training-script">
 <h2>Creating a training script<a class="headerlink" href="#creating-a-training-script" title="Permalink to this headline">¶</a></h2>
 <p>The full code for this example can be found at
-<code class="docutils literal notranslate"><span class="pre">examples/basic_example/run.py</span></code>.</p>
+<a class="reference external" href="https://github.com/ZimmermanGroup/conformer-rl/blob/master/examples/basic_example/run.py">examples/basic_example/run.py</a>.</p>
 <p>Suppose we want to train an agent to generate low-energy conformers for
 a branched alkane molecule with 18 carbon atoms.</p>
-<section id="setting-up-the-environment">
+<div class="section" id="setting-up-the-environment">
 <h3>Setting up the environment<a class="headerlink" href="#setting-up-the-environment" title="Permalink to this headline">¶</a></h3>
 <p>First, we choose one of the pre-built environments for simulating conformer generation.
 We can configure an environment with a branched alkane
-with 18 carbon atoms. <code class="xref py py-mod docutils literal notranslate"><span class="pre">conformer_rl</span></code> has a function <a class="reference internal" href="../molecule_generation/molecules.html#conformer_rl.molecule_generation.molecules.branched_alkane" title="conformer_rl.molecule_generation.molecules.branched_alkane"><code class="xref py py-func docutils literal notranslate"><span class="pre">conformer_rl.molecule_generation.molecules.branched_alkane()</span></code></a>
+with 18 carbon atoms. <code class="xref py py-mod docutils literal notranslate"><span class="pre">conformer_rl</span></code> has a function <a class="reference internal" href="../molecule_generation/molecules.html#conformer_rl.molecule_generation.molecules.branched_alkane" title="conformer_rl.molecule_generation.molecules.branched_alkane"><code class="xref py py-func docutils literal notranslate"><span class="pre">branched_alkane()</span></code></a>
 that automatically generates the environment configuration
-<a class="reference internal" href="../config/mol_config.html#conformer_rl.config.mol_config.MolConfig" title="conformer_rl.config.mol_config.MolConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">conformer_rl.config.mol_config.MolConfig</span></code></a> object for branched alkanes:</p>
+<a class="reference internal" href="../config/mol_config.html#conformer_rl.config.mol_config.MolConfig" title="conformer_rl.config.mol_config.MolConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">MolConfig</span></code></a> object for branched alkanes:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">conformer_rl.molecule_generation</span> <span class="kn">import</span> <span class="n">branched_alkane</span>
 <span class="n">alkane_env_config</span> <span class="o">=</span> <span class="n">branched_alkane</span><span class="p">(</span><span class="n">num_atoms</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
 </pre></div>
@@ -59,17 +203,17 @@ that automatically generates the environment configuration
 We will choose <a class="reference internal" href="../environments/prebuilt_environments.html#conformer_rl.environments.environments.GibbsScorePruningEnv" title="conformer_rl.environments.environments.GibbsScorePruningEnv"><code class="xref py py-class docutils literal notranslate"><span class="pre">GibbsScorePruningEnv</span></code></a> since
 it penalizes conformers that are identical to previously generated conformers, encouraging the
 agent to find a diverse set of conformers. It is a pre-built environment that is already
-registered with OpenAI gym as ‘GibbsScorePruningEnv-v0’. We can also specify how many conformers to be generated
-in each episode of the environment by setting <cite>max_steps</cite>.
-<a class="reference internal" href="../environments/environment_wrapper.html#conformer_rl.environments.environment_wrapper.Task" title="conformer_rl.environments.environment_wrapper.Task"><code class="xref py py-func docutils literal notranslate"><span class="pre">conformer_rl.environments.environment_wrapper.Task()</span></code></a> automatically generates
-an environment wrapper compatible with the agent. By setting <cite>num_envs</cite> to 20, we can have our agent
+registered with OpenAI gym as <code class="docutils literal notranslate"><span class="pre">'GibbsScorePruningEnv-v0'</span></code>. We can also specify how many conformers to be generated
+in each episode of the environment by setting <code class="docutils literal notranslate"><span class="pre">max_steps</span></code>.</p>
+<p><a class="reference internal" href="../environments/environment_wrapper.html#conformer_rl.environments.environment_wrapper.Task" title="conformer_rl.environments.environment_wrapper.Task"><code class="xref py py-func docutils literal notranslate"><span class="pre">Task()</span></code></a> automatically generates
+an environment wrapper compatible with the agent. By setting <code class="docutils literal notranslate"><span class="pre">num_envs</span></code> to 20, we can have our agent
 sample on 20 environments simultaneously, which can speed up training.:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">conformer_rl.environments</span> <span class="kn">import</span> <span class="n">Task</span>
 <span class="n">training_env</span> <span class="o">=</span> <span class="n">Task</span><span class="p">(</span><span class="s1">&#39;GibbsScorePruningEnv-v0&#39;</span><span class="p">,</span> <span class="n">concurrency</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">num_envs</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">mol_config</span><span class="o">=</span><span class="n">alkane_env_config</span><span class="p">,</span> <span class="n">max_steps</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
 </pre></div>
 </div>
-</section>
-<section id="configuring-the-agent">
+</div>
+<div class="section" id="configuring-the-agent">
 <h3>Configuring the agent<a class="headerlink" href="#configuring-the-agent" title="Permalink to this headline">¶</a></h3>
 <p>We will now configure the agent. Agents are initialized and configured with
 the <a class="reference internal" href="../config/agent_config.html#conformer_rl.config.agent_config.Config" title="conformer_rl.config.agent_config.Config"><code class="xref py py-class docutils literal notranslate"><span class="pre">Config</span></code></a> object, which specifies parameters
@@ -82,7 +226,7 @@ about our training envrionment:</p>
 </pre></div>
 </div>
 <p>Next, we can specify the agent details. Suppose we want to use the PPO algorithm, and we want
-to use the pre-built <a class="reference internal" href="../models/RTGN_recurrent.html#conformer_rl.models.RTGN_recurrent.RTGNRecurrent" title="conformer_rl.models.RTGN_recurrent.RTGNRecurrent"><code class="xref py py-class docutils literal notranslate"><span class="pre">conformer_rl.models.RTGN_recurrent.RTGNRecurrent</span></code></a> neural network
+to use the pre-built <a class="reference internal" href="../models/RTGN_recurrent.html#conformer_rl.models.RTGN_recurrent.RTGNRecurrent" title="conformer_rl.models.RTGN_recurrent.RTGNRecurrent"><code class="xref py py-class docutils literal notranslate"><span class="pre">RTGNRecurrent</span></code></a> neural network
 for prediction. We can specify this as well. Notice that the observation from <a class="reference internal" href="../environments/prebuilt_environments.html#conformer_rl.environments.environments.GibbsScorePruningEnv" title="conformer_rl.environments.environments.GibbsScorePruningEnv"><code class="xref py py-class docutils literal notranslate"><span class="pre">GibbsScorePruningEnv</span></code></a>
 is a graph where each node embedding has a dimension of 5 and each edge embedding has a dimension of 6,
 so we must specify this when initializing the neural network:</p>
@@ -94,7 +238,7 @@ so we must specify this when initializing the neural network:</p>
 </pre></div>
 </div>
 <p>We want to log training metrics to Tensorboard, save neural network parameters every 20000 steps,
-and save the logs in a directory called ‘data’,
+and save the logs in a directory called <code class="docutils literal notranslate"><span class="pre">data</span></code>,
 so we set the following:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">config</span><span class="o">.</span><span class="n">save_interval</span> <span class="o">=</span> <span class="mi">20000</span>
 <span class="n">config</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">=</span> <span class="s1">&#39;data&#39;</span>
@@ -106,7 +250,7 @@ will be evaluated on an eval environment. The eval environment can be the same o
 as the training environment. Results from the eval environment will be saved as .pickle files
 in subdirectories of <code class="docutils literal notranslate"><span class="pre">data/env_data</span></code>, and can be analyzed/visualized using the <a class="reference internal" href="../analysis/analysis.html#module-conformer_rl.analysis.analysis" title="conformer_rl.analysis.analysis"><code class="xref py py-mod docutils literal notranslate"><span class="pre">analysis</span></code></a>
 module. An example of using the <a class="reference internal" href="../analysis/analysis.html#module-conformer_rl.analysis.analysis" title="conformer_rl.analysis.analysis"><code class="xref py py-mod docutils literal notranslate"><span class="pre">analysis</span></code></a> module can be found in
-<code class="docutils literal notranslate"><span class="pre">examples/example_analysis.ipynb</span></code>.</p>
+<a class="reference external" href="https://github.com/ZimmermanGroup/conformer-rl/blob/master/examples/example_analysis.ipynb">examples/example_analysis.ipynb</a>.</p>
 <p>In this example, we will have the agent be evaluated every 20000 steps, and we will set the
 eval environment to be the same as the training environment. We will also have the agent evaluate for
 2 episodes during each evaluation:</p>
@@ -115,8 +259,8 @@ eval environment to be the same as the training environment. We will also have t
 <span class="n">config</span><span class="o">.</span><span class="n">eval_episodes</span> <span class="o">=</span> <span class="mi">2</span>
 </pre></div>
 </div>
-</section>
-<section id="tuning-hyperparameters">
+</div>
+<div class="section" id="tuning-hyperparameters">
 <h3>Tuning hyperparameters<a class="headerlink" href="#tuning-hyperparameters" title="Permalink to this headline">¶</a></h3>
 <p>Finally, we can set the other hyperparmeters. For more information on what each of
 the hyperparameters represent, see the API reference for <a class="reference internal" href="../config/agent_config.html#conformer_rl.config.agent_config.Config" title="conformer_rl.config.agent_config.Config"><code class="xref py py-class docutils literal notranslate"><span class="pre">Config</span></code></a>:</p>
@@ -139,8 +283,8 @@ the hyperparameters represent, see the API reference for <a class="reference int
 <span class="n">config</span><span class="o">.</span><span class="n">ppo_ratio_clip</span> <span class="o">=</span> <span class="mf">0.2</span>
 </pre></div>
 </div>
-</section>
-<section id="running-the-agent">
+</div>
+<div class="section" id="running-the-agent">
 <h3>Running the agent<a class="headerlink" href="#running-the-agent" title="Permalink to this headline">¶</a></h3>
 <p>We can then create and train the agent. Since we want to use the PPO algorithm, and our neural network
 utilizes recurrent states, we will use <a class="reference internal" href="../agents/PPO/PPO_recurrent_agent.html#conformer_rl.agents.PPO.PPO_recurrent_agent.PPORecurrentAgent" title="conformer_rl.agents.PPO.PPO_recurrent_agent.PPORecurrentAgent"><code class="xref py py-class docutils literal notranslate"><span class="pre">PPORecurrentAgent</span></code></a>:</p>
@@ -149,98 +293,63 @@ utilizes recurrent states, we will use <a class="reference internal" href="../ag
 <span class="n">agent</span><span class="o">.</span><span class="n">run_steps</span><span class="p">()</span>
 </pre></div>
 </div>
-</section>
-<section id="viewing-results">
+</div>
+<div class="section" id="viewing-results">
 <h3>Viewing results<a class="headerlink" href="#viewing-results" title="Permalink to this headline">¶</a></h3>
 <p>After training the agent, we can view the training metrics and track training progress using Tensorboard:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ tensorboard --logdir data/tensorboard_log/
 </pre></div>
 </div>
-</section>
-</section>
-</section>
+</div>
+</div>
+</div>
 
 
+           </div>
+           
           </div>
-          
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="customizing_env_basic.html" class="btn btn-neutral float-right" title="Customizing Environment - basic" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../index.html" class="btn btn-neutral float-left" title="Introduction" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Runxuan Jiang.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="../index.html">conformer_rl</a></h1>
 
+    </section>
 
+  </div>
+  
 
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
 
-
-
-
-
-<h3>Navigation</h3>
-<ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Quick Start</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#creating-a-training-script">Creating a training script</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="customizing_env_basic.html">Customizing Environment - basic</a></li>
-<li class="toctree-l1"><a class="reference internal" href="customizing_env_advanced.html">Customizing Environment - advanced</a></li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../agents/agents.html">Agents</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../models/models.html">Models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../config/config.html">Config</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../environments/environments.html">Environments</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../molecule_generation/molecule_generation.html">Molecule Generation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../logging/logging.html">Logging</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../analysis/analysis.html">Analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../utils/utils.html">Utilities</a></li>
-</ul>
-
-<div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="../index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="../index.html" title="previous chapter">conformer_rl Documentation</a></li>
-      <li>Next: <a href="customizing_env_basic.html" title="next chapter">Customizing Environment - basic</a></li>
-  </ul></li>
-</ul>
-</div>
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script>$('#searchbox').show(0);</script>
-
-
-
-
-
-
-
-
-        </div>
-      </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="footer">
-      &copy;2021, Runxuan Jiang.
-      
-      |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.3</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
-      
-      |
-      <a href="../_sources/tutorial/quick_start.rst.txt"
-          rel="nofollow">Page source</a>
-    </div>
-
+  
+  
     
+   
 
-    
-  </body>
+</body>
 </html>

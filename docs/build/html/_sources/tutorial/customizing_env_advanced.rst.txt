@@ -5,9 +5,9 @@ This section will cover an example of creating a custom environment from scratch
 that is, not using one of the pre-built environment components.
 
 The code for the following examples can be found in
-``examples/custom_env_advanced/custom_env.py``.
+`examples/custom_env_advanced/custom_env.py <https://github.com/ZimmermanGroup/conformer-rl/tree/master/examples/custom_env_advanced>`_.
 
-Example 1
+Example
 ---------
 
 Suppose we want an environment where conformers are sequentially generated
@@ -19,7 +19,7 @@ Overriding the constructor
 Since we now have a new parameter for the environment, the energy threshold, we need to override
 the constructor for :class:`~conformer_rl.environments.conformer_env.ConformerEnv`. Since the threshold
 may differ depending on the molecule, the best way to handle this parameter is to pass it in through the
-:class:`conformer_rl.config.mol_config.MolConfig` object used to initialize the environment::
+:class:`~conformer_rl.config.mol_config.MolConfig` object used to initialize the environment::
 
     class CustomEnv1(ConformerEnv):
         def __init__(self, mol_config: conformer_rl.config.MolConfig, max_steps: int):
