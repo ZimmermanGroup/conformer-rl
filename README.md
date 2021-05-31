@@ -2,7 +2,7 @@
 An open-source deep reinforcement learning library for conformer generation.
 
 ## Documentation
-Documentation can be found at conformer-rl.readthedocs.io.
+Documentation can be found at <conformer-rl.readthedocs.io>.
 
 ## Installation
 
@@ -11,7 +11,7 @@ Documentation can be found at conformer-rl.readthedocs.io.
 
         $ conda install -c conda-forge rdkit
 
-  * Install PyTorch Geometric. Since the installation is heavily dependent on the PyTorch, OS and CUDA versionsof the system, detailed instructions for installing PyTorch Geometric can be found at https://pytorch-geometric.readthedocs.io/en/latest/notes/installation.html.
+  * Install PyTorch Geometric. Since the installation is heavily dependent on the PyTorch, OS and CUDA versionsof the system, detailed instructions for installing PyTorch Geometric can be found at <https://pytorch-geometric.readthedocs.io/en/latest/notes/installation.html>.
 
 * Install conformer-rl
 
@@ -26,7 +26,7 @@ then most likely the installation has succeeded.
 
 * Agents - `conformer_rl` contains implementations of agents for several deep reinforcement learning algorithms,
 including recurrent and non-recurrent versions of A2C and PPO. `conformer_rl` also includes a base agent
-interface :mod:`conformer_rl.agents.base_agent` for constructing new agents.
+interface `base_agent` for constructing new agents.
 
 * Models - Implementations of various graph neural network models are included. Each model is compatible with
 any molecule.
@@ -36,4 +36,4 @@ any molecule.
 
 ## Quick Start
 The `examples` directory contain several scripts for training on pre-built agents and environments.
-Visit the `Tutorial` to get started.
+Visit the [Quick Start]() to get started.
