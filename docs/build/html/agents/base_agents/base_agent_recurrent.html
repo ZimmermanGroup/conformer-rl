@@ -1,0 +1,335 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Base_agent_recurrent &mdash; conformer_rl 1.0.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Base_ac_agent" href="base_ac_agent.html" />
+    <link rel="prev" title="Base_agent" href="base_agent.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> conformer_rl
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Tutorial</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial/quick_start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial/customizing_env_basic.html">Customizing Environment - basic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial/customizing_env_advanced.html">Customizing Environment - advanced</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API Reference</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../agents.html">Agents</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../prebuilt.html">Pre-built agents</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../base.html">Base Agent and Utility Classes</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="base_agent.html">Base_agent</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Base_agent_recurrent</a></li>
+<li class="toctree-l3"><a class="reference internal" href="base_ac_agent.html">Base_ac_agent</a></li>
+<li class="toctree-l3"><a class="reference internal" href="base_ac_agent_recurrent.html">Base_ac_agent_recurrent</a></li>
+<li class="toctree-l3"><a class="reference internal" href="storage.html">Storage</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../models/models.html">Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../config/config.html">Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../environments/environments.html">Environments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../molecule_generation/molecule_generation.html">Molecule Generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../logging/logging.html">Logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../analysis/analysis.html">Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../utils/utils.html">Utilities</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">conformer_rl</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../agents.html">Agents</a> &raquo;</li>
+        
+          <li><a href="../base.html">Base Agent and Utility Classes</a> &raquo;</li>
+        
+      <li>Base_agent_recurrent</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../../_sources/agents/base_agents/base_agent_recurrent.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <span class="target" id="module-conformer_rl.agents.base_agent_recurrent"></span><div class="section" id="base-agent-recurrent">
+<h1>Base_agent_recurrent<a class="headerlink" href="#base-agent-recurrent" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="conformer_rl.agents.base_agent_recurrent.BaseAgentRecurrent">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">conformer_rl.agents.base_agent_recurrent.</span></code><code class="sig-name descname"><span class="pre">BaseAgentRecurrent</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="../../config/agent_config.html#conformer_rl.config.agent_config.Config" title="conformer_rl.config.agent_config.Config"><span class="pre">conformer_rl.config.agent_config.Config</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#conformer_rl.agents.base_agent_recurrent.BaseAgentRecurrent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="base_agent.html#conformer_rl.agents.base_agent.BaseAgent" title="conformer_rl.agents.base_agent.BaseAgent"><code class="xref py py-class docutils literal notranslate"><span class="pre">conformer_rl.agents.base_agent.BaseAgent</span></code></a></p>
+<p>Base interface for building reinforcement learning agents with support for
+recurrent neural networks.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>config</strong> (<a class="reference internal" href="../../config/agent_config.html#conformer_rl.config.agent_config.Config" title="conformer_rl.config.agent_config.Config"><code class="xref py py-class docutils literal notranslate"><span class="pre">Config</span></code></a>) – Configuration object for the agent. See notes for a list of config
+parameters used by specific pre-built agents.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="conformer_rl.agents.base_agent_recurrent.BaseAgentRecurrent._eval_step">
+<code class="sig-name descname"><span class="pre">_eval_step</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">object</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rstates</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#conformer_rl.agents.base_agent_recurrent.BaseAgentRecurrent._eval_step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evalutes the agent on a single step of an episode of the evaluation environment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>state</strong> (<em>object</em>) – The current observation from the environment.</p></li>
+<li><p><strong>rstates</strong> (<em>Any</em>) – Recurrent states from the previous iteration of the neural network.
+If none are supplied, they will be automatically initialized by the
+neural network.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>prediction[‘a’]</strong> (<em>Any</em>) – The action to be taken in the next step of the environment.</p></li>
+<li><p><strong>rstates</strong> (<em>Any</em>) – The next recurrent states to be inputted into the neural network.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="conformer_rl.agents.base_agent_recurrent.BaseAgentRecurrent._eval_episode">
+<code class="sig-name descname"><span class="pre">_eval_episode</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">dict</span><a class="headerlink" href="#conformer_rl.agents.base_agent_recurrent.BaseAgentRecurrent._eval_episode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evalutes the agent on a single episode of the evaluation environment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Information from the evaluation environment to be logged by the
+<cite>eval_logger</cite>.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="conformer_rl.agents.base_agent_recurrent.BaseAgentRecurrent.evaluate">
+<code class="sig-name descname"><span class="pre">evaluate</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#conformer_rl.agents.base_agent_recurrent.BaseAgentRecurrent.evaluate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluates the agent on the evaluation environment.</p>
+<p>Information dict returned by the environment’s <a class="reference internal" href="../../environments/conformer_env.html#conformer_rl.environments.conformer_env.ConformerEnv.step" title="conformer_rl.environments.conformer_env.ConformerEnv.step"><code class="xref py py-meth docutils literal notranslate"><span class="pre">conformer_rl.environments.conformer_env.ConformerEnv.step()</span></code></a> method
+is logged by the <cite>eval_logger</cite> and saved.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="conformer_rl.agents.base_agent_recurrent.BaseAgentRecurrent.load">
+<code class="sig-name descname"><span class="pre">load</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#conformer_rl.agents.base_agent_recurrent.BaseAgentRecurrent.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads the neural network with weights.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – The path where the neural network weights are saved.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="conformer_rl.agents.base_agent_recurrent.BaseAgentRecurrent.run_steps">
+<code class="sig-name descname"><span class="pre">run_steps</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#conformer_rl.agents.base_agent_recurrent.BaseAgentRecurrent.run_steps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Trains the agent.</p>
+<p>Trains the agent until the maximum number of steps (specified by config) is reached.
+Also periodically saves neural network parameters and performs evaluations on the agent,
+if specified in the config.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="conformer_rl.agents.base_agent_recurrent.BaseAgentRecurrent.save">
+<code class="sig-name descname"><span class="pre">save</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#conformer_rl.agents.base_agent_recurrent.BaseAgentRecurrent.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves the neural network weights to a file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – The path where the neural network weights are to be saved.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="conformer_rl.agents.base_agent_recurrent.BaseAgentRecurrent.step">
+<code class="sig-name descname"><span class="pre">step</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#conformer_rl.agents.base_agent_recurrent.BaseAgentRecurrent.step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs one iteration of acquiring samples on the environment
+and then trains on the acquired samples.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="base_ac_agent.html" class="btn btn-neutral float-right" title="Base_ac_agent" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="base_agent.html" class="btn btn-neutral float-left" title="Base_agent" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Runxuan Jiang.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

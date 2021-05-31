@@ -1,0 +1,293 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Molecules &mdash; conformer_rl 1.0.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Molecule Generation Scripts" href="generation/generation.html" />
+    <link rel="prev" title="Molecule Generation" href="molecule_generation.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> conformer_rl
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Tutorial</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/quick_start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/customizing_env_basic.html">Customizing Environment - basic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/customizing_env_advanced.html">Customizing Environment - advanced</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../agents/agents.html">Agents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../models/models.html">Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../config/config.html">Config</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../environments/environments.html">Environments</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="molecule_generation.html">Molecule Generation</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Molecules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generation/generation.html">Molecule Generation Scripts</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../logging/logging.html">Logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../analysis/analysis.html">Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../utils/utils.html">Utilities</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">conformer_rl</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="molecule_generation.html">Molecule Generation</a> &raquo;</li>
+        
+      <li>Molecules</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/molecule_generation/molecules.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <span class="target" id="module-conformer_rl.molecule_generation.molecules"></span><div class="section" id="molecules">
+<h1>Molecules<a class="headerlink" href="#molecules" title="Permalink to this headline">¶</a></h1>
+<p><a class="reference internal" href="../config/mol_config.html#conformer_rl.config.mol_config.MolConfig" title="conformer_rl.config.mol_config.MolConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">MolConfig</span></code></a> generators.</p>
+<dl class="py function">
+<dt id="conformer_rl.molecule_generation.molecules.branched_alkane">
+<code class="sig-prename descclassname"><span class="pre">conformer_rl.molecule_generation.molecules.</span></code><code class="sig-name descname"><span class="pre">branched_alkane</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_atoms</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="../config/mol_config.html#conformer_rl.config.mol_config.MolConfig" title="conformer_rl.config.mol_config.MolConfig"><span class="pre">conformer_rl.config.mol_config.MolConfig</span></a><a class="headerlink" href="#conformer_rl.molecule_generation.molecules.branched_alkane" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a randomized branched alkane <a class="reference internal" href="../config/mol_config.html#conformer_rl.config.mol_config.MolConfig" title="conformer_rl.config.mol_config.MolConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">MolConfig</span></code></a>,
+including constants for calculating Gibbs Score.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>num_atoms</strong> (<em>int</em>) – The number of atoms in the branched alkane.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="conformer_rl.molecule_generation.molecules.straight_alkane">
+<code class="sig-prename descclassname"><span class="pre">conformer_rl.molecule_generation.molecules.</span></code><code class="sig-name descname"><span class="pre">straight_alkane</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_atoms</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="../config/mol_config.html#conformer_rl.config.mol_config.MolConfig" title="conformer_rl.config.mol_config.MolConfig"><span class="pre">conformer_rl.config.mol_config.MolConfig</span></a><a class="headerlink" href="#conformer_rl.molecule_generation.molecules.straight_alkane" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a straight alkane chain <a class="reference internal" href="../config/mol_config.html#conformer_rl.config.mol_config.MolConfig" title="conformer_rl.config.mol_config.MolConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">MolConfig</span></code></a>,
+including constants for calculating Gibbs Score.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>num_atoms</strong> (<em>int</em>) – The number of atoms in the alkane.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="conformer_rl.molecule_generation.molecules.lignin">
+<code class="sig-prename descclassname"><span class="pre">conformer_rl.molecule_generation.molecules.</span></code><code class="sig-name descname"><span class="pre">lignin</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_monomers</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="../config/mol_config.html#conformer_rl.config.mol_config.MolConfig" title="conformer_rl.config.mol_config.MolConfig"><span class="pre">conformer_rl.config.mol_config.MolConfig</span></a><a class="headerlink" href="#conformer_rl.molecule_generation.molecules.lignin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a lignin <a class="reference internal" href="../config/mol_config.html#conformer_rl.config.mol_config.MolConfig" title="conformer_rl.config.mol_config.MolConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">MolConfig</span></code></a>,
+including constants for calculating Gibbs Score.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>num_monomers</strong> (<em>int</em>) – Number of monomers in the lignin.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="conformer_rl.molecule_generation.molecules.xorgate">
+<code class="sig-prename descclassname"><span class="pre">conformer_rl.molecule_generation.molecules.</span></code><code class="sig-name descname"><span class="pre">xorgate</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gate_complexity</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_gates</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="../config/mol_config.html#conformer_rl.config.mol_config.MolConfig" title="conformer_rl.config.mol_config.MolConfig"><span class="pre">conformer_rl.config.mol_config.MolConfig</span></a><a class="headerlink" href="#conformer_rl.molecule_generation.molecules.xorgate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a xorgate <a class="reference internal" href="../config/mol_config.html#conformer_rl.config.mol_config.MolConfig" title="conformer_rl.config.mol_config.MolConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">MolConfig</span></code></a>.</p>
+<p>An xorgate is a chain of alternating gates, where each gate is a chain of benzenes
+with a single carbon chail tail.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>gate_complexity</strong> (<em>int</em>) – Number of benzenes in each gate.</p></li>
+<li><p><strong>num_gates</strong> (<em>int</em>) – Number of gates in molecule.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="conformer_rl.molecule_generation.molecules.test_alkane">
+<code class="sig-prename descclassname"><span class="pre">conformer_rl.molecule_generation.molecules.</span></code><code class="sig-name descname"><span class="pre">test_alkane</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="../config/mol_config.html#conformer_rl.config.mol_config.MolConfig" title="conformer_rl.config.mol_config.MolConfig"><span class="pre">conformer_rl.config.mol_config.MolConfig</span></a><a class="headerlink" href="#conformer_rl.molecule_generation.molecules.test_alkane" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a branched alkane <a class="reference internal" href="../config/mol_config.html#conformer_rl.config.mol_config.MolConfig" title="conformer_rl.config.mol_config.MolConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">MolConfig</span></code></a> for testing.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="conformer_rl.molecule_generation.molecules.mol_from_dict">
+<code class="sig-prename descclassname"><span class="pre">conformer_rl.molecule_generation.molecules.</span></code><code class="sig-name descname"><span class="pre">mol_from_dict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="../config/mol_config.html#conformer_rl.config.mol_config.MolConfig" title="conformer_rl.config.mol_config.MolConfig"><span class="pre">conformer_rl.config.mol_config.MolConfig</span></a><a class="headerlink" href="#conformer_rl.molecule_generation.molecules.mol_from_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts a dictionary into a <a class="reference internal" href="../config/mol_config.html#conformer_rl.config.mol_config.MolConfig" title="conformer_rl.config.mol_config.MolConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">MolConfig</span></code></a> object.</p>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="generation/generation.html" class="btn btn-neutral float-right" title="Molecule Generation Scripts" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="molecule_generation.html" class="btn btn-neutral float-left" title="Molecule Generation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Runxuan Jiang.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
