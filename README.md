@@ -2,7 +2,7 @@
 An open-source deep reinforcement learning library for conformer generation.
 
 ## Documentation
-Documentation can be found at <https://conformer-rl.readthedocs.io/>.
+Documentation can be found at https://conformer-rl.readthedocs.io/.
 
 ## Installation
 
@@ -11,7 +11,7 @@ Documentation can be found at <https://conformer-rl.readthedocs.io/>.
 
         $ conda install -c conda-forge rdkit
 
-  * Install PyTorch Geometric. Since the installation is heavily dependent on the PyTorch, OS and CUDA versionsof the system, detailed instructions for installing PyTorch Geometric can be found at <https://pytorch-geometric.readthedocs.io/en/latest/notes/installation.html>.
+  * Install PyTorch Geometric. Since the installation is heavily dependent on the PyTorch, OS and CUDA versionsof the system, detailed instructions for installing PyTorch Geometric can be found at https://pytorch-geometric.readthedocs.io/en/latest/notes/installation.html.
 
 * Install conformer-rl
 
