@@ -2,7 +2,7 @@
 An open-source deep reinforcement learning library for conformer generation.
 
 ## Documentation
-Documentation can be found at .
+Documentation can be found at conformer-rl.readthedocs.io.
 
 ## Installation
 
