@@ -40,4 +40,4 @@ and max-and-match different environment components.
 
 ## Quick Start
 The `examples` directory contain several scripts for training on pre-built agents and environments.
-Visit the [Quick Start](https://conformer-rl.readthedocs.io/en/latest/tutorial/quick_start.html) to get started.
+Visit [Quick Start](https://conformer-rl.readthedocs.io/en/latest/tutorial/quick_start.html) to get started.
