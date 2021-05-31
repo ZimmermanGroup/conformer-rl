@@ -10,7 +10,7 @@ conformer_rl Documentation
 Tutorial
 ========
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    tutorial/quick_start
    tutorial/customizing_env_basic

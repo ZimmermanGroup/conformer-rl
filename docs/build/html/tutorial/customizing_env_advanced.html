@@ -38,9 +38,9 @@
 <p>This section will cover an example of creating a custom environment from scratch,
 that is, not using one of the pre-built environment components.</p>
 <p>The code for the following examples can be found in
-<code class="docutils literal notranslate"><span class="pre">examples/custom_env_advanced/custom_env.py</span></code>.</p>
-<section id="example-1">
-<h2>Example 1<a class="headerlink" href="#example-1" title="Permalink to this headline">¶</a></h2>
+<a class="reference external" href="https://github.com/ZimmermanGroup/conformer-rl/tree/master/examples/custom_env_advanced">examples/custom_env_advanced/custom_env.py</a>.</p>
+<section id="example">
+<h2>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h2>
 <p>Suppose we want an environment where conformers are sequentially generated
 and the reward for each step of an episode is 1 if the generated conformer has an energy
 below some threshold, otherwise the reward is 0.</p>
@@ -49,7 +49,7 @@ below some threshold, otherwise the reward is 0.</p>
 <p>Since we now have a new parameter for the environment, the energy threshold, we need to override
 the constructor for <a class="reference internal" href="../environments/conformer_env.html#conformer_rl.environments.conformer_env.ConformerEnv" title="conformer_rl.environments.conformer_env.ConformerEnv"><code class="xref py py-class docutils literal notranslate"><span class="pre">ConformerEnv</span></code></a>. Since the threshold
 may differ depending on the molecule, the best way to handle this parameter is to pass it in through the
-<a class="reference internal" href="../config/mol_config.html#conformer_rl.config.mol_config.MolConfig" title="conformer_rl.config.mol_config.MolConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">conformer_rl.config.mol_config.MolConfig</span></code></a> object used to initialize the environment:</p>
+<a class="reference internal" href="../config/mol_config.html#conformer_rl.config.mol_config.MolConfig" title="conformer_rl.config.mol_config.MolConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">MolConfig</span></code></a> object used to initialize the environment:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">CustomEnv1</span><span class="p">(</span><span class="n">ConformerEnv</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mol_config</span><span class="p">:</span> <span class="n">conformer_rl</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">MolConfig</span><span class="p">,</span> <span class="n">max_steps</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">mol_config</span><span class="p">,</span> <span class="n">max_steps</span><span class="p">)</span>
@@ -122,10 +122,7 @@ reward handler.</p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="quick_start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="customizing_env_basic.html">Customizing Environment - basic</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Customizing Environment - advanced</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#example-1">Example 1</a></li>
-</ul>
-</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Customizing Environment - advanced</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../agents/agents.html">Agents</a></li>

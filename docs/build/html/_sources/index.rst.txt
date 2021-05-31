@@ -10,7 +10,7 @@ conformer_rl Documentation
 Tutorial
 ========
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    tutorial/quick_start
    tutorial/customizing_env_basic
@@ -32,7 +32,7 @@ API Reference
 
 Introduction
 ============
-:mod:`conformer_rl` is an open-source deep reinforcement library for conformer generation, written in Python using 
+:mod:`conformer_rl` is an open-source deep reinforcement learning library for conformer generation, written in Python using 
 `PyTorch <https://pytorch.org/>`_ and `RDKit <https://www.rdkit.org/>`_.
 
 Source code can be found on GitHub: https://github.com/ZimmermanGroup/conformer-rl.

@@ -28,7 +28,7 @@ cover most of the functionality of any environment.
 Creating and registering new environments
 -----------------------------------------
 
-The source code for this experiment can be found in ``examples/custom_env_basic``. The code for
+The source code for this experiment can be found in `examples/custom_env_basic <https://github.com/ZimmermanGroup/conformer-rl/tree/master/examples/custom_env_basic>`_. The code for
 the original pre-built environment is in ``run.py`` and the code for the new environment is found
 in ``custom_env.py``. The code for the updated training script is found in ``custom_run.py``.
 
@@ -83,19 +83,19 @@ we must initialize the neural network with the correct `node_dim`::
 
 Finally, we can run the agent and compare the results on Tensorboard.
 
-Custom molecules and :class:`conformer_rl.config.mol_config.MolConfig`
-----------------------------------------------------------------------
-In the last two examples, we have used :func:`conformer_rl.molecule_generation.molecules.branched_alkane` to automatically generate
-the :Class:`conformer_rl.config.mol_config.MolConfig` object for configuring environments. This section shows how one can create a 
-:Class:`conformer_rl.config.mol_config.MolConfig` for a custom molecule.
+Custom molecules and :class:`~conformer_rl.config.mol_config.MolConfig`
+-----------------------------------------------------------------------
+In the last two examples, we have used :func:`~conformer_rl.molecule_generation.molecules.branched_alkane` to automatically generate
+the :Class:`~conformer_rl.config.mol_config.MolConfig` object for configuring environments. This section shows how one can create a 
+:Class:`~conformer_rl.config.mol_config.MolConfig` for a custom molecule.
 
-The :Class:`conformer_rl.config.mol_config.MolConfig` object is used similarly to the :Class:`conformer_rl.config.agent_config.Config` object
+The :Class:`~conformer_rl.config.mol_config.MolConfig` object is used similarly to the :Class:`~conformer_rl.config.agent_config.Config` object
 for configuring agents, and has a lot less parameters. The main parameter is molecule itself. Suppose we have a custom rdkit molecule::
 
   from rdkit import Chem
   mol = Chem.MolFromSmiles('Cc1ccccc1')
 
-To create a :Class:`conformer_rl.config.mol_config.MolConfig` for this molecule we simply set the `mol` attribute to the molecule. However,
+To create a :Class:`~conformer_rl.config.mol_config.MolConfig` for this molecule we simply set the `mol` attribute to the molecule. However,
 we should make sure to add hydrogens and sanitize the molecule first::
 
   from conformer_rl.config import MolConfig
@@ -108,8 +108,8 @@ we should make sure to add hydrogens and sanitize the molecule first::
 
 Additionally, if the environment utilizes the Gibbs Score reward [1]_,
 the constants :math:`E_0` and :math:`Z_0` need to be calculated. :mod:`conformer_rl`
-contains a function :func:`conformer_rl.utils.chem_utils.calculate_normalizers` that
-does this automatically.
+contains a function :func:`~conformer_rl.utils.chem_utils.calculate_normalizers` that
+does this automatically::
 
   from conformer_rl.utils import calculate_normalizers
   E0, Z0 = calculate_normalizers(mol)
