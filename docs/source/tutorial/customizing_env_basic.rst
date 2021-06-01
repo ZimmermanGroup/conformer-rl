@@ -32,7 +32,7 @@ The source code for this experiment can be found in `examples/custom_env_basic <
 the original pre-built environment is in ``run.py`` and the code for the new environment is found
 in ``custom_env.py``. The code for the updated training script is found in ``custom_run.py``.
 
-In :ref:`Quick Start` we trained an agent on one of the pre-buitl environments, :class:`~conformer_rl.environments.environments.GibbsScorePruningEnv`.
+In :ref:`Quick Start` we trained an agent on one of the pre-built environments, :class:`~conformer_rl.environments.environments.GibbsScorePruningEnv`.
 Notice that the observation handler for :class:`~conformer_rl.environments.environments.GibbsScorePruningEnv` creates an embedding for each node/atom
 that includes both a one-hot representation for whether the atom is a carbon or oxygen atom, as well as the x, y, z coordinates for the atom resulting in a
 vector of dimension 5 for each node.
@@ -51,7 +51,7 @@ Thus, we can use this mixin to create our custom environment class::
   class TestEnv(DiscreteActionMixin, AtomTypeGraphObsMixin, GibbsPruningRewardMixin, ConformerEnv):
     pass
 
-Next, since this is not a pre-built environment, we must register the environment with OpenAI gym.::
+Next, since this is not a pre-built environment, we must register the environment with OpenAI gym::
 
   # custom_env.py
   # register the environment with OpenAI gym

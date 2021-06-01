@@ -136,12 +136,12 @@ def bar_plot_episodic(key: str, data: dict) -> matplotlib.axes.Axes:
     ax.set(xlabel='run', ylabel=key)
     return ax
 
-def histogram_episodic(key: str, data: dict) -> matplotlib.axes.Axes:
+def histogram_episodic(key: str, data: dict, size: Tuple[int, int] = (20, 8)) -> matplotlib.axes.Axes:
     """Plots histogram(s) for number of ocurrences in list data corresponding to `key` across all episodes
     loaded in 'data'.
     """
     n = len(data["indices"])
-    fig, axes = plt.subplots(ncols=n, figsize=(20, 8))
+    fig, axes = plt.subplots(nrows=n, figsize=size)
 
     if n == 1:
         sns.histplot(data=data[key][0], stat="probability", ax=axes)
@@ -158,7 +158,7 @@ def heatmap_episodic(key: str, data: dict) -> matplotlib.axes.Axes:
     loaded in `data`.
     """
     n = len(data["indices"])
-    fig, axes = plt.subplots(ncols=n, figsize=(20, 8))
+    fig, axes = plt.subplots(ncols=n)
     if n == 1:
         sns.heatmap(data=data[key][0], ax=axes)
         axes.set(xlabel=data['indices'][0])

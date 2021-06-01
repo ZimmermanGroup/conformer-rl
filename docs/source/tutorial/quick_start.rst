@@ -90,7 +90,7 @@ eval environment to be the same as the training environment. We will also have t
 Tuning hyperparameters
 ^^^^^^^^^^^^^^^^^^^^^^
 
-Finally, we can set the other hyperparmeters. For more information on what each of
+Finally, we can set the other hyperparameters. For more information on what each of
 the hyperparameters represent, see the API reference for :class:`~conformer_rl.config.agent_config.Config`::
     
     # Batch Hyperparameters
