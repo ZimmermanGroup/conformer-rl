@@ -42,6 +42,7 @@ every episode::
     class CustomEnv1(ConformerEnv):
         def reset(self):
             self.confs_below_threshold = 0
+            return super().reset()
 
 Next, we have the overloaded :meth:`~conformer_rl.environments.conformer_env.ConformerEnv._reward` function
 return the wanted reward. We also log the energy and the ``confs_below_threshold``::

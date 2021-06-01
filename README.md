@@ -36,7 +36,7 @@ on top of the modularized ConformerEnv interface, making it easy to create custo
 and max-and-match different environment components.
 
 * Analysis - `conformer_rl` contains a module for visualizing metrics and molecule conformers in Jupyter/IPython notebooks.
-`examples/analysis.ipynb` shows some examples on how the visualizing tools can be used.
+`examples/example_analysis.ipynb` shows some examples on how the visualizing tools can be used.
 
 ## Quick Start
 The `examples` directory contain several scripts for training on pre-built agents and environments.

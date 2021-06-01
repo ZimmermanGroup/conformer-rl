@@ -5,7 +5,7 @@ train_data
 molecule_data
 
 # documentation build
-docs/build/
+docs/build/*
 
 
 #python utility files

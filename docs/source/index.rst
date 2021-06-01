@@ -55,7 +55,7 @@ Finally, install :mod:`conformer_rl`::
 Verify Installation
 ^^^^^^^^^^^^^^^^^^^
 As a quick check to verify the installation has succeeded, navigate to the ``examples`` directory
-and run `test_example.py <https://github.com/ZimmermanGroup/conformer-rl/blob/master/examples/test_example.py>`_. The script should finish running in a few minutes or less. If no errors ware encountered
+and run `test_example.py <https://github.com/ZimmermanGroup/conformer-rl/blob/master/examples/test_example.py>`_. The script should finish running in a few minutes or less. If no errors are encountered
 then most likely the installation has succeeded.
 
 Features
@@ -76,7 +76,7 @@ any molecule.
 ^^^^^^^^^^^^^^^^^^^
 :mod:`conformer_rl` contains several pre-built environments that are compatible with any molecule. Environments are built
 on top of the modularized :mod:`~conformer_rl.environments.conformer_env` interface, making it easy to create custom environments
-and max-and-match different environment components.
+and mix-and-match different environment components.
 
 :ref:`Analysis`
 ^^^^^^^^^^^^^^^
@@ -86,6 +86,6 @@ and max-and-match different environment components.
 
 Examples
 --------
-The `examples <https://github.com/ZimmermanGroup/conformer-rl/tree/master/examples>`_ directory contain several scripts for training on pre-built agents and environments.
+The `examples <https://github.com/ZimmermanGroup/conformer-rl/tree/master/examples>`_ directory contains several scripts for training on pre-built agents and environments.
 Visit the :ref:`Quick Start` to get started.
 
