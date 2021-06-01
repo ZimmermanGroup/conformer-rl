@@ -7,6 +7,10 @@ molecule_data
 # documentation build
 docs/build/*
 
+# packaging files
+build/
+dist/
+
 
 #python utility files
 __pycache__/
