@@ -42,3 +42,6 @@ def test_storage():
 
         assert(torch.all(torch.eq(storage_tensors[i], tensors[i % rollout, i//rollout])))
 
+    storage.reset()
+    assert(storage.storage == {})
+

@@ -7,6 +7,10 @@ molecule_data
 # documentation build
 docs/build/*
 
+# pytest coverage
+htmlcov/
+*.coverage
+
 # packaging files
 build/
 dist/
