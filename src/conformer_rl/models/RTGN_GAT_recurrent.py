@@ -47,13 +47,13 @@ class RTGNGatRecurrent(torch.nn.Module):
         """
         Parameters
         ----------
-        obs : list of 2-tuple of Pytorch Geometric Batche objects and list of lists of int
+        obs : list of 2-tuple of Pytorch Geometric Batch objects and list of lists of int
             Each tuple is a single observation (the entire list is a batch). Each Pytorch Geometric Batch object corresponds to
             the Pytorch Geometric graph representing the molecule. The list of lists of integers
             is a list of all the torsions of the molecule, where each torsion is represented by a list of four integers, where the integers
             are the indices of the four atoms making up the torsion.
         states : 4-tuple of torch.Tensor, optional
-            Recurrent states for the lstm's. If none are specified they are initialized to zeros.
+            Recurrent states for the LSTM's. If none are specified they are initialized to zeros.
         action : batch of torch.Tensor, optional
             If specified, the log probabilities returned by the network will be the log probabilities for the specified
             actions instead of for the newly sampled actions.

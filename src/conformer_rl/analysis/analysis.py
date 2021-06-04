@@ -35,7 +35,7 @@ def load_data_from_pickle(paths: List[str], indices: Optional[List[str]]=None) -
     paths : list of str
         List of paths to .pickle files corresponding to the environment data from the runs of interest.
     indices : list of str, optional
-        Specifies custom indices/labels to be displayed in generated Seaborn graphs for each run. Should be
+        Specifies custom indices/labels to be displayed in generated Seaborn graphs for each run. Should be the
         same length as `paths`. If not specified, the labels default to ``test0, test1, test2, ...``.
 
     Returns
@@ -79,7 +79,7 @@ def load_data_from_pickle(paths: List[str], indices: Optional[List[str]]=None) -
 
         indices = ['PPO', 'PPO_recurrent', 'A2C']
 
-    Given this data and indices, :func:`load_data_from_pickle` would return the following dict::
+    Given these data and indices, :func:`load_data_from_pickle` would return the following dict::
 
         {
             'indices': ['PPO', 'PPO_recurrent', 'A2C'],
@@ -135,7 +135,7 @@ def list_keys(data: dict) -> List[str]:
     return list(key for key, val in data.items())
 
 def bar_plot_episodic(key: str, data: dict) -> matplotlib.axes.Axes:
-    """Plots a bar plot comparing a scaler value across all episodes loaded in `data`.
+    """Plots a bar plot comparing a scalar value across all episodes loaded in `data`.
 
     Parameters
     ----------
@@ -149,7 +149,7 @@ def bar_plot_episodic(key: str, data: dict) -> matplotlib.axes.Axes:
     return ax
 
 def histogram_select_episodes(key: str, data: dict, episodes: List[int]=None, binwidth: float=10, figsize: Tuple[float, float]=(8., 6.)) -> matplotlib.axes.Axes:
-    """Plots a single histogram where data for for each episode in `episodes` are overlayed.
+    """Plots a single histogram where data for each episode in `episodes` are overlayed.
 
     Parameters
     ----------
@@ -249,7 +249,7 @@ def drawConformer(mol: Chem.Mol, confId: int=-1, size: Tuple[int, int]=(300, 300
 
     Parameters
     ----------
-    mol : rdkit Mol object
+    mol : RDKit Mol object
         The molecule containing the conformer to be displayed.
     confId : int
         The ID of the conformer to be displayed.
@@ -272,7 +272,7 @@ def drawConformer_episodic(data: dict, confIds: List[int], size: Tuple[int, int]
     ----------
     data : dict from string to list
         Contains the loaded episode information. 'mol' must be a key in data and the corresponding list must contain
-        rdkit Mol objects.
+        RDKit Mol objects.
     confIds : list of int
         The indices for the conformers to be displayed (for each episode loaded in data).
     size : Tuple[int, int]

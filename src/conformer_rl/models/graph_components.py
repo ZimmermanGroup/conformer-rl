@@ -60,7 +60,7 @@ class GAT(torch.nn.Module):
     node_dim : int
         Dimension of the node embeddings in the input graph.
     num_layers : int 
-        Number GAT conv layers. See [2]_ for more details.
+        Number of GAT conv layers. See [2]_ for more details.
 
     References
     ----------

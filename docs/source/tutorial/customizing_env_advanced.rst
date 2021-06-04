@@ -59,7 +59,7 @@ return the wanted reward. We also log the energy and the ``confs_below_threshold
             return reward
 
 Notice that since this class only modifies the reward handler, it can be used with any
-observation handler and action handler (include all pre-built ones) as long as the implementation stays independent from the
+observation handler and action handler (including all pre-built ones) as long as the implementation stays independent from the
 reward handler.
 
 Finally, to use the environment we must register it with OpenAI gym::

@@ -69,7 +69,7 @@ class ConformerEnv(gym.Env):
     def step(self, action: Any) -> Tuple[object, float, bool, dict]:
         """Simulates one iteration of the environment.
 
-        Updates the environment wiht the input action, and calculates the current observation,
+        Updates the environment with the input action, and calculates the current observation,
         reward, done, and info.
 
         Parameters
