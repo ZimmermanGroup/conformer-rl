@@ -9,8 +9,7 @@ from conformer_rl.utils import mkdir
 from typing import Any
 
 class EnvLogger:
-    """Used by the agent for logging metrics produced by the environment.
-    E.g., observations, rewards, renders, etc.
+    """Used by the agent for logging metrics produced by the environment, for example, observations, rewards, renders, etc.
     Supports saving data to pickle and saving molecules as .mol files.
 
     Parameters
@@ -24,7 +23,7 @@ class EnvLogger:
     Attributes
     ----------
     step_data : dict
-        Used for storing data for each and every step of a single episode. 
+        Used for storing data for every step of a single episode. 
         Maps from strings to lists, where each index of the list corresponds
         to the data for that corresponding step within the episode.
     episode_data : dict 

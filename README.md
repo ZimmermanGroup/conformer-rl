@@ -18,8 +18,8 @@ Documentation can be found at https://conformer-rl.readthedocs.io/.
         $ pip install conformer-rl
 
 * Verify Installation
-As a quick check to verify the installation has succeeded, navigate to the `examples` directory
-and run `test_example.py`. The script should finish running in a few minutes or less. If no errors ware encountered
+As a quick check to verify the installation has succeeded, navigate to the [examples](https://github.com/ZimmermanGroup/conformer-rl/tree/master/examples) directory
+and run `base_example.py`. The script should finish running in a few minutes or less. If no errors ware encountered
 then most likely the installation has succeeded.
 
 ## Features
@@ -36,8 +36,8 @@ on top of the modularized ConformerEnv interface, making it easy to create custo
 and max-and-match different environment components.
 
 * Analysis - `conformer_rl` contains a module for visualizing metrics and molecule conformers in Jupyter/IPython notebooks.
-`examples/example_analysis.ipynb` shows some examples on how the visualizing tools can be used.
+The [example notebook](https://colab.research.google.com/drive/1Y6u4fFM4BkGLtxetZ0QWbR5sZO1U1KPr) in the [examples](https://github.com/ZimmermanGroup/conformer-rl/tree/master/examples) directory shows some examples on how the visualizing tools can be used.
 
 ## Quick Start
-The `examples` directory contain several scripts for training on pre-built agents and environments.
+The [examples](https://github.com/ZimmermanGroup/conformer-rl/tree/master/examples) directory contain several scripts for training on pre-built agents and environments.
 Visit [Quick Start](https://conformer-rl.readthedocs.io/en/latest/tutorial/quick_start.html) to get started.

@@ -30,12 +30,12 @@ Next, we can set up the environment that the agent will train on.
 We will choose :class:`~conformer_rl.environments.environments.GibbsScorePruningEnv` since
 it penalizes conformers that are identical to previously generated conformers, encouraging the
 agent to find a diverse set of conformers. It is a pre-built environment that is already
-registered with OpenAI gym as ``'GibbsScorePruningEnv-v0'``. We can also specify how many conformers to be generated
+registered with OpenAI gym as ``'GibbsScorePruningEnv-v0'``. We can also specify how many conformers are to be generated
 in each episode of the environment by setting ``max_steps``.
 
 :func:`~conformer_rl.environments.environment_wrapper.Task` automatically generates
 an environment wrapper compatible with the agent. By setting ``num_envs`` to 20, we can have our agent
-sample on 20 environments simultaneously, which can speed up training.::
+sample on 20 environments simultaneously, which can speed up training::
 
     from conformer_rl.environments import Task
     training_env = Task('GibbsScorePruningEnv-v0', concurrency=True, num_envs=20, mol_config=alkane_env_config, max_steps=200)

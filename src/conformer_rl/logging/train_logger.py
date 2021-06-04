@@ -15,7 +15,7 @@ class TrainLogger:
     dir : str
         Path to root directory for where logging results should be saved.
     use_tensorboard : bool
-        Whether or not to save metrics to tensorboard.
+        Whether or not to save metrics to Tensorboard.
     use_cache : bool
         Whether or not to keep a running cache of the metrics.
     use_print : bool

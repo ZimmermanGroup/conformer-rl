@@ -41,7 +41,7 @@ def prune_last_conformer(mol: Chem.Mol, tfd_thresh: float, energies: List[float]
     """Prunes the last conformer of the molecule.
 
     If no conformers in `mol` have a TFD (Torsional Fingerprint Deviation) with the last conformer of less than `tfd_thresh`,
-    the last conformer is kept. Otherwise, the lowest energy conformer with TFD less than tfd_thresh is kept and all other conformers
+    the last conformer is kept. Otherwise, the lowest energy conformer with TFD less than `tfd_thresh` is kept and all other conformers
     are discarded.
 
     Parameters
@@ -51,7 +51,7 @@ def prune_last_conformer(mol: Chem.Mol, tfd_thresh: float, energies: List[float]
     tfd_thresh : float
         The minimum threshold for TFD between conformers.
     energies : list of float
-        A list of of all the energies of the conformers in `mol`.
+        A list of all the energies of the conformers in `mol`.
 
     Returns
     -------
@@ -86,10 +86,10 @@ def prune_last_conformer(mol: Chem.Mol, tfd_thresh: float, energies: List[float]
         return new, [energies[i] for i in keep]
 
 def prune_conformers(mol: Chem.Mol, tfd_thresh: float) -> Chem.Mol:
-    """Prunes the all conformers in the molecule.
+    """Prunes all the conformers in the molecule.
 
     Removes conformers that have a TFD (torsional fingerprint deviation) lower than
-    tfd_thresh with other conformers. Lowest energy conformers are kept.
+    `tfd_thresh` with other conformers. Lowest energy conformers are kept.
 
     Parameters
     ----------
@@ -142,7 +142,7 @@ def tfd_matrix(mol: Chem.Mol) -> np.array:
     return matrix
 
 def calculate_normalizers(mol: Chem.Mol, num_confs: int = 200, pruning_thresh: float = 0.05) -> Tuple[float, float]:
-    """Calculates the E0 and Z0 normalizing constants for a molecule used in the TorsionNet [1]_ paper.
+    """Calculates the :math:`E_0` and :math:`Z_0` normalizing constants for a molecule used in the TorsionNet [1]_ paper.
 
     Parameters
     ----------

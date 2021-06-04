@@ -48,7 +48,7 @@ class RTGN(torch.nn.Module):
         """
         Parameters
         ----------
-        obs : list of 2-tuples of Pytorch Geometric Batche objects and list of lists of int
+        obs : list of 2-tuples of Pytorch Geometric Batch objects and list of lists of int
             Each tuple is a single observation (the entire list is a batch). Each Pytorch Geometric Batch object corresponds to
             the Pytorch Geometric graph representing the molecule. The list of lists of integers
             is a list of all the torsions of the molecule, where each torsion is represented by a list of four integers, where the integers

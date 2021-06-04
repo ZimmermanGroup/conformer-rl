@@ -55,7 +55,7 @@ Finally, install :mod:`conformer_rl`::
 Verify Installation
 ^^^^^^^^^^^^^^^^^^^
 As a quick check to verify the installation has succeeded, navigate to the ``examples`` directory
-and run `test_example.py <https://github.com/ZimmermanGroup/conformer-rl/blob/master/examples/test_example.py>`_. The script should finish running in a few minutes or less. If no errors are encountered
+and run `base_example.py <https://github.com/ZimmermanGroup/conformer-rl/blob/master/examples/base_example.py>`_. The script should finish running in a few minutes or less. If no errors are encountered
 then most likely the installation has succeeded.
 
 Features
@@ -81,7 +81,7 @@ and mix-and-match different environment components.
 :ref:`Analysis`
 ^^^^^^^^^^^^^^^
 :mod:`conformer_rl` contains a module for visualizing metrics and molecule conformers in Jupyter/IPython notebooks.
-`examples/analysis.ipynb <https://github.com/ZimmermanGroup/conformer-rl/blob/master/examples/example_analysis.ipynb>`_ shows some examples on how the visualizing tools can be used.
+The example notebook` <https://colab.research.google.com/drive/1Y6u4fFM4BkGLtxetZ0QWbR5sZO1U1KPr>`_ shows some examples on how the visualizing tools can be used.
 
 
 Examples

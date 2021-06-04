@@ -67,7 +67,6 @@ class PPORecurrentAgent(BaseACAgentRecurrent):
     """
     def __init__(self, config: Config):
         super().__init__(config)
-        self.batch_num = 0
         assert config.rollout_length % self.recurrence == 0
         assert config.mini_batch_size % self.recurrence == 0
 
@@ -93,11 +92,6 @@ class PPORecurrentAgent(BaseACAgentRecurrent):
             indices = np.arange(0, self.config.rollout_length * self.config.num_workers, self.recurrence)
             indices = np.random.permutation(indices)
 
-            if self.batch_num % 2 == 1:
-                indices = indices[(indices + self.recurrence) % config.rollout_length != 0]
-                indices += self.recurrence // 2
-            self.batch_num += 1
-
             num_indices = config.mini_batch_size // self.recurrence
             starting_batch_indices = [indices[i:i+num_indices] for i in range(0, len(indices), num_indices)]
             for starting_indices in starting_batch_indices:
@@ -117,6 +111,7 @@ class PPORecurrentAgent(BaseACAgentRecurrent):
                     sampled_states = [states[j] for j in (starting_indices + i)]
 
                     prediction, sampled_recurrent_states = self.network(sampled_states, sampled_recurrent_states, sampled_actions)
+
 
                     entropy = prediction['ent'].mean()
 

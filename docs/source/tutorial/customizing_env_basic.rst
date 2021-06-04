@@ -20,7 +20,7 @@ The main components of the :class:`~conformer_rl.environments.conformer_env.Conf
   which determines how the reward is calculated based on the current configuration of the molecule.
 * **Observation Handler** refers to overriding of the :meth:`~conformer_rl.environments.conformer_env.ConformerEnv._obs` method of
   :class:`~conformer_rl.environments.conformer_env.ConformerEnv`, 
-  which returns an observation object based on hte current configuration of the molecule and is a compatible input for the neural net being used for training.
+  which returns an observation object based on the current configuration of the molecule and is a compatible input for the neural net being used for training.
 
 Other methods and functionality can also be added, but the above three components are the main ones and
 cover most of the functionality of any environment.

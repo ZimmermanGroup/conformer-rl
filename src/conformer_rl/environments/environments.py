@@ -12,7 +12,7 @@ This module contains several pre-built experiments. Each pre-built environment i
   which determines how the reward is calculated based on the current configuration of the molecule.
 * **Observation Handler** refers to overriding of the :meth:`~conformer_rl.environments.conformer_env.ConformerEnv._obs` method of
   :class:`~conformer_rl.environments.conformer_env.ConformerEnv`, 
-  which returns an observation object based on hte current configuration of the molecule and is a compatible input for the neural net being used for training.
+  which returns an observation object based on the current configuration of the molecule and is a compatible input for the neural net being used for training.
 
 All pre-built environments inherit from :class:`~conformer_rl.environments.conformer_env.ConformerEnv` and share the same constructor.
 

@@ -76,7 +76,7 @@ def xorgate(gate_complexity: int, num_gates: int) -> MolConfig:
     """Generates a xorgate :class:`~conformer_rl.config.mol_config.MolConfig`.
 
     An xorgate is a chain of alternating gates, where each gate is a chain of benzenes
-    with a single carbon chail tail. 
+    with a single carbon chain tail. 
 
     Parameters
     ----------
