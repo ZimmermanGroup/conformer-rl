@@ -87,17 +87,17 @@ def load_data_from_pickle(paths: List[str], indices: Optional[List[str]]=None) -
                 data1_total_rewards,
                 data2_total_rewards,
                 data3_total_rewards
-            ]
+            ],
             'mol': [
                 data1_molecule,
                 data2_molecule,
                 data3_molecule
-            ]
+            ],
             'rewards': [
                 [data1_step1_rewards, data1_step2_rewards, data1_step3_rewards, data1_step4_rewards],
                 [data2_step1_rewards, data2_step2_rewards, data2_step3_rewards, data2_step4_rewards],
                 [data3_step1_rewards, data3_step2_rewards, data3_step3_rewards, data3_step4_rewards]
-            ]
+            ],
         }
     
     This format consolidates all the data into a single dict and is compatible with the other visualization
