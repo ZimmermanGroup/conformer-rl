@@ -104,12 +104,13 @@ class ConformerEnv(gym.Env):
 
         obs = self._obs()
         reward = self._reward()
+        self.step_info['reward'] = reward
         self.total_reward += reward
         done = self._done()
         info = copy.deepcopy(self._info())
 
         logging.info(f"step {self.current_step} reward {reward}")
-        self.step_info['reward'] = reward
+
 
         return obs, reward, done, info
         
