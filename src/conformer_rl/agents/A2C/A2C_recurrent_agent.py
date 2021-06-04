@@ -81,9 +81,6 @@ class A2CRecurrentAgent(BaseACAgentRecurrent):
 
         recurrent_states = [storage.order(f'recurrent_states_{i}') for i in range(self.num_recurrent_units)]
         states = storage.order('states')
-        
-        for i in range(config.num_workers):
-            states += [storage['states'][j][i] for j in range(config.rollout_length)]
 
         total_entropy, total_value_loss, total_policy_loss, total_loss = 0, 0, 0, 0
 
