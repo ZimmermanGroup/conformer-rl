@@ -19,7 +19,14 @@ def generate_xor_gate(gate_complexity: int=2, num_gates: int=3) -> Chem.Mol:
     return xorgate
 
 class XorGate:
-    def __init__(self, gate_complexity, num_gates):
+    """class to generate an artificial polymer with low energy conformers of an xor pattern
+    
+    Parameters
+    ----------
+    gate_complexity
+        
+    """
+    def __init__(self, gate_complexity: int, num_gates: int):
         # use stk to construct an XOR gate molecule to design specifications
         self.gate_complexity = gate_complexity
         self.num_gates = num_gates

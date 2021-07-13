@@ -18,6 +18,13 @@ class AlkylPhenylPolymer:
     This is a preliminary implementation with a fixed pattern of building blocks due to simplicity
     of cheminformatic manipulation.
     
+    Parameters
+    ----------
+    num_repeating_units = 2
+        The number of repeat units of the basic building block.
+        
+    Examples
+    --------
     >>> ap_polymer = AlkylPhenylPolymer(num_repeating_units=2)
     
     test on the first torsion in the second building block
@@ -66,9 +73,21 @@ class AlkylPhenylPolymer:
         
     
     @staticmethod
-    def make_monomer(length):
+    def make_monomer(length: int) -> stk.BuildingBlock:
         """make an alkyl chain with two phenyl end caps
         
+        Parameters
+        ----------
+        length
+            The number of carbon atoms in the alkyl chain
+            
+        Returns
+        -------
+        stk.BuildingBlock
+            Building block representing an alkyl chain with phenyl end caps
+            
+        Examples
+        --------
         >>> length = 7
         >>> ap_monomer = AlkylPhenylPolymer.make_monomer(length)
         >>> ap_monomer.get_num_atoms() == 6 * 2 + length
