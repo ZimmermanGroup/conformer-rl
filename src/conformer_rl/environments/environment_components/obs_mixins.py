@@ -35,7 +35,9 @@ class GraphObsMixin:
 
         node_features = [molecule_features.atom_coords(atom, conf) for atom in atoms]
         edge_indices = molecule_features.get_bond_pairs(mol)
-        edge_attributes = [molecule_features.bond_type(bond) for bond in bonds] * 2
+        edge_attributes = []
+        for bond in bonds:
+            edge_attributes += [molecule_features.bond_type(bond), molecule_features.bond_type(bond)]
 
         data = Data(
                     x=torch.tensor(node_features, dtype=torch.float),
@@ -69,7 +71,9 @@ class AtomTypeGraphObsMixin:
 
         node_features = [molecule_features.atom_type_CO(atom) for atom in atoms]
         edge_indices = molecule_features.get_bond_pairs(mol)
-        edge_attributes = [molecule_features.bond_type(bond) for bond in bonds] * 2
+        edge_attributes = []
+        for bond in bonds:
+            edge_attributes += [molecule_features.bond_type(bond), molecule_features.bond_type(bond)]
 
         data = Data(
                     x=torch.tensor(node_features, dtype=torch.float),
@@ -103,8 +107,9 @@ class AtomCoordsTypeGraphObsMixin:
 
         node_features = [molecule_features.atom_type_CO(atom) + molecule_features.atom_coords(atom, conf) for atom in atoms]
         edge_indices = molecule_features.get_bond_pairs(mol)
-        edge_attributes = [molecule_features.bond_type(bond) for bond in bonds] * 2
-
+        edge_attributes = []
+        for bond in bonds:
+            edge_attributes += [molecule_features.bond_type(bond), molecule_features.bond_type(bond)]
 
         data = Data(
                     x=torch.tensor(node_features, dtype=torch.float),
