@@ -3,9 +3,12 @@
 # %%
 import pickle
 from pathlib import Path
+import numpy as np
 from rdkit import Chem
+from rdkit.Chem.rdmolops import GetShortestPath, GetDistanceMatrix, Get3DDistanceMatrix
 import pandas as pd
 import altair as alt
+from IPython.display import display
 
 # pickle_path = Path('/export/zimmerman/joshkamm/ConformerML/conformer-ml/src/conformer_rl/analysis/pruned_mol_0.1tfd.pkl')
 pickle_paths = {}
@@ -18,16 +21,39 @@ for data_source, pickle_path in pickle_paths.items():
     with open(pickle_path, 'rb') as pickle_file:
         rdkit_mols[data_source] = pickle.load(pickle_file)
 
+# try getting the atoms from the molecule that are the furtherst apart in the graph
+mol = rdkit_mols[RL]
+print(f'Distance matrix: {GetDistanceMatrix(mol)}')
+print(f'Shortest path: {GetShortestPath(mol, 0, 100)}')
+dist_matrix = GetDistanceMatrix(mol)
+dist_matrix_3d = Get3DDistanceMatrix(mol)
+dist_matrix_ratio = dist_matrix_3d / dist_matrix
+df = pd.DataFrame.from_records(((index[0], index[1], dist_matrix[index], dist_matrix_3d[index],
+                                 dist_matrix_ratio[index])
+                                for (index, x) in np.ndenumerate(dist_matrix)),
+                                columns=['x', 'y', 'topological_distance', '3d_distance', 'distance_ratio'])
+for name in df.columns[2:]:
+    chart = alt.Chart(df).mark_rect().encode(
+        x='x:O',
+        y='y:O',
+        color=f'{name}:Q'
+    ).configure_view(
+        step=4
+    )
+
+    # display(chart)
+df = df.sort_values(by=['distance_ratio'])
+display(df)
 
 
-# mol_path = pickle_path.parent / 'test.mol'
-# Chem.rdmolfiles.MolToMolFile(
-#     md_mol, str(mol_path), confId=6747)
+mol_path = 'test.mol'
+Chem.rdmolfiles.MolToMolFile(
+    mol, str(mol_path))
 num_conformers = {data_source: rdkit_mol.GetNumConformers() for data_source, rdkit_mol in rdkit_mols.items()}
-df = pd.DataFrame.from_records([(data_source, 1 / num_conformers[data_source],
+df = pd.DataFrame.from_records(((data_source, 1 / num_conformers[data_source],
                                  conf.GetAtomPosition(100).Distance(conf.GetAtomPosition(226)))
                                 for data_source in rdkit_mols
-                                for conf in rdkit_mols[data_source].GetConformers()],
+                                for conf in rdkit_mols[data_source].GetConformers()),
                                columns=['data_source', 'weight', 'distance'])
 
 
