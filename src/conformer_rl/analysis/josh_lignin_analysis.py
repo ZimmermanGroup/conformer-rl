@@ -45,7 +45,41 @@ for name in df.columns[2:]:
 df = df.sort_values(by=['distance_ratio'])
 display(df)
 
+# %%
 
+# try working with SMARTS
+qmol = Chem.MolFromSmarts('[O][H]')
+print(qmol)
+matches = mol.GetSubstructMatches(qmol)
+print(matches)
+def func_group_distance(i, j):
+    return np.min([dist_matrix_3d[x,y] for x in matches[i] for y in matches[j]])
+func_group_dist_matrix = np.zeros((len(matches), len(matches)))
+for index, value in np.ndenumerate(func_group_dist_matrix):
+    func_group_dist_matrix[index] = func_group_distance(*index)
+# func_group_dist_matrix = np.array([[func_group_distance(i,j) for i in range(len(matches))]
+#                                    for j in range(len(matches))])
+print (func_group_dist_matrix)
+min_index = np.unravel_index(np.argmin(func_group_dist_matrix), shape=func_group_dist_matrix.shape)
+df = pd.DataFrame.from_records(((matches[index[0]], matches[index[1]], func_group_dist_matrix[index])
+                                for (index, x) in np.ndenumerate(func_group_dist_matrix)),
+                               columns=['x', 'y', '3d_distance'])
+df = df.sort_values(by=['3d_distance'])
+display(df)
+
+chart = alt.Chart(df).mark_rect().encode(
+    x='x:N',
+    y='y:N',
+    color=f'3d_distance:Q'
+).configure_view(
+    step=30
+)
+
+display(chart)
+
+# %%
+
+# make a sample distogram
 mol_path = 'test.mol'
 Chem.rdmolfiles.MolToMolFile(
     mol, str(mol_path))
