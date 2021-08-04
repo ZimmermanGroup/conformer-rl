@@ -10,6 +10,9 @@ import pandas as pd
 import altair as alt
 from IPython.display import display
 
+# alt.data_transformers.disable_max_rows()
+alt.data_transformers.enable('json')
+
 # pickle_path = Path('/export/zimmerman/joshkamm/ConformerML/conformer-ml/src/conformer_rl/analysis/pruned_mol_0.1tfd.pkl')
 pickle_paths = {}
 RL, MD = 'RL', 'MD'
@@ -28,10 +31,22 @@ print(f'Shortest path: {GetShortestPath(mol, 0, 100)}')
 dist_matrix = GetDistanceMatrix(mol)
 dist_matrix_3d = Get3DDistanceMatrix(mol)
 dist_matrix_ratio = dist_matrix_3d / dist_matrix
+
+# scale up to all conformers
+dist_matrices_3d = np.stack(Get3DDistanceMatrix(mol, confId=conf.GetId())
+                            for conf in mol.GetConformers())
+mean_dist_matrix = np.mean(dist_matrices_3d, axis=0)
+std_dev_dist_matrix = np.std(dist_matrices_3d, axis=0)
+mean_dist_matrix_ratio = mean_dist_matrix / dist_matrix
+std_dev_dist_matrix_ratio = std_dev_dist_matrix / dist_matrix
+
+
 df = pd.DataFrame.from_records(((index[0], index[1], dist_matrix[index], dist_matrix_3d[index],
-                                 dist_matrix_ratio[index])
+                                 dist_matrix_ratio[index], mean_dist_matrix[index],
+                                 std_dev_dist_matrix[index])
                                 for (index, x) in np.ndenumerate(dist_matrix)),
-                                columns=['x', 'y', 'topological_distance', '3d_distance', 'distance_ratio'])
+                                columns=['x', 'y', 'topological_distance', '3d_distance',
+                                         'distance_ratio', 'avg_3d_distance', 'std_dev_3d_distance'])
 for name in df.columns[2:]:
     chart = alt.Chart(df).mark_rect().encode(
         x='x:O',
@@ -41,7 +56,7 @@ for name in df.columns[2:]:
         step=4
     )
 
-    # display(chart)
+    display(chart)
 df = df.sort_values(by=['distance_ratio'])
 display(df)
 
@@ -93,7 +108,6 @@ df = pd.DataFrame.from_records(((data_source, 1 / num_conformers[data_source],
 
 # distances = [conf.GetAtomPosition(100).Distance(conf.GetAtomPosition(226))
 #              for conf in confs]
-alt.data_transformers.disable_max_rows()
 alt.Chart(df).mark_bar().encode(
     alt.X('distance:Q', bin=alt.Bin(maxbins=30)),
     y=alt.Y('sum(weight)', axis=alt.Axis(format='%', title=None)),
