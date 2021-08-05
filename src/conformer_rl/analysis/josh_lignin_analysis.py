@@ -24,29 +24,36 @@ for data_source, pickle_path in pickle_paths.items():
     with open(pickle_path, 'rb') as pickle_file:
         rdkit_mols[data_source] = pickle.load(pickle_file)
 
-# try getting the atoms from the molecule that are the furtherst apart in the graph
+df = pd.DataFrame()
+def create_column(name, matrix):
+    df[name] = pd.DataFrame(matrix).stack(dropna=False)
+
 mol = rdkit_mols[RL]
-print(f'Distance matrix: {GetDistanceMatrix(mol)}')
-print(f'Shortest path: {GetShortestPath(mol, 0, 100)}')
-dist_matrix = GetDistanceMatrix(mol)
-dist_matrix_3d = Get3DDistanceMatrix(mol)
-dist_matrix_ratio = dist_matrix_3d / dist_matrix
+DISTANCE_2D = 'topological distance'
+create_column(DISTANCE_2D, GetDistanceMatrix(mol))
+DISTANCE_3D = '3D distance'
+create_column(DISTANCE_3D, Get3DDistanceMatrix(mol))
+DISTANCE_RATIO = 'distance ratio'
+df[DISTANCE_RATIO] = df[DISTANCE_3D] / df[DISTANCE_2D]
 
 # scale up to all conformers
-dist_matrices_3d = np.stack(Get3DDistanceMatrix(mol, confId=conf.GetId())
-                            for conf in mol.GetConformers())
-mean_dist_matrix = np.mean(dist_matrices_3d, axis=0)
-std_dev_dist_matrix = np.std(dist_matrices_3d, axis=0)
-mean_dist_matrix_ratio = mean_dist_matrix / dist_matrix
-std_dev_dist_matrix_ratio = std_dev_dist_matrix / dist_matrix
+dist_matrices_3d = np.stack([Get3DDistanceMatrix(mol, confId=conf.GetId())
+                            for conf in mol.GetConformers()])
+AVG_3D_DISTANCE = 'avg 3D distance'
+create_column(AVG_3D_DISTANCE, np.mean(dist_matrices_3d, axis=0))
+STD_DEV_3D_DISTANCE = 'std dev 3D distance'
+create_column(STD_DEV_3D_DISTANCE, np.std(dist_matrices_3d, axis=0))
+AVG_3D_DISTANCE_RATIO = 'avg 3D distance ratio'
+df[AVG_3D_DISTANCE_RATIO] = df[AVG_3D_DISTANCE] / df[DISTANCE_2D]
+STD_DEV_3D_DISTANCE_RATIO = 'std dev 3D distance ratio'
+df[STD_DEV_3D_DISTANCE_RATIO] = df[STD_DEV_3D_DISTANCE] / df[DISTANCE_2D]
 
+df.index.names = ['x', 'y']
+df.reset_index(inplace=True)
+df = df.sort_values(by=[DISTANCE_RATIO])
+display(df)
 
-df = pd.DataFrame.from_records(((index[0], index[1], dist_matrix[index], dist_matrix_3d[index],
-                                 dist_matrix_ratio[index], mean_dist_matrix[index],
-                                 std_dev_dist_matrix[index])
-                                for (index, x) in np.ndenumerate(dist_matrix)),
-                                columns=['x', 'y', 'topological_distance', '3d_distance',
-                                         'distance_ratio', 'avg_3d_distance', 'std_dev_3d_distance'])
+# %%
 for name in df.columns[2:]:
     chart = alt.Chart(df).mark_rect().encode(
         x='x:O',
@@ -55,10 +62,7 @@ for name in df.columns[2:]:
     ).configure_view(
         step=4
     )
-
     display(chart)
-df = df.sort_values(by=['distance_ratio'])
-display(df)
 
 # %%
 
