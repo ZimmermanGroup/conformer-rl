@@ -67,10 +67,17 @@ for name in df.columns[2:]:
 # %%
 
 # try working with SMARTS
-qmol = Chem.MolFromSmarts('[O][H]')
-print(qmol)
-matches = mol.GetSubstructMatches(qmol)
+smarts_s = ['[O][H]', '[OD2]([#6])[#6]', '[CX3]=[CX3]']
+smarts_mols = [Chem.MolFromSmarts(smarts) for smarts in smarts_s]
+print(smarts_mols)
+matches = [mol.GetSubstructMatches(smarts_mol) for smarts_mol in smarts_mols]
 print(matches)
+
+def num_contacts_per_conf(mol, smarts_1, smarts_2, thresh_3d=4, thresh_topological=5):
+    pass
+
+
+# %%
 def func_group_distance(i, j):
     return np.min([dist_matrix_3d[x,y] for x in matches[i] for y in matches[j]])
 func_group_dist_matrix = np.zeros((len(matches), len(matches)))
