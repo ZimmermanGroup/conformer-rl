@@ -8,6 +8,7 @@ import numpy as np
 from rdkit import Chem
 from rdkit.Chem.rdmolops import GetShortestPath, GetDistanceMatrix, Get3DDistanceMatrix
 import pandas as pd
+import xarray as xr
 import altair as alt
 from IPython.display import display
 
@@ -38,12 +39,17 @@ DISTANCE_RATIO = 'distance ratio'
 df[DISTANCE_RATIO] = df[DISTANCE_3D] / df[DISTANCE_2D]
 
 # scale up to all conformers
-dist_matrices_3d = np.stack([Get3DDistanceMatrix(mol, confId=conf.GetId())
-                            for conf in mol.GetConformers()])
+CONF_ID = 'conf_id'
+conf_id_index = pd.Index([conf.GetId() for conf in mol.GetConformers()], name=CONF_ID)
+dist_matrices_3d = [xr.DataArray(Get3DDistanceMatrix(mol, confId=conf_id),
+                                 dims=('atom_1', 'atom_2'))
+                    for conf_id in conf_id_index]
+dist_matrices_3d = xr.concat(dist_matrices_3d, dim=conf_id_index)
+display(dist_matrices_3d)
 AVG_3D_DISTANCE = 'avg 3D distance'
-create_column(AVG_3D_DISTANCE, np.mean(dist_matrices_3d, axis=0))
+create_column(AVG_3D_DISTANCE, dist_matrices_3d.mean(dim=CONF_ID))
 STD_DEV_3D_DISTANCE = 'std dev 3D distance'
-create_column(STD_DEV_3D_DISTANCE, np.std(dist_matrices_3d, axis=0))
+create_column(STD_DEV_3D_DISTANCE, dist_matrices_3d.std(dim=CONF_ID))
 AVG_3D_DISTANCE_RATIO = 'avg 3D distance ratio'
 df[AVG_3D_DISTANCE_RATIO] = df[AVG_3D_DISTANCE] / df[DISTANCE_2D]
 STD_DEV_3D_DISTANCE_RATIO = 'std dev 3D distance ratio'
@@ -69,14 +75,15 @@ for name in df.columns[2:]:
 
 # try working with SMARTS
 smarts_s = ['[O][H]', '[OD2]([#6])[#6]', '[CX3]=[CX3]']
-smarts_mols = [Chem.MolFromSmarts(smarts) for smarts in smarts_s]
-print(*smarts_mols, sep='\n')
-matches = [mol.GetSubstructMatches(smarts_mol) for smarts_mol in smarts_mols]
-print(*matches, sep='\n\n')
-index = pd.MultiIndex.from_product([smarts_s, smarts_s], names=['smarts_1', 'smarts_2'])
-df = pd.DataFrame(index=index)
+smarts_mols = {smarts : Chem.MolFromSmarts(smarts) for smarts in smarts_s}
+matches = {smarts : mol.GetSubstructMatches(smarts_mol) for smarts, smarts_mol in smarts_mols.items()}
+conf_id_index = pd.MultiIndex.from_product([smarts_s, smarts_s], names=['smarts_1', 'smarts_2'])
+df = pd.DataFrame(index=conf_id_index)
 
 def num_contacts_per_conf(mol, smarts_1, smarts_2, thresh_3d=4, thresh_topological=5):
+    for smarts_1_match in matches[smarts_1]:
+        for smarts_2_match in matches[smarts_2]:
+            
     return 3
 
 def func(arg):
