@@ -1,6 +1,7 @@
 # To add a new cell, type '# %%'
 # To add a new markdown cell, type '# %% [markdown]'
 # %%
+import functools
 import pickle
 from pathlib import Path
 import numpy as np
@@ -69,13 +70,22 @@ for name in df.columns[2:]:
 # try working with SMARTS
 smarts_s = ['[O][H]', '[OD2]([#6])[#6]', '[CX3]=[CX3]']
 smarts_mols = [Chem.MolFromSmarts(smarts) for smarts in smarts_s]
-print(smarts_mols)
+print(*smarts_mols, sep='\n')
 matches = [mol.GetSubstructMatches(smarts_mol) for smarts_mol in smarts_mols]
-print(matches)
+print(*matches, sep='\n\n')
+index = pd.MultiIndex.from_product([smarts_s, smarts_s], names=['smarts_1', 'smarts_2'])
+df = pd.DataFrame(index=index)
 
 def num_contacts_per_conf(mol, smarts_1, smarts_2, thresh_3d=4, thresh_topological=5):
-    pass
+    return 3
 
+def func(arg):
+    x, y = arg
+    return num_contacts_per_conf(mol, x, y)
+NUM_CONTACTS_PER_CONF = 'num contacts per conf'
+df[NUM_CONTACTS_PER_CONF] = index.map(func)
+df.reset_index(inplace=True)
+print(df)
 
 # %%
 def func_group_distance(i, j):
