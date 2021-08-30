@@ -4,6 +4,7 @@
 import pickle
 from pathlib import Path
 import numpy as np
+from numpy.core.numeric import count_nonzero
 from numpy.lib.function_base import disp
 from rdkit import Chem
 from rdkit.Chem.rdmolops import GetShortestPath, GetDistanceMatrix, Get3DDistanceMatrix
@@ -63,6 +64,10 @@ df = df.sort_values(by=[DISTANCE_RATIO])
 display(df)
 
 # %%
+import hvplot.pandas
+df.hvplot()
+
+# %%
 for name in df.columns[2:]:
     chart = alt.Chart(df).mark_rect().encode(
         x='x:O',
@@ -75,14 +80,6 @@ for name in df.columns[2:]:
 
 # %%
 
-# try working with SMARTS
-smarts_s = ['[O][H]', '[OD2]([#6])[#6]', '[CX3]=[CX3]']
-smarts_mols = {smarts : Chem.MolFromSmarts(smarts) for smarts in smarts_s}
-matches = {smarts : mol.GetSubstructMatches(smarts_mol)
-           for smarts, smarts_mol in smarts_mols.items()}
-conf_id_index = pd.MultiIndex.from_product([smarts_s, smarts_s], names=['smarts_1', 'smarts_2'])
-df = pd.DataFrame(index=conf_id_index)
-
 def num_contacts_per_conf(mol, smarts_1, smarts_2, thresh_3d=4, thresh_topological=5):
     FUNC_GROUP_ID_1, ATOM_ID_1 = 'func_group_id_1', 'atom_id_1'
     FUNC_GROUP_ID_2, ATOM_ID_2 = 'func_group_id_2', 'atom_id_2'
@@ -92,28 +89,53 @@ def num_contacts_per_conf(mol, smarts_1, smarts_2, thresh_3d=4, thresh_topologic
     all_distances_3d = dist_matrices_3d.isel(atom_1=smarts_1_array, atom_2=smarts_2_array)
     func_group_distances_2d = all_distances_2d.min(dim=(ATOM_ID_1, ATOM_ID_2))
     func_group_distances_3d = all_distances_3d.min(dim=(ATOM_ID_1, ATOM_ID_2))
-    display(func_group_distances_3d < thresh_3d)
+    # display(func_group_distances_3d < thresh_3d)
     contacts = (func_group_distances_3d < thresh_3d).where(func_group_distances_2d > thresh_topological,
                                                        other=False)
-    display(contacts)
+    return (contacts.reduce(np.count_nonzero, dim=(FUNC_GROUP_ID_1, FUNC_GROUP_ID_2)).mean().item())
+            # contacts.count(dim=(FUNC_GROUP_ID_1, FUNC_GROUP_ID_2)).sum().item())
     
-    return 3
-    for smarts_1_match in matches[smarts_1]:
-        for smarts_2_match in matches[smarts_2]:
-            print(smarts_1_match)
-            print(smarts_2_match)
-            print()
-            # dist_matrices_3d.isel(atom_1=) # JOSH - RESUME HERE
-            return 3
-            
 
 def func(arg):
     x, y = arg
     return num_contacts_per_conf(mol, x, y)
+
+
+# try working with SMARTS
+smarts_s = ['[O][H]', '[OD2]([#6])[#6]', '[CX3]=[CX3]']
+smarts_mols = {smarts : Chem.MolFromSmarts(smarts) for smarts in smarts_s}
+matches = {smarts : mol.GetSubstructMatches(smarts_mol)
+           for smarts, smarts_mol in smarts_mols.items()}
+conf_id_index = pd.MultiIndex.from_product([smarts_s, smarts_s], names=['smarts_1', 'smarts_2'])
+df = pd.DataFrame(index=conf_id_index)
 NUM_CONTACTS_PER_CONF = 'num contacts per conf'
-df[NUM_CONTACTS_PER_CONF] = conf_id_index.map(func)
+df[NUM_CONTACTS_PER_CONF]= conf_id_index.map(func)
 df.reset_index(inplace=True)
-print(df)
+display(df)
+
+# %%
+alt.data_transformers.enable('default')
+chart = alt.Chart(df).mark_circle(color="#91b6d4").encode(
+    x='smarts_1:N',
+    y='smarts_2:N',
+    size=f'{NUM_CONTACTS_PER_CONF}:Q',
+)
+text = alt.Chart(df).mark_text(fontSize=20).encode(
+    x='smarts_1:N',
+    y='smarts_2:N',
+    text=alt.Text(f'{NUM_CONTACTS_PER_CONF}:Q', format=',.2r'),
+)
+chart = alt.layer(chart, text).configure_view(
+    step=50,
+).properties(
+    width=200,
+    height=200,
+)
+display(chart)
+from altair_saver import save
+save(chart, 'test.html')
+# alt.renderers.enable('altair_saver', fmts=['vega-lite'])
+# chart.save('chart.svg')
 
 # %%
 def func_group_distance(i, j):
