@@ -65,6 +65,7 @@ display(df)
 
 # %%
 import hvplot.pandas
+display(df.hvplot())
 df.hvplot()
 
 # %%
@@ -102,10 +103,12 @@ def func(arg):
 
 
 # try working with SMARTS
-smarts_s = ['[O][H]', '[OD2]([#6])[#6]', '[CX3]=[CX3]']
+smarts_s = ['[O][H]', '[OD2]([c])[c]',
+            '[OD2]([C])[c]', '[CX3]=[CX3]']
 smarts_mols = {smarts : Chem.MolFromSmarts(smarts) for smarts in smarts_s}
 matches = {smarts : mol.GetSubstructMatches(smarts_mol)
            for smarts, smarts_mol in smarts_mols.items()}
+[print(match) for match in matches.items()]
 conf_id_index = pd.MultiIndex.from_product([smarts_s, smarts_s], names=['smarts_1', 'smarts_2'])
 df = pd.DataFrame(index=conf_id_index)
 NUM_CONTACTS_PER_CONF = 'num contacts per conf'
@@ -128,14 +131,15 @@ text = alt.Chart(df).mark_text(fontSize=20).encode(
 chart = alt.layer(chart, text).configure_view(
     step=50,
 ).properties(
-    width=200,
-    height=200,
+    width=300,
+    height=300,
 )
 display(chart)
 from altair_saver import save
 save(chart, 'test.html')
 # alt.renderers.enable('altair_saver', fmts=['vega-lite'])
 # chart.save('chart.svg')
+chart
 
 # %%
 def func_group_distance(i, j):
