@@ -1,6 +1,7 @@
 # To add a new cell, type '# %%'
 # To add a new markdown cell, type '# %% [markdown]'
 # %%
+from functools import partial
 import pickle
 from pathlib import Path
 import numpy as np
@@ -97,49 +98,55 @@ def num_contacts_per_conf(mol, smarts_1, smarts_2, thresh_3d=4, thresh_topologic
             # contacts.count(dim=(FUNC_GROUP_ID_1, FUNC_GROUP_ID_2)).sum().item())
     
 
-def func(arg):
+def func(arg, **kwargs):
     x, y = arg
-    return num_contacts_per_conf(mol, x, y)
+    return num_contacts_per_conf(mol, x, y, **kwargs)
 
 
 # try working with SMARTS
-smarts_s = ['[O][H]', '[OD2]([c])[c]',
-            '[OD2]([C])[c]', '[CX3]=[CX3]']
-smarts_mols = {smarts : Chem.MolFromSmarts(smarts) for smarts in smarts_s}
-matches = {smarts : mol.GetSubstructMatches(smarts_mol)
+smarts_s = ['[C][OH1]', '[OD2]([c])[c]',
+            '[OD2]([CH3])[c]', '[OD2]([CH1])[c]', '[CX3]=[CX3]']
+smarts_mols = {smarts: Chem.MolFromSmarts(smarts) for smarts in smarts_s}
+matches = {smarts: mol.GetSubstructMatches(smarts_mol)
            for smarts, smarts_mol in smarts_mols.items()}
-[print(match) for match in matches.items()]
+len_matches = {smarts: len(matches[smarts]) for smarts in smarts_mols}
+[print(item) for item in matches.items()]
 conf_id_index = pd.MultiIndex.from_product([smarts_s, smarts_s], names=['smarts_1', 'smarts_2'])
 df = pd.DataFrame(index=conf_id_index)
 NUM_CONTACTS_PER_CONF = 'num contacts per conf'
-df[NUM_CONTACTS_PER_CONF]= conf_id_index.map(func)
+df[NUM_CONTACTS_PER_CONF] = conf_id_index.map(func)
+NUM_POTENTIAL_CONTACTS_PER_CONF = 'num potential contacts per conf'
+df[NUM_POTENTIAL_CONTACTS_PER_CONF] = conf_id_index.map(partial(func, thresh_3d=1000))
+CONTACTS_PER_CONF_RATIO = 'contacts per conf ratio'
+df[CONTACTS_PER_CONF_RATIO] = df[NUM_CONTACTS_PER_CONF] / df[NUM_POTENTIAL_CONTACTS_PER_CONF]
 df.reset_index(inplace=True)
 display(df)
 
 # %%
 alt.data_transformers.enable('default')
-chart = alt.Chart(df).mark_circle(color="#91b6d4").encode(
-    x='smarts_1:N',
-    y='smarts_2:N',
-    size=f'{NUM_CONTACTS_PER_CONF}:Q',
-)
-text = alt.Chart(df).mark_text(fontSize=20).encode(
-    x='smarts_1:N',
-    y='smarts_2:N',
-    text=alt.Text(f'{NUM_CONTACTS_PER_CONF}:Q', format=',.2r'),
-)
-chart = alt.layer(chart, text).configure_view(
-    step=50,
-).properties(
-    width=300,
-    height=300,
-)
-display(chart)
-from altair_saver import save
-save(chart, 'test.html')
+for var in [NUM_POTENTIAL_CONTACTS_PER_CONF, CONTACTS_PER_CONF_RATIO]:
+    chart = alt.Chart(df).mark_circle(color="#91b6d4").encode(
+        x='smarts_1:N',
+        y='smarts_2:N',
+        size=f'{var}:Q',
+    )
+    text = alt.Chart(df).mark_text(fontSize=20).encode(
+        x='smarts_1:N',
+        y='smarts_2:N',
+        text=alt.Text(f'{var}:Q', format=',.2r'),
+    )
+    chart = alt.layer(chart, text).configure_view(
+        step=50,
+    ).properties(
+        width=300,
+        height=300,
+    )
+    display(chart)
+# from altair_saver import save
+# save(chart, 'test.html')
 # alt.renderers.enable('altair_saver', fmts=['vega-lite'])
 # chart.save('chart.svg')
-chart
+# chart
 
 # %%
 def func_group_distance(i, j):
