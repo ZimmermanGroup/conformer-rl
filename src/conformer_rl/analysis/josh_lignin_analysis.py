@@ -111,6 +111,7 @@ matches = {smarts: mol.GetSubstructMatches(smarts_mol)
            for smarts, smarts_mol in smarts_mols.items()}
 len_matches = {smarts: len(matches[smarts]) for smarts in smarts_mols}
 [print(item) for item in matches.items()]
+[print(item) for item in len_matches.items()]
 conf_id_index = pd.MultiIndex.from_product([smarts_s, smarts_s], names=['smarts_1', 'smarts_2'])
 df = pd.DataFrame(index=conf_id_index)
 NUM_CONTACTS_PER_CONF = 'num contacts per conf'
@@ -208,3 +209,6 @@ alt.Chart(df).mark_bar().encode(
 #     row='data_source:N'
 # )
 
+# %%
+# looking at Zeke's new molecule
+mol = Chem.MolFromMolFile('/export/zimmerman/epunzal/2020DowProj/ligninWithJosh/lignin-kmc/lignin_generation/oligomers/12monomers.mol')
