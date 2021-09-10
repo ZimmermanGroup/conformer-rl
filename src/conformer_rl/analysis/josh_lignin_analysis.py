@@ -13,6 +13,10 @@ import pandas as pd
 import xarray as xr
 import altair as alt
 from IPython.display import display
+pd.options.plotting.backend = 'hvplot'
+xr.set_options()
+# import hvplot.pandas
+# import hvplot.xarray
 
 # alt.data_transformers.disable_max_rows()
 alt.data_transformers.enable('json')
@@ -65,9 +69,9 @@ df = df.sort_values(by=[DISTANCE_RATIO])
 display(df)
 
 # %%
-import hvplot.pandas
-display(df.hvplot())
-df.hvplot()
+df = pd.DataFrame([[1, 2], [1, 3], [4, 6]], columns=['A', 'B'])
+display(df.plot())
+# df.hvplot()
 
 # %%
 for name in df.columns[2:]:
