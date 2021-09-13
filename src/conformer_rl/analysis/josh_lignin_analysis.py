@@ -14,7 +14,7 @@ import xarray as xr
 import altair as alt
 from IPython.display import display
 pd.options.plotting.backend = 'hvplot'
-xr.set_options()
+import holoviews as hv
 # import hvplot.pandas
 # import hvplot.xarray
 
@@ -128,6 +128,9 @@ df.reset_index(inplace=True)
 display(df)
 
 # %%
+hv.Dataset(df)
+
+# %%
 alt.data_transformers.enable('default')
 for var in [NUM_POTENTIAL_CONTACTS_PER_CONF, CONTACTS_PER_CONF_RATIO]:
     chart = alt.Chart(df).mark_circle(color="#91b6d4").encode(
@@ -152,66 +155,6 @@ for var in [NUM_POTENTIAL_CONTACTS_PER_CONF, CONTACTS_PER_CONF_RATIO]:
 # alt.renderers.enable('altair_saver', fmts=['vega-lite'])
 # chart.save('chart.svg')
 # chart
-
-# %%
-def func_group_distance(i, j):
-    return np.min([dist_matrix_3d[x,y] for x in matches[i] for y in matches[j]])
-func_group_dist_matrix = np.zeros((len(matches), len(matches)))
-for index, value in np.ndenumerate(func_group_dist_matrix):
-    func_group_dist_matrix[index] = func_group_distance(*index)
-# func_group_dist_matrix = np.array([[func_group_distance(i,j) for i in range(len(matches))]
-#                                    for j in range(len(matches))])
-print (func_group_dist_matrix)
-min_index = np.unravel_index(np.argmin(func_group_dist_matrix), shape=func_group_dist_matrix.shape)
-df = pd.DataFrame.from_records(((matches[index[0]], matches[index[1]], func_group_dist_matrix[index])
-                                for (index, x) in np.ndenumerate(func_group_dist_matrix)),
-                               columns=['x', 'y', '3d_distance'])
-df = df.sort_values(by=['3d_distance'])
-display(df)
-
-chart = alt.Chart(df).mark_rect().encode(
-    x='x:N',
-    y='y:N',
-    color=f'3d_distance:Q'
-).configure_view(
-    step=30
-)
-
-display(chart)
-
-# %%
-
-# make a sample distogram
-mol_path = 'test.mol'
-Chem.rdmolfiles.MolToMolFile(
-    mol, str(mol_path))
-num_conformers = {data_source: rdkit_mol.GetNumConformers() for data_source, rdkit_mol in rdkit_mols.items()}
-df = pd.DataFrame.from_records(((data_source, 1 / num_conformers[data_source],
-                                 conf.GetAtomPosition(100).Distance(conf.GetAtomPosition(226)))
-                                for data_source in rdkit_mols
-                                for conf in rdkit_mols[data_source].GetConformers()),
-                               columns=['data_source', 'weight', 'distance'])
-
-
-# distances = [conf.GetAtomPosition(100).Distance(conf.GetAtomPosition(226))
-#              for conf in confs]
-alt.Chart(df).mark_bar().encode(
-    alt.X('distance:Q', bin=alt.Bin(maxbins=30)),
-    y=alt.Y('sum(weight)', axis=alt.Axis(format='%', title=None)),
-    row='data_source:N'
-).properties(
-    width=200,
-    height=200
-)#.save('chart.png', scale_factor=3.0)
-# alt.Chart(df).transform_joinaggregate(
-#     total='count(*)'
-# ).transform_calculate(
-#     pct='1 / datum.total'
-# ).mark_bar().encode(
-#     alt.X('distance:Q', bin=True),
-#     alt.Y('sum(pct):Q', axis=alt.Axis(format='%')),
-#     row='data_source:N'
-# )
 
 # %%
 # looking at Zeke's new molecule
