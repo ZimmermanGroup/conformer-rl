@@ -13,10 +13,7 @@ import pandas as pd
 import xarray as xr
 import altair as alt
 from IPython.display import display
-pd.options.plotting.backend = 'hvplot'
-import holoviews as hv
-# import hvplot.pandas
-# import hvplot.xarray
+import hvplot.xarray
 
 # alt.data_transformers.disable_max_rows()
 alt.data_transformers.enable('json')
@@ -69,8 +66,9 @@ df = df.sort_values(by=[DISTANCE_RATIO])
 display(df)
 
 # %%
-df = pd.DataFrame([[1, 2], [1, 3], [4, 6]], columns=['A', 'B'])
-display(df.plot())
+dist_matrices_3d.hvplot()
+# df = pd.DataFrame([[1, 2], [1, 3], [4, 6]], columns=['A', 'B'])
+# display(df.plot())
 # df.hvplot()
 
 # %%
@@ -159,3 +157,18 @@ for var in [NUM_POTENTIAL_CONTACTS_PER_CONF, CONTACTS_PER_CONF_RATIO]:
 # %%
 # looking at Zeke's new molecule
 mol = Chem.MolFromMolFile('/export/zimmerman/epunzal/2020DowProj/ligninWithJosh/lignin-kmc/lignin_generation/oligomers/12monomers.mol')
+
+# %%
+
+# holoviz testing
+# may need to execute cells a couple of times to get them "warmed up" after notebook restart
+import xarray as xr
+import hvplot.xarray  # noqa
+
+air_ds = xr.tutorial.open_dataset('air_temperature').load()
+air = air_ds.air
+display(air_ds)
+
+air1d = air.sel(lat=40, lon=285)
+# %%
+air1d.hvplot()
