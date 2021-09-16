@@ -172,3 +172,17 @@ display(air_ds)
 air1d = air.sel(lat=40, lon=285)
 # %%
 air1d.hvplot()
+
+# %%
+import stk
+
+stk_mol = stk.BuildingBlock.init_from_rdkit_mol(
+    mol,
+    functional_groups=(
+        stk.SmartsFunctionalGroupFactory(
+            smarts='[C][OH1]',
+            bonders=(0, ),
+            deleters=()
+        ),
+    )
+)
