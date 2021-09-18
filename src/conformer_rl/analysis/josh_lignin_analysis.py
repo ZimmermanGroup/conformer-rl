@@ -13,7 +13,7 @@ import pandas as pd
 import xarray as xr
 import altair as alt
 from IPython.display import display
-import hvplot.xarray
+import hvplot.xarray # noqa - adds hvplot methods to xarray objects
 
 # alt.data_transformers.disable_max_rows()
 alt.data_transformers.enable('json')
@@ -174,15 +174,59 @@ air1d = air.sel(lat=40, lon=285)
 air1d.hvplot()
 
 # %%
-import stk
 
+# stk testing
+import stk
+import stko
+from dataclasses import dataclass
+@dataclass
+class LigninPericyclicFunctionalGroup(stk.GenericFunctionalGroup):
+    H_phenyl: int
+    c_1: int
+    c_2: int
+    oxygen: int
+    C_1: int
+    C_2: int
+    H_alkyl: int
+        
+    def __post_init__(self):
+        pass
+
+class LigninPericyclicFunctionalGroupFactory(stk.FunctionalGroupFactory):
+    def get_functional_groups(self, molecule):
+        for atom_ids in stk.utilities._get_atom_ids('[H]ccOCC[H]', molecule):
+            atoms = tuple(molecule.get_atoms(atom_ids))
+            yield LigninPericyclicFunctionalGroup(
+                H_phenyl, c_1, c_2, oxygen, C_1, C_2, H_alkyl = atoms
+                # bonders=tuple(atoms[i] for i in self._bonders),
+                # deleters=tuple(atoms[i] for i in self._deleters),
+                # placers=tuple(atoms[i] for i in self._placers),
+            )
+
+@dataclass
+class LigninPericyclicResults:
+    reaction_distance: float
+    
+    
+class LigninPericyclicCalculator(stko.Calculator):
+    def calculate(self, mol):
+        # get the distance between H_alkyl and c_1
+        pass
+    
+    def get_results(self, mol):
+        return LigninPericyclicResults(self.calculate(mol), mol)
+
+mol = Chem.rdmolops.AddHs(mol)
+Chem.rdmolops.Kekulize(mol)
 stk_mol = stk.BuildingBlock.init_from_rdkit_mol(
     mol,
     functional_groups=(
         stk.SmartsFunctionalGroupFactory(
-            smarts='[C][OH1]',
+            smarts='[H]ccOCC[H]',
             bonders=(0, ),
             deleters=()
         ),
     )
 )
+# print(*stk_mol.get_bonds(), sep='\n')
+print(*stk_mol.get_functional_groups(), sep='\n')
