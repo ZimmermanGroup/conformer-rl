@@ -178,30 +178,46 @@ air1d.hvplot()
 # stk testing
 import stk
 import stko
-from dataclasses import dataclass
+from dataclasses import InitVar, dataclass
+from copy import copy, deepcopy
+from stk.molecular.functional_groups.factories.utilities import _get_atom_ids
 @dataclass
 class LigninPericyclicFunctionalGroup(stk.GenericFunctionalGroup):
-    H_phenyl: int
-    c_1: int
-    c_2: int
-    oxygen: int
-    C_1: int
-    C_2: int
-    H_alkyl: int
+    H_phenyl: stk.Atom
+    c_1: stk.Atom
+    c_2: stk.Atom
+    oxygen: stk.Atom
+    C_1: stk.Atom
+    C_2: stk.Atom
+    H_alkyl: stk.Atom
+    
+    bonders: InitVar = ()
+    deleters: InitVar = ()
         
-    def __post_init__(self):
-        pass
+    def __post_init__(self, bonders, deleters):
+        atoms = (self.H_phenyl, self.c_1, self.c_2, self.oxygen, self.C_1, self.C_2, self.H_alkyl)
+        super().__init__(
+            atoms=atoms,
+            bonders=(atoms[1], atoms[6]),
+            deleters=deleters,
+            placers=bonders
+        )
+
+    def clone(self):
+        return copy(self)
 
 class LigninPericyclicFunctionalGroupFactory(stk.FunctionalGroupFactory):
     def get_functional_groups(self, molecule):
-        for atom_ids in stk.utilities._get_atom_ids('[H]ccOCC[H]', molecule):
+        for atom_ids in _get_atom_ids('[H]ccOCC[H]', molecule):
             atoms = tuple(molecule.get_atoms(atom_ids))
-            yield LigninPericyclicFunctionalGroup(
-                H_phenyl, c_1, c_2, oxygen, C_1, C_2, H_alkyl = atoms
+            f_group = LigninPericyclicFunctionalGroup(
+                *atoms,
+                bonders = (atoms[1], atoms[6]),
                 # bonders=tuple(atoms[i] for i in self._bonders),
                 # deleters=tuple(atoms[i] for i in self._deleters),
                 # placers=tuple(atoms[i] for i in self._placers),
             )
+            yield f_group
 
 @dataclass
 class LigninPericyclicResults:
@@ -218,15 +234,32 @@ class LigninPericyclicCalculator(stko.Calculator):
 
 mol = Chem.rdmolops.AddHs(mol)
 Chem.rdmolops.Kekulize(mol)
+# stk_mol = stk.BuildingBlock.init_from_rdkit_mol(
+#     mol,
+#     functional_groups=(
+#         stk.SmartsFunctionalGroupFactory(
+#             smarts='[H]ccOCC[H]',
+#             bonders=(0, ),
+#             deleters=()
+#         ),
+#     )
+# )
 stk_mol = stk.BuildingBlock.init_from_rdkit_mol(
     mol,
     functional_groups=(
-        stk.SmartsFunctionalGroupFactory(
-            smarts='[H]ccOCC[H]',
-            bonders=(0, ),
-            deleters=()
-        ),
+        LigninPericyclicFunctionalGroupFactory(),
     )
 )
+# print(stk_mol.get_functional_groups().__next__())
 # print(*stk_mol.get_bonds(), sep='\n')
 print(*stk_mol.get_functional_groups(), sep='\n')
+
+# %%
+@dataclass
+class Test:
+    x: int
+    y: int
+    z: int
+
+test = Test(*[1,2,3])
+print(test)
