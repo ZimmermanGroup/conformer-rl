@@ -10,6 +10,7 @@ from numpy.lib.function_base import disp
 from rdkit import Chem
 from rdkit.Chem.rdmolops import GetShortestPath, GetDistanceMatrix, Get3DDistanceMatrix
 import pandas as pd
+from stk.molecular.molecules import building_block
 import xarray as xr
 import altair as alt
 from IPython.display import display
@@ -33,7 +34,7 @@ df = pd.DataFrame()
 def create_column(name, matrix):
     df[name] = pd.DataFrame(matrix).stack(dropna=False)
 
-mol = rdkit_mols[RL]
+# mol = rdkit_mols[RL]
 ATOM_1, ATOM_2 = 'atom_1', 'atom_2'
 DISTANCE_2D = 'topological distance'
 dist_matrix_2d = xr.DataArray(GetDistanceMatrix(mol), dims=(ATOM_1, ATOM_2))
@@ -84,9 +85,9 @@ for name in df.columns[2:]:
 
 # %%
 
+FUNC_GROUP_ID_1, ATOM_ID_1 = 'func_group_id_1', 'atom_id_1'
+FUNC_GROUP_ID_2, ATOM_ID_2 = 'func_group_id_2', 'atom_id_2'
 def num_contacts_per_conf(mol, smarts_1, smarts_2, thresh_3d=4, thresh_topological=5):
-    FUNC_GROUP_ID_1, ATOM_ID_1 = 'func_group_id_1', 'atom_id_1'
-    FUNC_GROUP_ID_2, ATOM_ID_2 = 'func_group_id_2', 'atom_id_2'
     smarts_1_array = xr.DataArray(np.array(matches[smarts_1]), dims=(FUNC_GROUP_ID_1, ATOM_ID_1))
     smarts_2_array = xr.DataArray(np.array(matches[smarts_2]), dims=(FUNC_GROUP_ID_2, ATOM_ID_2))
     all_distances_2d = dist_matrix_2d.isel(atom_1=smarts_1_array, atom_2=smarts_2_array)
@@ -219,18 +220,30 @@ class LigninPericyclicFunctionalGroupFactory(stk.FunctionalGroupFactory):
             )
             yield f_group
 
-@dataclass
-class LigninPericyclicResults:
-    reaction_distance: float
-    
-    
-class LigninPericyclicCalculator(stko.Calculator):
-    def calculate(self, mol):
+class LigninPericyclicCalculator:
+    def calculate_distances(self, rdkit_mol):
         # get the distance between H_alkyl and c_1
-        pass
+        stk_mol = stk.BuildingBlock.init_from_rdkit_mol(rdkit_mol)
+        factory = LigninPericyclicFunctionalGroupFactory()
+        functional_groups = tuple(factory.get_functional_groups(stk_mol))
+        c_1_ids = xr.DataArray(
+            [func_group.c_1.get_id() for func_group in functional_groups],
+            dims=FUNC_GROUP_ID_1
+        )
+        H_alkyl_ids = xr.DataArray(
+            [func_group.H_alkyl.get_id() for func_group in functional_groups],
+            dims=FUNC_GROUP_ID_1,
+        )
+        func_group_distances = dist_matrices_3d.isel(atom_1=c_1_ids, atom_2=H_alkyl_ids)
+        func_group_distances.name = "Lignin pericyclic mechanism distances"
+        display(func_group_distances)
+        return func_group_distances
+        
+        # building_block = stk.BuildingBlock.init_from_rdkit_mol(
+        #     rdkit_mol,
+        #     functional_groups=LigninPericyclicFunctionalGroupFactory(),
+        # )
     
-    def get_results(self, mol):
-        return LigninPericyclicResults(self.calculate(mol), mol)
 
 mol = Chem.rdmolops.AddHs(mol)
 Chem.rdmolops.Kekulize(mol)
@@ -253,6 +266,7 @@ stk_mol = stk.BuildingBlock.init_from_rdkit_mol(
 # print(stk_mol.get_functional_groups().__next__())
 # print(*stk_mol.get_bonds(), sep='\n')
 print(*stk_mol.get_functional_groups(), sep='\n')
+LigninPericyclicCalculator().calculate_distances(mol).hvplot.hist()
 
 # %%
 @dataclass
