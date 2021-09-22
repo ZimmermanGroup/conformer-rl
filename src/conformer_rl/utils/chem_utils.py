@@ -159,10 +159,10 @@ def calculate_normalizers(mol: Chem.Mol, num_confs: int = 200, pruning_thresh: f
     .. [1] `TorsionNet paper <https://arxiv.org/abs/2006.07078>`_
     """
     Chem.MMFFSanitizeMolecule(mol)
-    confslist = Chem.EmbedMultipleConfs(mol, numConfs = num_confs)
+    confslist = Chem.EmbedMultipleConfs(mol, numConfs = num_confs, useRandomCoords=True)
     if (len(confslist) < 1):
         raise Exception('Unable to embed molecule with conformer using rdkit')
-    Chem.MMFFOptimizeMoleculeConfs(mol)
+    Chem.MMFFOptimizeMoleculeConfs(mol, nonBondedThresh=10.)
     mol = prune_conformers(mol, pruning_thresh)
     energys = get_conformer_energies(mol)
     E0 = energys.min()

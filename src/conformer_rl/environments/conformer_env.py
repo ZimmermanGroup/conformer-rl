@@ -56,7 +56,7 @@ class ConformerEnv(gym.Env):
 
         # set mol to have exactly one conformer
         if self.mol.GetNumConformers() != 1:
-            logging.warn("Input molecule to environment should have exactly one conformer, none or more than one detected.")
+            logging.debug("Input molecule to environment should have exactly one conformer, none or more than one detected.")
             self.mol.RemoveAllConformers()
             if Chem.EmbedMolecule(self.mol, randomSeed=self.config.seed, useRandomCoords=True) == -1:
                 raise Exception('Unable to embed molecule with conformer using rdkit')
@@ -95,7 +95,6 @@ class ConformerEnv(gym.Env):
         * reward (float): the reward for the current step
         """
         self.action = action
-        logging.debug(str(action))
 
         self._step(action)
         self.current_step += 1
@@ -177,9 +176,14 @@ class ConformerEnv(gym.Env):
         
         * total_reward (float): total reward of the episode is updated
         """
+        info = {}
+
         if self._done():
             self.episode_info["total_rewards"] = self.total_reward
+            info['episode_info'] = self.episode_info
 
-        return {'episode_info': self.episode_info, 'step_info': self.step_info}
+        info['step_info'] = self.step_info
+
+        return info
 
         
