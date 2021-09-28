@@ -120,12 +120,12 @@ def mol_from_molFile(file: str, ep_steps: int = 200, pruning_thresh: float = 0.0
     config = MolConfig()
 
     mol = Chem.MolFromMolFile(file)
-    _preprocess_mol(mol)
+    mol = _preprocess_mol(mol)
     config.mol = mol
     config.E0, config.Z0 = calculate_normalizers(mol, ep_steps, pruning_thresh)
     return config
 
-def mol_from_smiles(smiles: str, ep_steps: int, pruning_thresh: float) -> MolConfig:
+def mol_from_smiles(smiles: str, ep_steps: int = 200, pruning_thresh: float  = 0.05) -> MolConfig:
     """
     """
     config = MolConfig()

@@ -17,7 +17,8 @@ def test_conformer_env(mocker):
     assert obs == env._obs()
     assert reward == env._reward()
     assert done == env._done()
-    assert 'episode_info' in info
+    if done:
+        assert 'episode_info' in info
     assert 'step_info' in info
     step.assert_called_with(180)
 

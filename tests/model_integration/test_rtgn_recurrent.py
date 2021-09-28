@@ -5,7 +5,7 @@ from conformer_rl import utils
 from conformer_rl.agents import PPORecurrentAgent
 from conformer_rl.config import Config
 from conformer_rl.environments import Task
-from conformer_rl.models import RTGNRecurrent, RTGNGatRecurrent
+from conformer_rl.models import RTGNRecurrent
 
 from conformer_rl.molecule_generation import test_alkane, lignin
 
@@ -14,7 +14,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 import logging
 logging.basicConfig(level=logging.INFO)
 
-def test_rtgn(mocker):
+def test_rtgn_recurrent(mocker):
     utils.set_one_thread()
 
     mol_config = lignin(2)
