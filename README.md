@@ -56,4 +56,3 @@ The [example notebook](https://colab.research.google.com/drive/1Y6u4fFM4BkGLtxet
 ## Quick Start
 The [examples](https://github.com/ZimmermanGroup/conformer-rl/tree/master/examples) directory contain several scripts for training on pre-built agents and environments.
 Visit [Quick Start](https://conformer-rl.readthedocs.io/en/latest/tutorial/quick_start.html) to get started.
-
