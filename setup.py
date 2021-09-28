@@ -6,7 +6,7 @@ README = (pathlib.Path(__file__).parent / "README.md").read_text()
 
 setuptools.setup(
     name="conformer-rl",
-    version="0.0.1",
+    version="0.1.0",
     description="Deep Reinforcement Library for Conformer Generation",
     long_description=README,
     long_description_content_type="text/markdown",
