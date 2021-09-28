@@ -6,7 +6,6 @@ from rdkit import Chem
 from rdkit.Chem import Draw
 import stk
 from itertools import cycle, islice
-from IPython.display import display
 
 def generate_xor_gate(gate_complexity: int=2, num_gates: int=3) -> Chem.Mol:
     """Generates xorgate molecule.
