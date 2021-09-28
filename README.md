@@ -7,6 +7,9 @@ An open-source deep reinforcement learning library for conformer generation.
 ## Documentation
 Documentation can be found at https://conformer-rl.readthedocs.io/.
 
+## Platform Support
+Since conformer-rl can be run within a Conda environment, it should work on all platforms (Windows, MacOS, Linux).
+
 ## Installation
 * We recommend installing in a new conda environment.
   * If you are new to using conda, you can install it [here](https://conda.io/projects/conda/en/latest/user-guide/install/index.html) and learn more about environments [here](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html)
@@ -56,3 +59,6 @@ The [example notebook](https://drive.google.com/drive/folders/1WAnTv4SGwEQHHqyMc
 ## Quick Start
 The [examples](https://github.com/ZimmermanGroup/conformer-rl/tree/master/examples) directory contain several scripts for training on pre-built agents and environments.
 Visit [Quick Start](https://conformer-rl.readthedocs.io/en/latest/tutorial/quick_start.html) to get started.
+
+## Issues and Feature Requests
+We are actively adding new features to this project and are open to all suggestions. If you believe you have encountered a bug, or if you have a feature that you would like to see implemented, please file an [issue](https://github.com/ZimmermanGroup/conformer-rl/issues). 
