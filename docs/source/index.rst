@@ -81,7 +81,7 @@ and mix-and-match different environment components.
 :ref:`Analysis`
 ^^^^^^^^^^^^^^^
 :mod:`conformer_rl` contains a module for visualizing metrics and molecule conformers in Jupyter/IPython notebooks.
-The `example notebook <https://colab.research.google.com/drive/1Y6u4fFM4BkGLtxetZ0QWbR5sZO1U1KPr>`_ shows some examples on how the visualizing tools can be used.
+The `example notebook <https://drive.google.com/drive/folders/1WAnTv4SGwEQHHqyMcbrExzUob_mOfTcM?usp=sharing>`_ shows some examples on how the visualizing tools can be used.
 
 
 Examples

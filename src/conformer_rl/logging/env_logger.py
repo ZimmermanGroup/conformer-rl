@@ -29,7 +29,7 @@ class EnvLogger:
     episode_data : dict 
         Used for storing information for a single episode. Used to store the self.step_data
         for that episode and metadata global to the entire episode.
-    self.cache : dict 
+    cache : dict 
         Used for storing data across several episodes. Maps from strings to lists, where each
         index of the list corresponds to an episode.
     """

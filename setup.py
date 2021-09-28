@@ -6,7 +6,7 @@ README = (pathlib.Path(__file__).parent / "README.md").read_text()
 
 setuptools.setup(
     name="conformer-rl",
-    version="0.0.1",
+    version="0.1.0",
     description="Deep Reinforcement Library for Conformer Generation",
     long_description=README,
     long_description_content_type="text/markdown",
@@ -19,11 +19,10 @@ setuptools.setup(
     python_requires=">=3.7",
     install_requires=(
         'numpy',
-        'torch',
-        'torchvision',
-        'tensorboard',
-        'gym',
-        'stable-baselines3',
+        'torch>=1.7.0',
+        'tensorboard>=2.4.0',
+        'gym>=0.19.0',
+        'stable-baselines3>=1.0',
         'ligninkmc',
         'seaborn',
         'stk',

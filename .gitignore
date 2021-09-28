@@ -1,5 +1,5 @@
 # log files
-data/
+data
 model_data
 train_data
 molecule_data
@@ -8,20 +8,20 @@ molecule_data
 docs/build/*
 
 # pytest coverage
-htmlcov/
+htmlcov
 *.coverage
 
 # packaging files
-build/
-dist/
+build
+dist
 
 
 #python utility files
-__pycache__/
-.ipynb_checkpoints/
-*/__pycache__/
+__pycache__
+.ipynb_checkpoints
+*/__pycache__
 src/*.egg-info
-.pytest_cache/
+.pytest_cache
 
 #vscode utility files
-.vscode/
+.vscode

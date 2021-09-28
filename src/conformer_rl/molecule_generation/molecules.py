@@ -114,17 +114,31 @@ def test_alkane() -> MolConfig:
     config.tau = 503
     return config
 
-def mol_from_dict(input: dict) -> MolConfig:
-    """Converts a dictionary into a :class:`~conformer_rl.config.mol_config.MolConfig` object.
+def mol_from_molFile(file: str, ep_steps: int = 200, pruning_thresh: float = 0.05) -> MolConfig:
+    """
     """
     config = MolConfig()
 
-    mol = input['mol']
+    mol = Chem.MolFromMolFile(file)
+    mol = _preprocess_mol(mol)
+    config.mol = mol
+    config.E0, config.Z0 = calculate_normalizers(mol, ep_steps, pruning_thresh)
+    return config
+
+def mol_from_smiles(smiles: str, ep_steps: int = 200, pruning_thresh: float  = 0.05) -> MolConfig:
+    """
+    """
+    config = MolConfig()
+
+    mol = Chem.MolFromSmiles(smiles)
+    mol = _preprocess_mol(mol)
+    config.mol = mol
+    config.E0, config.Z0 = calculate_normalizers(mol, ep_steps, pruning_thresh)
+    return config
+
+
+def _preprocess_mol(mol: Chem.rdchem.Mol) -> Chem.rdchem.Mol:
     mol = Chem.AddHs(mol)
     AllChem.MMFFSanitizeMolecule(mol)
-    config.mol = mol
 
-    for key, val in input.items():
-        if key != 'mol':
-            setattr(config, key, val)
-    return config
+    return mol

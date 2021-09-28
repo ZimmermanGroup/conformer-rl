@@ -9,7 +9,7 @@ from rdkit.Chem import MolFromMolBlock
 from rdkit import Chem
 
 # Lignin-KMC functions and global variables used in this notebook
-from ligninkmc.kmc_functions import (run_kmc, generate_mol)
+from ligninkmc.kmc_functions import run_kmc, generate_mol
 from ligninkmc.create_lignin import (calc_rates, create_initial_monomers, create_initial_events,
                                      create_initial_state, analyze_adj_matrix, adj_analysis_to_stdout)
 from ligninkmc.kmc_common import (DEF_E_BARRIER_KCAL_MOL, ADJ_MATRIX, MONO_LIST, MONOMER, OX, GROW, Monomer, Event)

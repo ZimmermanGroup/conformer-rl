@@ -18,7 +18,6 @@ def generate_branched_alkane(num_atoms: int, save: bool=False) -> Chem.Mol:
     """
     mol = Chem.MolFromSmiles('CCCC')
     edit_mol = Chem.RWMol(mol)
-
     while edit_mol.GetNumAtoms() < num_atoms:
         x = Chem.rdchem.Atom(6)
         randidx = np.random.randint(len(edit_mol.GetAtoms()))
