@@ -11,34 +11,52 @@ Documentation can be found at https://conformer-rl.readthedocs.io/.
 Since conformer-rl can be run within a Conda environment, it should work on all platforms (Windows, MacOS, Linux).
 
 ## Installation
-* We recommend installing in a new conda environment.
-  * If you are new to using conda, you can install it [here](https://conda.io/projects/conda/en/latest/user-guide/install/index.html) and learn more about environments [here](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html)
-  * Create and activate a new environment:
-    ```
-    $ conda create --name conformerrl # create a new environment
-    $ conda activate conformerrl # activate the new environment
-    ```
+* We recommend installing in a new Conda environment.
+  * If you are new to using Conda, you can install it [here](https://conda.io/projects/conda/en/latest/user-guide/install/index.html) and learn more about environments [here](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html).
+
 * Install dependencies
-  * Install RDKit
-
-        $ conda install -c conda-forge rdkit
-
-  * We recommend installing the dependencies and versions listed in `requirements.txt`:
+  * Install [PyTorch](https://pytorch.org/get-started/locally/). PyTorch version of 1.8.0 or greater is required for conformer-rl.
+  * Install [PyTorch Geometric](https://pytorch-geometric.readthedocs.io/en/latest/notes/installation.html).
+    * **Important Note**:  Please make sure to use the same package installer for installing both PyTorch and PyTorch geometric. 
+  
+      For example, if you installed PyTorch with pip, use the [pip instructions](https://pytorch-geometric.readthedocs.io/en/latest/notes/installation.html#installation-via-pip-wheels) for installing PyTorch Geometric. Similarly, if you installed PyTorch with Conda, use the [Conda instructions](https://pytorch-geometric.readthedocs.io/en/latest/notes/installation.html#installation-via-anaconda) for installing PyTorch Geometric. Otherwise you may run into errors such as "undefined symbol" when using PyTorch Geometric.
+  * Install RDKit by running the following command
     ```
-    $ pip install -r requirements.txt
+    conda install -c conda-forge rdkit
     ```
-    The library will most likely still work if you use a different version than what is listed in `requirements.txt`, but most testing was done using these versions.
 
 * Install conformer-rl
+  ```
+  pip install conformer-rl
+  ```
 
-        $ pip install conformer-rl
+  * This will automatically install the additional dependencies needed for conformer-rl. Note that conformer-rl requires Python >= 3.7.
 
-  * If you did not install dependencies using `requirements.txt`, you will need to manually install Pytorch Geometric [here](https://pytorch-geometric.readthedocs.io/en/latest/notes/installation.html).
+### Verify Installation:
 
-* Verify Installation: <br />
-As a quick check to verify the installation has succeeded, navigate to the [examples](https://github.com/ZimmermanGroup/conformer-rl/tree/master/examples) directory
-and run `base_example.py`. The script should finish running in a few minutes or less. If no errors ware encountered
-then most likely the installation has succeeded.
+  As a quick check to verify the installation has succeeded, navigate to the [examples](https://github.com/ZimmermanGroup/conformer-rl/tree/master/examples) directory
+  and run `base_example.py`. The script should finish running in a few minutes or less. If no errors ware encountered then most likely the installation has succeeded.
+
+## Additional Installation for Analysis/Visualization Tools
+
+  Some additional dependencies are required for visualizing molecules in Jupyter/IPython notebooks. 
+  
+  Firstly, install `jupyterlab`, `py3Dmol`, and `seaborn` (these should already be installed after installing conformer-rl):
+  ```
+  pip install jupyterlab py3Dmol seaborn
+  ```
+  Install `nodejs`. This is only required for creating interactive molecule visualizations in Jupyter:
+  ```
+  conda install nodejs
+  ```
+  Install the [jupyterlab_3dmol](https://github.com/3dmol/jupyterlab_3Dmol) extension for visualizing molecules interactively in Jupyter:
+  ```
+  jupyter labextension install jupyterlab_3dmol
+  ```
+  You should now be able to use the analysis components of conformer-rl for generating figures and visualizing molecule in Jupyter. To test that the installation was succesful, try running the example Jupyter notebook:
+  ```
+  jupyter-lab examples/example_analysis.ipynb
+  ```
 
 ## Features
 
@@ -61,4 +79,7 @@ The [examples](https://github.com/ZimmermanGroup/conformer-rl/tree/master/exampl
 Visit [Quick Start](https://conformer-rl.readthedocs.io/en/latest/tutorial/quick_start.html) to get started.
 
 ## Issues and Feature Requests
-We are actively adding new features to this project and are open to all suggestions. If you believe you have encountered a bug, or if you have a feature that you would like to see implemented, please file an [issue](https://github.com/ZimmermanGroup/conformer-rl/issues). 
+We are actively adding new features to this project and are open to all suggestions. If you believe you have encountered a bug, or if you have a feature that you would like to see implemented, please feel free to file an [issue](https://github.com/ZimmermanGroup/conformer-rl/issues).
+
+## Developer Documentation
+Pull requests are always welcome for suggestions to improve the code or to add additional features. We encourage new developers to document new features and write unit tests (if applicable). For more information on writing documentation and unit tests, see the [developer documentation](https://conformer-rl.readthedocs.io/en/latest/developer.html).
