@@ -15,6 +15,14 @@ import xarray as xr
 import altair as alt
 from IPython.display import display
 import hvplot.xarray # noqa - adds hvplot methods to xarray objects
+import panel as pn
+pn.extension('bokeh', comms='vscode')
+import panel.widgets as pnw
+import nglview as nv
+
+import holoviews as hv
+from holoviews.streams import Selection1D
+hv.extension('bokeh', comms='vscode')
 
 # alt.data_transformers.disable_max_rows()
 alt.data_transformers.enable('json')
@@ -34,7 +42,7 @@ df = pd.DataFrame()
 def create_column(name, matrix):
     df[name] = pd.DataFrame(matrix).stack(dropna=False)
 
-# mol = rdkit_mols[RL]
+mol = rdkit_mols[RL]
 ATOM_1, ATOM_2 = 'atom_1', 'atom_2'
 DISTANCE_2D = 'topological distance'
 dist_matrix_2d = xr.DataArray(GetDistanceMatrix(mol), dims=(ATOM_1, ATOM_2))
@@ -66,25 +74,6 @@ df.reset_index(inplace=True)
 df = df.sort_values(by=[DISTANCE_RATIO])
 display(df)
 
-# %%
-dist_matrices_3d.hvplot()
-# df = pd.DataFrame([[1, 2], [1, 3], [4, 6]], columns=['A', 'B'])
-# display(df.plot())
-# df.hvplot()
-
-# %%
-for name in df.columns[2:]:
-    chart = alt.Chart(df).mark_rect().encode(
-        x='x:O',
-        y='y:O',
-        color=f'{name}:Q'
-    ).configure_view(
-        step=4
-    )
-    display(chart)
-
-# %%
-
 FUNC_GROUP_ID_1, ATOM_ID_1 = 'func_group_id_1', 'atom_id_1'
 FUNC_GROUP_ID_2, ATOM_ID_2 = 'func_group_id_2', 'atom_id_2'
 def num_contacts_per_conf(mol, smarts_1, smarts_2, thresh_3d=4, thresh_topological=5):
@@ -100,7 +89,6 @@ def num_contacts_per_conf(mol, smarts_1, smarts_2, thresh_3d=4, thresh_topologic
     return (contacts.reduce(np.count_nonzero, dim=(FUNC_GROUP_ID_1, FUNC_GROUP_ID_2)).mean().item())
             # contacts.count(dim=(FUNC_GROUP_ID_1, FUNC_GROUP_ID_2)).sum().item())
     
-
 def func(arg, **kwargs):
     x, y = arg
     return num_contacts_per_conf(mol, x, y, **kwargs)
@@ -125,58 +113,8 @@ CONTACTS_PER_CONF_RATIO = 'contacts per conf ratio'
 df[CONTACTS_PER_CONF_RATIO] = df[NUM_CONTACTS_PER_CONF] / df[NUM_POTENTIAL_CONTACTS_PER_CONF]
 df.reset_index(inplace=True)
 display(df)
-
-# %%
-hv.Dataset(df)
-
-# %%
-alt.data_transformers.enable('default')
-for var in [NUM_POTENTIAL_CONTACTS_PER_CONF, CONTACTS_PER_CONF_RATIO]:
-    chart = alt.Chart(df).mark_circle(color="#91b6d4").encode(
-        x='smarts_1:N',
-        y='smarts_2:N',
-        size=f'{var}:Q',
-    )
-    text = alt.Chart(df).mark_text(fontSize=20).encode(
-        x='smarts_1:N',
-        y='smarts_2:N',
-        text=alt.Text(f'{var}:Q', format=',.2r'),
-    )
-    chart = alt.layer(chart, text).configure_view(
-        step=50,
-    ).properties(
-        width=300,
-        height=300,
-    )
-    display(chart)
-# from altair_saver import save
-# save(chart, 'test.html')
-# alt.renderers.enable('altair_saver', fmts=['vega-lite'])
-# chart.save('chart.svg')
-# chart
-
-# %%
-# looking at Zeke's new molecule
-mol = Chem.MolFromMolFile('/export/zimmerman/epunzal/2020DowProj/ligninWithJosh/lignin-kmc/lignin_generation/oligomers/12monomers.mol')
-
 # %%
 
-# holoviz testing
-# may need to execute cells a couple of times to get them "warmed up" after notebook restart
-import xarray as xr
-import hvplot.xarray  # noqa
-
-air_ds = xr.tutorial.open_dataset('air_temperature').load()
-air = air_ds.air
-display(air_ds)
-
-air1d = air.sel(lat=40, lon=285)
-# %%
-air1d.hvplot()
-
-# %%
-
-# stk testing
 import stk
 import stko
 from dataclasses import InitVar, dataclass
@@ -214,9 +152,6 @@ class LigninPericyclicFunctionalGroupFactory(stk.FunctionalGroupFactory):
             f_group = LigninPericyclicFunctionalGroup(
                 *atoms,
                 bonders = (atoms[1], atoms[6]),
-                # bonders=tuple(atoms[i] for i in self._bonders),
-                # deleters=tuple(atoms[i] for i in self._deleters),
-                # placers=tuple(atoms[i] for i in self._placers),
             )
             yield f_group
 
@@ -236,44 +171,125 @@ class LigninPericyclicCalculator:
         )
         func_group_distances = dist_matrices_3d.isel(atom_1=c_1_ids, atom_2=H_alkyl_ids)
         func_group_distances.name = "Lignin pericyclic mechanism distances"
-        display(func_group_distances)
+        # display(func_group_distances)
         return func_group_distances
         
-        # building_block = stk.BuildingBlock.init_from_rdkit_mol(
-        #     rdkit_mol,
-        #     functional_groups=LigninPericyclicFunctionalGroupFactory(),
-        # )
-    
-
 mol = Chem.rdmolops.AddHs(mol)
 Chem.rdmolops.Kekulize(mol)
-# stk_mol = stk.BuildingBlock.init_from_rdkit_mol(
-#     mol,
-#     functional_groups=(
-#         stk.SmartsFunctionalGroupFactory(
-#             smarts='[H]ccOCC[H]',
-#             bonders=(0, ),
-#             deleters=()
-#         ),
-#     )
-# )
 stk_mol = stk.BuildingBlock.init_from_rdkit_mol(
     mol,
     functional_groups=(
         LigninPericyclicFunctionalGroupFactory(),
     )
 )
-# print(stk_mol.get_functional_groups().__next__())
-# print(*stk_mol.get_bonds(), sep='\n')
 print(*stk_mol.get_functional_groups(), sep='\n')
-LigninPericyclicCalculator().calculate_distances(mol).hvplot.hist()
 
 # %%
-@dataclass
-class Test:
-    x: int
-    y: int
-    z: int
+# looking at Zeke's new molecule
+mol = Chem.MolFromMolFile('/export/zimmerman/epunzal/2020DowProj/ligninWithJosh/lignin-kmc/lignin_generation/oligomers/12monomers.mol')
 
-test = Test(*[1,2,3])
-print(test)
+# %%
+alt.data_transformers.enable('default')
+for var in [NUM_POTENTIAL_CONTACTS_PER_CONF, CONTACTS_PER_CONF_RATIO]:
+    chart = alt.Chart(df).mark_circle(color="#91b6d4").encode(
+        x='smarts_1:N',
+        y='smarts_2:N',
+        size=f'{var}:Q',
+    )
+    text = alt.Chart(df).mark_text(fontSize=20).encode(
+        x='smarts_1:N',
+        y='smarts_2:N',
+        text=alt.Text(f'{var}:Q', format=',.2r'),
+    )
+    chart = alt.layer(chart, text).configure_view(
+        step=50,
+    ).properties(
+        width=300,
+        height=300,
+    )
+    display(chart)
+
+# %%
+for name in df.columns[2:]:
+    chart = alt.Chart(df).mark_rect().encode(
+        x='x:O',
+        y='y:O',
+        color=f'{name}:Q'
+    ).configure_view(
+        step=4
+    )
+    display(chart)
+
+
+# %%
+# slider = pnw.IntSlider(name='time', start=0, end=10)
+# slider
+# print([conformer.GetId() for conformer in mol.GetConformers()])
+# display(nv.show_rdkit(mol, conf_id=359))
+pericyclic_distances = LigninPericyclicCalculator().calculate_distances(mol)
+pericyclic_distances_numpy = np.array(pericyclic_distances).flatten()
+energies = np.random.uniform(size=pericyclic_distances_numpy.size)
+display((pericyclic_distances_numpy, energies))
+points = hv.Points((pericyclic_distances_numpy, energies))
+points.opts(
+    tools=['tap', 'hover'], width=600, 
+    marker='triangle', size=10, framewise=True,
+)
+stream = Selection1D(source=points)
+@pn.depends(stream.param.index)
+def display_mol(index):
+    if not index:
+        return None
+    conf_id = pericyclic_distances.coords['conf_id'][index]
+    print(conf_id.item())
+    return nv.show_rdkit(mol, conf_id=conf_id.item())
+app = pn.Row(points, display_mol)
+# display(histogram)
+# hvplot.show(points)
+# %%
+import numpy as np
+import holoviews as hv
+from holoviews import opts
+from holoviews.streams import Selection1D
+from scipy import stats
+import panel as pn
+hv.extension('bokeh', comms='vscode')
+
+
+def gen_samples(N, corr=0.8):
+    xx = np.array([-0.51, 51.2])
+    yy = np.array([0.33, 51.6])
+    means = [xx.mean(), yy.mean()]  
+    stds = [xx.std() / 3, yy.std() / 3]
+    covs = [[stds[0]**2          , stds[0]*stds[1]*corr], 
+            [stds[0]*stds[1]*corr,           stds[1]**2]] 
+
+    return np.random.multivariate_normal(means, covs, N)
+
+data = [('Week %d' % (i%10), np.random.rand(), chr(65+np.random.randint(5)), i) for i in range(100)]
+sample_data = hv.NdOverlay({i: hv.Points(gen_samples(np.random.randint(1000, 5000), r2))
+                            for _, r2, _, i in data})
+points = hv.Scatter(data, 'Date', ['r2', 'block', 'id']).redim.range(r2=(0., 1))
+stream = Selection1D(source=points)
+empty = (hv.Points(np.random.rand(0, 2)) * hv.Slope(0, 0)).relabel('No selection')
+
+def regression(index):
+    if not index:
+        return empty
+    scatter = sample_data[index[0]]
+    xs, ys = scatter['x'], scatter['y']
+    slope, intercep, rval, pval, std = stats.linregress(xs, ys)
+    return (scatter * hv.Slope(slope, intercep)).relabel('r2: %.3f' % slope)
+
+reg = hv.DynamicMap(regression, kdims=[], streams=[stream])
+
+average = hv.Curve(points, 'Date', 'r2').aggregate(function=np.mean)
+layout = points * average + reg
+layout.opts(
+    opts.Curve(color='black'),
+    opts.Slope(color='black', framewise=True),
+    opts.Scatter(color='block', tools=['tap', 'hover'], width=600, 
+                 marker='triangle', cmap='Set1', size=10, framewise=True),
+    opts.Points(frame_width=250),
+    opts.Overlay(toolbar='above', legend_position='right')
+)
