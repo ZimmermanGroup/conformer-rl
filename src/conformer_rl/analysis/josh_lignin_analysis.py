@@ -9,6 +9,7 @@ from numpy.core.numeric import count_nonzero
 from numpy.lib.function_base import disp
 from rdkit import Chem
 from rdkit.Chem.rdmolops import GetShortestPath, GetDistanceMatrix, Get3DDistanceMatrix
+from rdkit.Chem.rdmolfiles import MolToPDBBlock
 import pandas as pd
 from stk.molecular.molecules import building_block
 import xarray as xr
@@ -16,9 +17,12 @@ import altair as alt
 from IPython.display import display
 import hvplot.xarray # noqa - adds hvplot methods to xarray objects
 import panel as pn
-pn.extension('bokeh', comms='vscode')
 import panel.widgets as pnw
 import nglview as nv
+from panel_chemistry.pane import NGLViewer # panel_chemistry needs to be imported before you run pn.extension()
+pn.extension('bokeh', comms='vscode')
+from panel_chemistry.pane.ngl_viewer import EXTENSIONS
+pn.extension("ngl_viewer", sizing_mode="stretch_width")
 
 import holoviews as hv
 from holoviews.streams import Selection1D
@@ -113,7 +117,6 @@ CONTACTS_PER_CONF_RATIO = 'contacts per conf ratio'
 df[CONTACTS_PER_CONF_RATIO] = df[NUM_CONTACTS_PER_CONF] / df[NUM_POTENTIAL_CONTACTS_PER_CONF]
 df.reset_index(inplace=True)
 display(df)
-# %%
 
 import stk
 import stko
@@ -240,9 +243,12 @@ stream = Selection1D(source=points)
 def display_mol(index):
     if not index:
         return None
-    conf_id = pericyclic_distances.coords['conf_id'][index]
-    print(conf_id.item())
-    return nv.show_rdkit(mol, conf_id=conf_id.item())
+    print(index)
+    conf_id = pericyclic_distances.coords['conf_id'][index[0]].item()
+    print(conf_id)
+    pdb_block = MolToPDBBlock(mol, confId=conf_id)
+    viewer = NGLViewer(object=pdb_block, extension='pdb', background="#F7F7F7", min_height=400, sizing_mode="stretch_both")
+    return viewer
 app = pn.Row(points, display_mol)
 # display(histogram)
 # hvplot.show(points)
@@ -293,3 +299,46 @@ layout.opts(
     opts.Points(frame_width=250),
     opts.Overlay(toolbar='above', legend_position='right')
 )
+
+# %%
+import panel as pn 
+from panel_chemistry.pane import NGLViewer # panel_chemistry needs to be imported before you run pn.extension()
+from panel_chemistry.pane.ngl_viewer import EXTENSIONS
+pn.extension("ngl_viewer", sizing_mode="stretch_width")
+# viewer = NGLViewer(object="1CRN", background="#F7F7F7", min_height=700, sizing_mode="stretch_both")
+viewer = NGLViewer(object='C:\Users\Joshua\OneDrive\Desktop\iqmol_scratch\test.mol2', background="#F7F7F7", min_height=700, sizing_mode="stretch_both")
+settings = pn.Param(
+    viewer,
+    parameters=["object","extension","representation","color_scheme","custom_color_scheme","effect",],
+    name="&#9881;&#65039; Settings"
+)
+file_input = pn.widgets.FileInput(accept=','.join('.' + s for s in EXTENSIONS[1:]))
+
+def filename_callback(target, event):
+    target.extension = event.new.split('.')[1]
+
+def value_callback(target, event):
+    target.object = event.new.decode('utf-8')
+
+file_input.link(viewer, callbacks={'value': value_callback, 'filename': filename_callback})
+
+header = pn.widgets.StaticText(value='<b>{0}</b>'.format("&#128190; File Input"))
+file_column = pn.layout.Column(header, file_input)
+
+
+layout = pn.Param(
+    viewer,
+    parameters=["sizing_mode", "width", "height", "background"],
+    name="&#128208; Layout"
+)
+
+pn.Row(
+    viewer,
+    pn.WidgetBox(settings, layout, width=300, sizing_mode="fixed",),
+)
+pn.template.FastListTemplate(
+    site="Panel Chemistry", 
+    title="NGLViewer", 
+    sidebar=[file_column, settings, layout],
+    main=[viewer]
+).show()
