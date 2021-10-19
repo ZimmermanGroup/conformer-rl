@@ -1,8 +1,11 @@
 from dataclasses import InitVar, dataclass
 from copy import copy
 
+import xarray as xr
 import stk
 from stk.molecular.functional_groups.factories.utilities import _get_atom_ids
+
+from conformer_rl.analysis.lignin_contacts import FUNC_GROUP_ID_1, setup_dist_matrices
 
 @dataclass
 class LigninPericyclicFunctionalGroup(stk.GenericFunctionalGroup):
@@ -41,6 +44,7 @@ class LigninPericyclicFunctionalGroupFactory(stk.FunctionalGroupFactory):
 
 class LigninPericyclicCalculator:
     def calculate_distances(self, rdkit_mol):
+        dist_matrix_2d, dist_matrices_3d = setup_dist_matrices()
         # get the distance between H_alkyl and c_1
         stk_mol = stk.BuildingBlock.init_from_rdkit_mol(rdkit_mol)
         factory = LigninPericyclicFunctionalGroupFactory()
