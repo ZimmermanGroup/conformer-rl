@@ -1,11 +1,13 @@
 # To add a new cell, type '# %%'
 # To add a new markdown cell, type '# %% [markdown]'
 # %%
+%reload_ext autoreload
+%autoreload 2
 from IPython.display import display
 import numpy as np
+import pandas as pd
 
 import altair as alt
-import hvplot.xarray  # noqa - adds hvplot methods to xarray objects
 import panel as pn
 from panel_chemistry.pane import \
     NGLViewer  # panel_chemistry needs to be imported before you run pn.extension()
@@ -26,9 +28,8 @@ from conformer_rl.analysis.lignin_pericyclic import \
 
 pn.extension('bokeh', comms='vscode')
 pn.extension("ngl_viewer", sizing_mode="stretch_width")
-hv.extension('bokeh', comms='vscode')
 # alt.data_transformers.disable_max_rows()
-alt.data_transformers.enable('json')
+# alt.data_transformers.enable('json')
 
 # %%
 mol = setup_mol()
@@ -40,7 +41,40 @@ stk_mol = stk.BuildingBlock.init_from_rdkit_mol(
         LigninPericyclicFunctionalGroupFactory(),
     )
 )
-print(*stk_mol.get_functional_groups(), sep='\n')
+dist_matrix_2d, dist_matrices_3d = setup_dist_matrices()
+pericyclic_distances = LigninPericyclicCalculator().calculate_distances(mol)
+
+highlighted_mol = setup_mol()
+# for atom_id in list(stk_mol.get_functional_groups())[0].get_atom_ids():
+for atom_id in np.array(list(list(stk_mol.get_functional_groups())[0].get_atom_ids()))[np.array([0,6])]:
+    print(atom_id)
+    atom = highlighted_mol.GetAtomWithIdx(int(atom_id))
+    atom.SetAtomicNum(2)
+
+df = pericyclic_distances.to_dataframe()
+df['Energy'] = np.array(MMFFOptimizeMoleculeConfs(mol, maxIters=0))[:,1]
+points = hv.Points(df)
+points.opts(
+    tools=['tap', 'hover'], width=600, height=600,
+    marker='triangle', size=10, framewise=True,
+)
+stream = Selection1D(source=points)
+@pn.depends(stream.param.index)
+def display_mol(index):
+    if not index:
+        return None
+    print(index)
+    conf_id = pericyclic_distances.coords['conf_id'][index[0]].item()
+    print(conf_id)
+    pdb_block = MolToPDBBlock(highlighted_mol, confId=conf_id)
+    viewer = NGLViewer(object=pdb_block, extension='pdb', background="#F7F7F7", min_height=800, sizing_mode="stretch_both")
+    return viewer
+
+@pn.depends(stream.param.index)
+def index_conf(index):
+    return index
+app = pn.Row(pn.Column(points, index_conf), display_mol)
+app.show()
 
 # %%
 # looking at Zeke's new molecule
@@ -77,50 +111,3 @@ for name in df.columns[2:]:
         step=4
     )
     display(chart)
-
-
-# %%
-dist_matrix_2d, dist_matrices_3d = setup_dist_matrices()
-
-pericyclic_distances = LigninPericyclicCalculator().calculate_distances(mol)
-stk_mol = stk.BuildingBlock.init_from_rdkit_mol(mol, [LigninPericyclicFunctionalGroupFactory()])
-highlighted_mol = Chem.Mol(mol)
-for atom_id in list(stk_mol.get_functional_groups())[0].get_atom_ids():
-    atom = highlighted_mol.GetAtomWithIdx(atom_id)
-    atom.SetAtomicNum(2)
-
-pericyclic_distances_numpy = np.array(pericyclic_distances).flatten()
-# energies = np.random.uniform(size=pericyclic_distances_numpy.size)
-energies = np.array(MMFFOptimizeMoleculeConfs(mol, maxIters=0))[:,1]
-display((pericyclic_distances_numpy, energies))
-points = hv.Points((pericyclic_distances_numpy, energies))
-points.opts(
-    tools=['tap', 'hover'], width=600, height=600,
-    marker='triangle', size=10, framewise=True,
-)
-stream = Selection1D(source=points)
-@pn.depends(stream.param.index)
-def display_mol(index):
-    if not index:
-        return None
-    print(index)
-    conf_id = pericyclic_distances.coords['conf_id'][index[0]].item()
-    print(conf_id)
-    pdb_block = MolToPDBBlock(highlighted_mol, confId=conf_id)
-    viewer = NGLViewer(object=pdb_block, extension='pdb', background="#F7F7F7", min_height=800, sizing_mode="stretch_both")
-    return viewer
-
-@pn.depends(stream.param.index)
-def index_conf(index):
-    return index
-app = pn.Row(pn.Column(points, index_conf), display_mol)
-# display(histogram)
-# hvplot.show(points)
-
-# %%
-print(np.array(MMFFOptimizeMoleculeConfs(mol, maxIters=0))[:,1])
-# np.array()
-# for conf in mol.GetConformers():
-#     props = AllChem.MMFFGetMoleculeProperties(mol)
-#     ff = AllChem.MMFFGetMoleculeForceField(mol, props, confId=conf.GetId())
-#     print(conf.GetId(), ff.CalcEnergy())

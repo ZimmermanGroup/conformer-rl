@@ -58,6 +58,6 @@ class LigninPericyclicCalculator:
             dims=FUNC_GROUP_ID_1,
         )
         func_group_distances = dist_matrices_3d.isel(atom_1=c_1_ids, atom_2=H_alkyl_ids)
+        func_group_distances = func_group_distances.isel(func_group_id_1=0)
         func_group_distances.name = "Lignin pericyclic mechanism distances"
-        # display(func_group_distances)
         return func_group_distances
