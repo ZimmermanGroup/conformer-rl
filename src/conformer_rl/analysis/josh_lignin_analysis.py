@@ -15,7 +15,10 @@ import holoviews as hv
 from holoviews.streams import Selection1D
 
 from rdkit import Chem
+from rdkit.Chem import AllChem
 from rdkit.Chem.rdmolfiles import MolToPDBBlock
+from rdkit.Chem.rdForceFieldHelpers import MMFFOptimizeMoleculeConfs, MMFFOptimizeMolecule
+
 import stk
 from conformer_rl.analysis.lignin_contacts import setup_dist_matrices, setup_mol
 from conformer_rl.analysis.lignin_pericyclic import \
@@ -27,6 +30,7 @@ hv.extension('bokeh', comms='vscode')
 # alt.data_transformers.disable_max_rows()
 alt.data_transformers.enable('json')
 
+# %%
 mol = setup_mol()
 mol = Chem.rdmolops.AddHs(mol)
 Chem.rdmolops.Kekulize(mol)
@@ -79,8 +83,15 @@ for name in df.columns[2:]:
 dist_matrix_2d, dist_matrices_3d = setup_dist_matrices()
 
 pericyclic_distances = LigninPericyclicCalculator().calculate_distances(mol)
+stk_mol = stk.BuildingBlock.init_from_rdkit_mol(mol, [LigninPericyclicFunctionalGroupFactory()])
+highlighted_mol = Chem.Mol(mol)
+for atom_id in list(stk_mol.get_functional_groups())[0].get_atom_ids():
+    atom = highlighted_mol.GetAtomWithIdx(atom_id)
+    atom.SetAtomicNum(2)
+
 pericyclic_distances_numpy = np.array(pericyclic_distances).flatten()
-energies = np.random.uniform(size=pericyclic_distances_numpy.size)
+# energies = np.random.uniform(size=pericyclic_distances_numpy.size)
+energies = np.array(MMFFOptimizeMoleculeConfs(mol, maxIters=0))[:,1]
 display((pericyclic_distances_numpy, energies))
 points = hv.Points((pericyclic_distances_numpy, energies))
 points.opts(
@@ -95,9 +106,21 @@ def display_mol(index):
     print(index)
     conf_id = pericyclic_distances.coords['conf_id'][index[0]].item()
     print(conf_id)
-    pdb_block = MolToPDBBlock(mol, confId=conf_id)
+    pdb_block = MolToPDBBlock(highlighted_mol, confId=conf_id)
     viewer = NGLViewer(object=pdb_block, extension='pdb', background="#F7F7F7", min_height=800, sizing_mode="stretch_both")
     return viewer
-app = pn.Row(points, display_mol)
+
+@pn.depends(stream.param.index)
+def index_conf(index):
+    return index
+app = pn.Row(pn.Column(points, index_conf), display_mol)
 # display(histogram)
 # hvplot.show(points)
+
+# %%
+print(np.array(MMFFOptimizeMoleculeConfs(mol, maxIters=0))[:,1])
+# np.array()
+# for conf in mol.GetConformers():
+#     props = AllChem.MMFFGetMoleculeProperties(mol)
+#     ff = AllChem.MMFFGetMoleculeForceField(mol, props, confId=conf.GetId())
+#     print(conf.GetId(), ff.CalcEnergy())
