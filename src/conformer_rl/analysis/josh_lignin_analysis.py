@@ -5,7 +5,6 @@
 %autoreload 2
 from IPython.display import display
 import numpy as np
-import pandas as pd
 
 import altair as alt
 import panel as pn
@@ -17,9 +16,8 @@ import holoviews as hv
 from holoviews.streams import Selection1D
 
 from rdkit import Chem
-from rdkit.Chem import AllChem
 from rdkit.Chem.rdmolfiles import MolToPDBBlock
-from rdkit.Chem.rdForceFieldHelpers import MMFFOptimizeMoleculeConfs, MMFFOptimizeMolecule
+from rdkit.Chem.rdForceFieldHelpers import MMFFOptimizeMoleculeConfs
 
 import stk
 from conformer_rl.analysis.lignin_contacts import setup_dist_matrices, setup_mol
@@ -63,9 +61,7 @@ stream = Selection1D(source=points)
 def display_mol(index):
     if not index:
         return None
-    print(index)
     conf_id = pericyclic_distances.coords['conf_id'][index[0]].item()
-    print(conf_id)
     pdb_block = MolToPDBBlock(highlighted_mol, confId=conf_id)
     viewer = NGLViewer(object=pdb_block, extension='pdb', background="#F7F7F7", min_height=800, sizing_mode="stretch_both")
     return viewer
@@ -75,6 +71,7 @@ def index_conf(index):
     return index
 app = pn.Row(pn.Column(points, index_conf), display_mol)
 app.show()
+
 
 # %%
 # looking at Zeke's new molecule
