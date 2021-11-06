@@ -3,6 +3,8 @@ Base_agent
 ==========
 """
 import torch
+import time
+import logging
 import numpy as np
 from conformer_rl.utils import current_time, load_model, save_model, mkdir, to_np
 from conformer_rl.logging import TrainLogger, EnvLogger
@@ -64,9 +66,14 @@ class BaseAgent:
                 self.save(path + '/' +  str(self.total_steps) + '.model')
 
             if config.eval_interval > 0 and self.total_steps % config.eval_interval == 0:
+                eval_start = time.time()
                 self.evaluate()
+                logging.debug(f'Eval at step {self.total_steps}, eval duration: {time.time() - eval_start} seconds')
 
+            step_start = time.time()
+            logging.debug(f'Starting agent step {self.total_steps}')
             self.step()
+            logging.debug(f'agent step completed in {time.time() - step_start} seconds')
 
         self.task.close()
 
@@ -74,9 +81,6 @@ class BaseAgent:
         """Performs one iteration of acquiring samples on the environment
         and then trains on the acquired samples.
         """
-        raise NotImplementedError
-
-    def _train(self) -> None:
         raise NotImplementedError
 
     def _eval_episode(self) -> dict:

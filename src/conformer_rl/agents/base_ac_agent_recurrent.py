@@ -6,6 +6,8 @@ import torch
 import numpy as np
 from conformer_rl.utils import current_time, load_model, save_model, mkdir, to_np
 from conformer_rl.config import Config
+import logging
+import time
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 from conformer_rl.agents.base_ac_agent import BaseACAgent
@@ -39,9 +41,13 @@ class BaseACAgentRecurrent(BaseACAgent, BaseAgentRecurrent):
         """
         self.storage.reset()
         with torch.no_grad():
+            sample_start = time.time()
             self._sample()
+            logging.debug(f'sample time: {time.time() - sample_start} seconds')
+        train_start = time.time()
         self._calculate_advantages()
         self._train()
+        logging.debug(f'train time: {time.time() - train_start} seconds')
         
     def _sample(self) -> None:
         """Collects samples from the training environment.
@@ -68,7 +74,7 @@ class BaseACAgentRecurrent(BaseACAgent, BaseAgentRecurrent):
 
             for idx, done in enumerate(terminals):
                 if done:
-                    print('logging episodic return train...', self.total_steps)
+                    logging.info(f'logging episodic return train... {self.total_steps}')
                     self.train_logger.add_scalar('episodic_return_train', self.total_rewards[idx], self.total_steps)
                     self.total_rewards[idx] = 0.
 

@@ -57,8 +57,8 @@ class TrainLogger:
 
         if self.use_cache:
             if key in self.cache:
-                self.cache[key, 0].append(scalar_value)
-                self.cache[key, 1].append(global_step)
+                self.cache[key][0].append(scalar_value)
+                self.cache[key][1].append(global_step)
             else:
                 self.cache[key] = [[scalar_value], [global_step]]
 

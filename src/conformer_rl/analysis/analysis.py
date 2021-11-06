@@ -16,6 +16,7 @@ import matplotlib.pyplot as plt
 from rdkit import Chem
 from conformer_rl.utils import tfd_matrix
 import py3Dmol
+import logging
 
 from typing import Any, List, Optional, Tuple
 
@@ -238,7 +239,9 @@ def calculate_tfd(data: str) -> None:
     if not 'mol' in data:
         raise Exception('data dict must contain RDKit Mol object with \'mol\' key to generate tfd matrix.')
     if 'tfd_matrix' in data or 'tfd_total' in data:
-        raise Exception('tfd_matrix already exists in data')
+        logging.info("tfd matrix already exists, recalculating...")
+        data.pop('tfd_matrix')
+        data.pop('tfd_total')
     for mol in data['mol']:
         matrix = tfd_matrix(mol)
         data.setdefault('tfd_matrix', []).append(matrix)

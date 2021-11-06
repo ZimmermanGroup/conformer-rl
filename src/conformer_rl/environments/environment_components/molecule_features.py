@@ -5,7 +5,6 @@ Helper functions for extracting features from molecules conformers
 to generate graph representations in :mod:`conformer_rl.environments.environment_components.obs_mixins`.
 """
 from rdkit import Chem
-
 from typing import List
 
 def bond_type(bond: Chem.Bond) -> List[bool]:

@@ -1,0 +1,18 @@
+numpy == 1.21.2
+torch == 1.9.0
+tensorboard == 2.6.0
+gym == 0.20.0
+stable-baselines3 == 1.2.0
+common_wrangler == 0.3.5
+ligninkmc == 0.2.2
+seaborn == 0.11.2
+stk == 2021.8.2.0
+py3Dmol == 1.7.0
+
+--find-links https://data.pyg.org/whl/torch-1.9.0+cu102.html
+torch-scatter
+
+--find-links https://data.pyg.org/whl/torch-1.9.0+cu102.html
+torch-sparse
+
+torch-geometric

@@ -122,5 +122,3 @@ def test_unimplemented(mocker):
 
     with pytest.raises(NotImplementedError):
         agent.step()
-    with pytest.raises(NotImplementedError):
-        agent._train()
