@@ -47,7 +47,7 @@ highlighted_mol = setup_mol()
 for atom_id in np.array(list(list(stk_mol.get_functional_groups())[0].get_atom_ids()))[np.array([0,6])]:
     print(atom_id)
     atom = highlighted_mol.GetAtomWithIdx(int(atom_id))
-    atom.SetAtomicNum(2)
+    atom.SetAtomicNum(9)
 
 df = pericyclic_distances.to_dataframe()
 df['Energy'] = np.array(MMFFOptimizeMoleculeConfs(mol, maxIters=0))[:,1]
