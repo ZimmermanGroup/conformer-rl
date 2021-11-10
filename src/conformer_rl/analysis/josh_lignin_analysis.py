@@ -6,7 +6,7 @@
 from IPython.display import display
 import numpy as np
 
-import altair as alt
+# import altair as alt
 import panel as pn
 from panel_chemistry.pane import \
     NGLViewer  # panel_chemistry needs to be imported before you run pn.extension()
