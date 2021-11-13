@@ -5,7 +5,7 @@ import xarray as xr
 import stk
 from stk.molecular.functional_groups.factories.utilities import _get_atom_ids
 
-from conformer_rl.analysis.lignin_contacts import FUNC_GROUP_ID_1, setup_dist_matrices
+from conformer_rl.analysis.lignin_contacts import FUNC_GROUP_ID_1, func, setup_dist_matrices
 
 @dataclass
 class LigninPericyclicFunctionalGroup(stk.GenericFunctionalGroup):
@@ -57,7 +57,15 @@ class LigninPericyclicCalculator:
             [func_group.H_alkyl.get_id() for func_group in functional_groups],
             dims=FUNC_GROUP_ID_1,
         )
-        func_group_distances = dist_matrices_3d.isel(atom_1=c_1_ids, atom_2=H_alkyl_ids)
-        func_group_distances = func_group_distances.isel(func_group_id_1=0)
-        func_group_distances.name = "Lignin pericyclic mechanism distances"
+        H_phenyl_ids = xr.DataArray(
+            [func_group.H_phenyl.get_id() for func_group in functional_groups],
+            dims=FUNC_GROUP_ID_1,
+        )
+        func_group_distances = xr.Dataset()
+        func_group_distances['reactive'] = dist_matrices_3d.isel(atom_1=c_1_ids, atom_2=H_alkyl_ids)
+        func_group_distances['reactive'] = func_group_distances['reactive'].isel(func_group_id_1=0)
+        func_group_distances['reactive'].name = "Lignin pericyclic mechanism distances"
+        func_group_distances['inhibit'] = dist_matrices_3d.isel(atom_1=H_alkyl_ids, atom_2=H_phenyl_ids)
+        func_group_distances['inhibit'] = func_group_distances['inhibit'].isel(func_group_id_1=0)
+        func_group_distances['inhibit'].name = "Lignin pericyclic mechanism inhibition distances"
         return func_group_distances
