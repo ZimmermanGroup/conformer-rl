@@ -51,9 +51,10 @@ for atom_id in np.array(list(list(stk_mol.get_functional_groups())[0].get_atom_i
 
 df = pericyclic_distances.to_dataframe()
 df['Energy'] = np.array(MMFFOptimizeMoleculeConfs(mol, maxIters=0))[:,1]
-points = hv.Points(df).opts(color='Energy', colorbar=True)
+points = hv.Points(df)
 points.opts(
-    tools=['tap', 'hover'], width=600, height=600,
+    color='Energy', colorbar=True, clabel='Energy',
+    tools=['tap', 'hover'], active_tools=['wheel_zoom'], width=600, height=600,
     marker='triangle', size=10, framewise=True,
 )
 stream = Selection1D(source=points)
