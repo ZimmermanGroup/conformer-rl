@@ -22,7 +22,7 @@ from rdkit.Chem.rdForceFieldHelpers import MMFFOptimizeMoleculeConfs
 import stk
 from conformer_rl.analysis.lignin_contacts import setup_dist_matrices, setup_mol
 from conformer_rl.analysis.lignin_pericyclic import \
-    LigninPericyclicCalculator, LigninPericyclicFunctionalGroupFactory
+    LigninPericyclicCalculator, LigninPericyclicFunctionalGroupFactory, test
 
 pn.extension('bokeh', comms='vscode')
 pn.extension("ngl_viewer", sizing_mode="stretch_width")
@@ -73,6 +73,8 @@ def index_conf(index):
 app = pn.Row(pn.Column(points, index_conf), display_mol)
 app.show()
 
+# %%
+test(mol)
 
 # %%
 # looking at Zeke's new molecule

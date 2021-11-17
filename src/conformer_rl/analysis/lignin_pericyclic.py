@@ -50,6 +50,8 @@ class LigninPericyclicCalculator:
         stk_mol = stk.BuildingBlock.init_from_rdkit_mol(rdkit_mol)
         factory = LigninPericyclicFunctionalGroupFactory()
         functional_groups = tuple(factory.get_functional_groups(stk_mol))
+        print(f'{functional_groups = }')
+
         c_1_ids = xr.DataArray(
             [func_group.c_1.get_id() for func_group in functional_groups],
             dims=FUNC_GROUP_ID_1
@@ -97,10 +99,10 @@ class LigninMaccollFunctionalGroup(stk.GenericFunctionalGroup):
 
 def test(rdkit_mol):
     dist_matrix_2d, dist_matrices_3d = setup_dist_matrices()
-    # get the distance between H_alkyl and c_1
     stk_mol = stk.BuildingBlock.init_from_rdkit_mol(rdkit_mol)
-    factory = SmartsFunctionalGroupFactory('cOCC[H]')
+    factory = SmartsFunctionalGroupFactory('[H]ccOCC[H]', bonders=(), deleters=())
     functional_groups = tuple(factory.get_functional_groups(stk_mol))
+    print(f'{functional_groups = }')
     c_1_ids = xr.DataArray(
         [func_group.c_1.get_id() for func_group in functional_groups],
         dims=FUNC_GROUP_ID_1
