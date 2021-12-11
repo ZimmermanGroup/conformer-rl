@@ -50,7 +50,8 @@ for atom_id in np.array(list(list(stk_mol.get_functional_groups())[0].get_atom_i
     atom.SetAtomicNum(9)
 
 df = pericyclic_distances.to_dataframe()
-df['Energy'] = np.array(MMFFOptimizeMoleculeConfs(mol, maxIters=0))[:,1]
+# for some strange reason MMFFOptimizeMoleculeConfs affects SMARTS matching, so pass a copy
+df['Energy'] = np.array(MMFFOptimizeMoleculeConfs(Chem.rdchem.Mol(mol), maxIters=0))[:,1]
 points = hv.Points(df)
 points.opts(
     color='Energy', colorbar=True, clabel='Energy',
@@ -71,10 +72,8 @@ def display_mol(index):
 def index_conf(index):
     return index
 app = pn.Row(pn.Column(points, index_conf), display_mol)
+# test(mol)
 app.show()
-
-# %%
-test(mol)
 
 # %%
 # looking at Zeke's new molecule
@@ -111,3 +110,7 @@ for name in df.columns[2:]:
         step=4
     )
     display(chart)
+
+# %%
+import rdkit
+benzene = rdkit.MolFromSmiles('c1ccccc1')

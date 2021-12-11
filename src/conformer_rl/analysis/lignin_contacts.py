@@ -48,7 +48,6 @@ def setup_dist_matrices():
                                     dims=(ATOM_1, ATOM_2))
                         for conf_id in conf_id_index]
     dist_matrices_3d = xr.concat(dist_matrices_3d, dim=conf_id_index)
-    display(dist_matrices_3d)
     return dist_matrix_2d, dist_matrices_3d
 
 def setup_dataframe():
