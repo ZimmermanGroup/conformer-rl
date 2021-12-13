@@ -22,7 +22,8 @@ from rdkit.Chem.rdForceFieldHelpers import MMFFOptimizeMoleculeConfs
 import stk
 from conformer_rl.analysis.lignin_contacts import setup_dist_matrices, setup_mol
 from conformer_rl.analysis.lignin_pericyclic import \
-    LigninPericyclicCalculator, LigninPericyclicFunctionalGroupFactory, test
+    LigninPericyclicCalculator, LigninPericyclicFunctionalGroupFactory, \
+    LigninMaccollCalculator, LigninMaccollFunctionalGroupFactory
 
 pn.extension('bokeh', comms='vscode')
 pn.extension("ngl_viewer", sizing_mode="stretch_width")
@@ -36,25 +37,28 @@ Chem.rdmolops.Kekulize(mol)
 stk_mol = stk.BuildingBlock.init_from_rdkit_mol(
     mol,
     functional_groups=(
-        LigninPericyclicFunctionalGroupFactory(),
+        LigninMaccollFunctionalGroupFactory(),
     )
 )
 dist_matrix_2d, dist_matrices_3d = setup_dist_matrices()
-pericyclic_distances = LigninPericyclicCalculator().calculate_distances(mol)
+maccoll_distances = LigninMaccollCalculator().calculate_distances(mol)
 
 highlighted_mol = setup_mol()
 # for atom_id in list(stk_mol.get_functional_groups())[0].get_atom_ids():
-for atom_id in np.array(list(list(stk_mol.get_functional_groups())[0].get_atom_ids()))[np.array([0,6])]:
-    print(atom_id)
-    atom = highlighted_mol.GetAtomWithIdx(int(atom_id))
+for f_group in stk_mol.get_functional_groups():
+    atom_ids = list(f_group.get_atom_ids())
+    atom = highlighted_mol.GetAtomWithIdx(int(atom_ids[0]))
     atom.SetAtomicNum(9)
+    atom = highlighted_mol.GetAtomWithIdx(int(atom_ids[3]))
+    atom.SetAtomicNum(17)
 
-df = pericyclic_distances.to_dataframe()
+df = maccoll_distances.to_dataframe()
 # for some strange reason MMFFOptimizeMoleculeConfs affects SMARTS matching, so pass a copy
-df['Energy'] = np.array(MMFFOptimizeMoleculeConfs(Chem.rdchem.Mol(mol), maxIters=0))[:,1]
-points = hv.Points(df)
+# df['Energy'] = np.array(MMFFOptimizeMoleculeConfs(Chem.rdchem.Mol(mol), maxIters=0))[:,1]
+display(df)
+points = hv.Points(df, kdims=['func_group_id_1', 'Lignin Maccoll mechanism distances'])
 points.opts(
-    color='Energy', colorbar=True, clabel='Energy',
+    # color='Energy', colorbar=True, clabel='Energy',
     tools=['tap', 'hover'], active_tools=['wheel_zoom'], width=600, height=600,
     marker='triangle', size=10, framewise=True,
 )
@@ -63,7 +67,8 @@ stream = Selection1D(source=points)
 def display_mol(index):
     if not index:
         return None
-    conf_id = pericyclic_distances.coords['conf_id'][index[0]].item()
+    display(stream.param)
+    conf_id = maccoll_distances.coords['conf_id'][index[0] // 10].item()
     pdb_block = MolToPDBBlock(highlighted_mol, confId=conf_id)
     viewer = NGLViewer(object=pdb_block, extension='pdb', background="#F7F7F7", min_height=800, sizing_mode="stretch_both")
     return viewer
@@ -72,7 +77,6 @@ def display_mol(index):
 def index_conf(index):
     return index
 app = pn.Row(pn.Column(points, index_conf), display_mol)
-# test(mol)
 app.show()
 
 # %%
