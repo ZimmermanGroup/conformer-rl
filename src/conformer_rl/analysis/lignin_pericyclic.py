@@ -1,6 +1,9 @@
+import numpy as np
+from rdkit import Chem
 import stk
 import xarray as xr
-from conformer_rl.analysis.lignin_contacts import (FUNC_GROUP_ID_1,
+from rdkit.Chem.rdForceFieldHelpers import MMFFOptimizeMoleculeConfs
+from conformer_rl.analysis.lignin_contacts import (CONF_ID, FUNC_GROUP_ID_1,
                                                    setup_dist_matrices)
 from stk.molecular.functional_groups.factories.smarts_functional_group_factory import \
     SmartsFunctionalGroupFactory
@@ -74,7 +77,11 @@ class LigninMaccollCalculator:
             dims=FUNC_GROUP_ID_1,
         )
         func_group_distances = xr.Dataset()
-        func_group_distances['Lignin Maccoll mechanism distances'] \
+        func_group_distances.coords['Lignin Maccoll mechanism distances'] \
             = dist_matrices_3d.isel(atom_1=H_ids, atom_2=O_ids)
-        display(func_group_distances)
+            
+        # add energies
+        # for some strange reason MMFFOptimizeMoleculeConfs affects SMARTS matching, so pass a copy
+        energies = np.array(MMFFOptimizeMoleculeConfs(Chem.rdchem.Mol(rdkit_mol), maxIters=0))[:,1]
+        func_group_distances['Energies'] = xr.DataArray(energies, dims=CONF_ID)
         return func_group_distances
