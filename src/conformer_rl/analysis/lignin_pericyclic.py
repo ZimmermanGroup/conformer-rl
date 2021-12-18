@@ -77,7 +77,7 @@ class LigninMaccollCalculator:
             dims=FUNC_GROUP_ID_1,
         )
         func_group_distances = xr.Dataset()
-        func_group_distances.coords['Lignin Maccoll mechanism distances'] \
+        func_group_distances['Lignin Maccoll mechanism distances'] \
             = dist_matrices_3d.isel(atom_1=H_ids, atom_2=O_ids)
             
         # add energies
