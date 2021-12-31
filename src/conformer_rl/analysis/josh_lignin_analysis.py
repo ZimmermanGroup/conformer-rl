@@ -9,7 +9,7 @@ from rdkit import Chem
 from rdkit.Chem.rdmolfiles import MolToPDBBlock
 
 import stk
-from conformer_rl.analysis.lignin_contacts import CONF_ID, FUNC_GROUP_ID_1, setup_dist_matrices, setup_mol
+from conformer_rl.analysis.lignin_contacts import CONF_ID, FUNC_GROUP_ID_1, setup_mol
 from conformer_rl.analysis.lignin_pericyclic import \
     LigninPericyclicCalculator, LigninPericyclicFunctionalGroupFactory, \
     LigninMaccollCalculator, LigninMaccollFunctionalGroupFactory
@@ -35,7 +35,6 @@ stk_mol = stk.BuildingBlock.init_from_rdkit_mol(
         LigninMaccollFunctionalGroupFactory(),
     )
 )
-dist_matrix_2d, dist_matrices_3d = setup_dist_matrices()
 maccoll_distances = LigninMaccollCalculator().calculate_distances(mol)
 
 def highlighted_mol(func_group_id):

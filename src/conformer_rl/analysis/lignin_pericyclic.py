@@ -8,6 +8,15 @@ from conformer_rl.analysis.lignin_contacts import (CONF_ID, FUNC_GROUP_ID_1,
 from stk.molecular.functional_groups.factories.smarts_functional_group_factory import \
     SmartsFunctionalGroupFactory
 
+# JOSH - IN PROGRESS
+# class FuncGroupDistanceCalculator:
+#     def calculate_distances():
+#         dist_matrix_2d, dist_matrices_3d = setup_dist_matrices()
+#         atom_1_ids = xr.DataArray(
+#             [func_group.c_1.get_id() for func_group in functional_groups],
+#             dims=FUNC_GROUP_ID_1
+#         )
+#         dist_matrices_3d.isel(atom_1=atom_1_ids, atom_2=atom_2_ids)
 
 class LigninPericyclicFunctionalGroupFactory(stk.SmartsFunctionalGroupFactory):
     def __init__(self):
