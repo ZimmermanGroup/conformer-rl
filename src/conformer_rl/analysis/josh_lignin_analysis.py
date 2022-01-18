@@ -12,7 +12,7 @@ import stk
 from conformer_rl.analysis.lignin_contacts import CONF_ID, FUNC_GROUP_ID_1, setup_mol
 from conformer_rl.analysis.lignin_pericyclic import \
     LigninPericyclicCalculator, LigninPericyclicFunctionalGroupFactory, \
-    LigninMaccollCalculator, LigninMaccollFunctionalGroupFactory
+    LigninMaccollCalculator, LigninMaccollFunctionalGroupFactory, init_stk_from_rdkit
 
 import param
 import hvplot.pandas # noqa
@@ -31,6 +31,7 @@ class LigninDashboard(param.Parameterized):
     mechanism = param.Selector(['Pericylic', 'Maccoll'])
 
     def __init__(self):
+        super().__init__()
         self.mol = setup_mol()
         maccoll_distances = LigninMaccollCalculator().calculate_distances(self.mol)
         
@@ -47,20 +48,17 @@ class LigninDashboard(param.Parameterized):
         return points
     
     def app(self):
-        return pn.Row(pn.Column(self.param, points, index_conf), display_mol)
+        return pn.Row(pn.Column(LigninDashboard.param.mechanism, self.scatter_plot, self.index_conf), self.display_mol)
     
     def setup_stk_mol(self):
-        self.mol = Chem.rdmolops.AddHs(self.mol)
-        Chem.rdmolops.Kekulize(self.mol)
-        return stk.BuildingBlock.init_from_rdkit_mol(
+        return init_stk_from_rdkit(
             self.mol,
-            functional_groups=(
-                LigninMaccollFunctionalGroupFactory(),
-            )
+            functional_groups=(LigninMaccollFunctionalGroupFactory(),),
         )
         
-    @pn.depends(stream.param.index)
-    def display_mol(self, index):
+    @param.depends('stream.index')
+    def display_mol(self):
+        index = self.stream.index
         if not index:
             return None
         conf_id = int(self.df.iloc[index]['conf_id'])
@@ -69,8 +67,9 @@ class LigninDashboard(param.Parameterized):
         return viewer
 
 
-    @pn.depends(stream.param.index)
-    def index_conf(self, index):
+    @param.depends('stream.index')
+    def index_conf(self):
+        index = self.stream.index
         return index
 
     def highlighted_mol(self, func_group_id):
@@ -85,7 +84,7 @@ class LigninDashboard(param.Parameterized):
                 atom_H.SetAtomicNum(2)
         return mol
 
-LigninDashboard().show()
+LigninDashboard().app().show()
 
 # %%
 

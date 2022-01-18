@@ -8,6 +8,15 @@ from conformer_rl.analysis.lignin_contacts import (CONF_ID, FUNC_GROUP_ID_1,
 from stk.molecular.functional_groups.factories.smarts_functional_group_factory import \
     SmartsFunctionalGroupFactory
 
+def init_stk_from_rdkit(rdkit_mol, functional_groups=None, with_Hs=True):
+    if with_Hs:
+        rdkit_mol = Chem.rdmolops.AddHs(rdkit_mol)
+    Chem.rdmolops.Kekulize(rdkit_mol)
+    return stk.BuildingBlock.init_from_rdkit_mol(
+        rdkit_mol, functional_groups=functional_groups
+    )
+
+    
 # JOSH - IN PROGRESS
 # class FuncGroupDistanceCalculator:
 #     def calculate_distances():
@@ -32,9 +41,11 @@ class LigninPericyclicCalculator:
     def calculate_distances(self, rdkit_mol):
         dist_matrix_2d, dist_matrices_3d = setup_dist_matrices()
         # get the distance between H_alkyl and c_1
-        stk_mol = stk.BuildingBlock.init_from_rdkit_mol(rdkit_mol)
-        factory = LigninPericyclicFunctionalGroupFactory()
-        functional_groups = tuple(factory.get_functional_groups(stk_mol))
+        stk_mol = init_stk_from_rdkit(
+            rdkit_mol,
+            functional_groups=(LigninPericyclicFunctionalGroupFactory(),),
+        )
+        functional_groups = tuple(stk_mol.get_functional_groups())
         print(f'{functional_groups = }')
 
         c_1_ids = xr.DataArray(
@@ -60,6 +71,7 @@ class LigninPericyclicCalculator:
 class LigninMaccollFunctionalGroupFactory(stk.SmartsFunctionalGroupFactory):
     def __init__(self):
         super().__init__('[H]CCOc', bonders=(0,3), deleters=())
+        # super().__init__('C', bonders=(0,), deleters=())
 
     def get_functional_groups(self, molecule):
         for f in super().get_functional_groups(molecule):
@@ -72,9 +84,11 @@ class LigninMaccollCalculator:
     def calculate_distances(self, rdkit_mol):
         dist_matrix_2d, dist_matrices_3d = setup_dist_matrices()
         # get the distance between H and O
-        stk_mol = stk.BuildingBlock.init_from_rdkit_mol(rdkit_mol)
-        factory = LigninMaccollFunctionalGroupFactory()
-        functional_groups = tuple(factory.get_functional_groups(stk_mol))
+        stk_mol = init_stk_from_rdkit(
+            rdkit_mol,
+            functional_groups=(LigninMaccollFunctionalGroupFactory(),),
+        )
+        functional_groups = tuple(stk_mol.get_functional_groups())
         print(f'{functional_groups = }')
 
         H_ids = xr.DataArray(
