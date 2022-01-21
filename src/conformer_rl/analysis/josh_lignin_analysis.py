@@ -61,6 +61,7 @@ class LigninDashboard(param.Parameterized):
         index = self.stream.index
         if not index:
             return None
+        index = index[0]
         conf_id = int(self.df.iloc[index]['conf_id'])
         pdb_block = MolToPDBBlock(self.highlighted_mol(self.df.iloc[index][FUNC_GROUP_ID_1]), confId=conf_id)
         viewer = NGLViewer(object=pdb_block, extension='pdb', background="#F7F7F7", min_height=800, sizing_mode="stretch_both")
