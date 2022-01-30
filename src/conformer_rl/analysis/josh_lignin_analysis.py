@@ -28,18 +28,29 @@ pn.extension("ngl_viewer", sizing_mode="stretch_width")
 
 ## %%
 class LigninDashboard(param.Parameterized):
-    mechanism = param.Selector(['Pericylic', 'Maccoll'])
+    # mechanism = param.Selector(['Pericylic', 'Maccoll'])
+    mechanism = param.ObjectSelector(default=LigninMaccollCalculator,
+                                     objects=[LigninPericyclicCalculator, LigninMaccollCalculator])
+    func_group_factories = {LigninPericyclicCalculator: LigninPericyclicFunctionalGroupFactory,
+                            LigninMaccollCalculator: LigninMaccollFunctionalGroupFactory}
 
     def __init__(self):
         super().__init__()
         self.mol = setup_mol()
-        maccoll_distances = LigninMaccollCalculator().calculate_distances(self.mol)
-        
-        self.df = maccoll_distances.to_dataframe().reset_index().astype({FUNC_GROUP_ID_1: 'str'})
-        self.stk_mol = self.setup_stk_mol()
+        self.dataframe()
     
+    @param.depends('mechanism', watch=True)
+    def dataframe(self):
+        maccoll_distances = self.mechanism().calculate_distances(self.mol)
+        self.df = maccoll_distances.to_dataframe().reset_index().astype({FUNC_GROUP_ID_1: 'str'})
+    
+    @param.depends('dataframe', 'setup_stk_mol')
     def scatter_plot(self):
-        points = self.df.hvplot.scatter(x='Lignin Maccoll mechanism distances', y='Energies', c='func_group_id_1')
+        if self.mechanism == LigninMaccollCalculator:
+            points = self.df.hvplot.scatter(x='Lignin Maccoll mechanism distances', y='Energies', c='func_group_id_1')
+        elif self.mechanism == LigninPericyclicCalculator:
+            points = self.df.hvplot.scatter(x='Lignin pericyclic mechanism distances',
+                                            y='Lignin pericyclic mechanism inhibition differences')
         points.opts(
             opts.Scatter(tools=['tap', 'hover'], active_tools=['wheel_zoom'], width=600, height=600,
                         marker='triangle', size=10,)
@@ -48,15 +59,16 @@ class LigninDashboard(param.Parameterized):
         return points
     
     def app(self):
-        return pn.Row(pn.Column(LigninDashboard.param.mechanism, self.scatter_plot, self.index_conf), self.display_mol)
+        return pn.Row(pn.Column(self.param.mechanism, self.scatter_plot, self.index_conf, self.disp_mechanism), self.display_mol)
     
+    @param.depends('mechanism', watch=True)
     def setup_stk_mol(self):
         return init_stk_from_rdkit(
             self.mol,
-            functional_groups=(LigninMaccollFunctionalGroupFactory(),),
+            functional_groups=(self.func_group_factories[self.mechanism](),),
         )
         
-    @param.depends('stream.index')
+    @param.depends('stream.index', watch=True)
     def display_mol(self):
         index = self.stream.index
         if not index:
@@ -67,25 +79,34 @@ class LigninDashboard(param.Parameterized):
         viewer = NGLViewer(object=pdb_block, extension='pdb', background="#F7F7F7", min_height=800, sizing_mode="stretch_both")
         return viewer
 
-
-    @param.depends('stream.index')
+    @param.depends('stream.index', 'mechanism', watch=True)
     def index_conf(self):
-        index = self.stream.index
-        return index
+        # index = self.stream.index
+        # return index
+        return f'{self.stream.index = }\n{self = }'
+    
+    @param.depends('mechanism', watch=True)
+    def disp_mechanism(self):
+        return f'{self.param.mechanism = }'
 
     def highlighted_mol(self, func_group_id):
         mol = setup_mol()
-        for i, f_group in enumerate(self.stk_mol.get_functional_groups()):
-            atom_H = mol.GetAtomWithIdx(f_group.H.get_id())
-            atom_O = mol.GetAtomWithIdx(f_group.O.get_id())
+        for i, f_group in enumerate(self.setup_stk_mol().get_functional_groups()):
+            if self.mechanism == LigninMaccollCalculator:
+                atom_1 = mol.GetAtomWithIdx(f_group.H.get_id())
+                atom_2 = mol.GetAtomWithIdx(f_group.O.get_id())
+            elif self.mechanism == LigninPericyclicCalculator:
+                atom_1 = mol.GetAtomWithIdx(f_group.c_1.get_id())
+                atom_2 = mol.GetAtomWithIdx(f_group.H_alkyl.get_id())
             if i == int(func_group_id):
-                atom_H.SetAtomicNum(9)
-                atom_O.SetAtomicNum(15)
+                atom_1.SetAtomicNum(9)
+                atom_2.SetAtomicNum(15)
             else: # gently highlight other functional groups in the same conformer
-                atom_H.SetAtomicNum(2)
+                atom_1.SetAtomicNum(2)
         return mol
 
-LigninDashboard().app().show()
+dashboard = LigninDashboard()
+dashboard.app().show()
 
 # %%
 

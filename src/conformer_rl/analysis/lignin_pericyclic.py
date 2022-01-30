@@ -38,6 +38,8 @@ class LigninPericyclicFunctionalGroupFactory(stk.SmartsFunctionalGroupFactory):
             yield f
 
 class LigninPericyclicCalculator:
+    factory = LigninPericyclicFunctionalGroupFactory()
+    
     def calculate_distances(self, rdkit_mol):
         dist_matrix_2d, dist_matrices_3d = setup_dist_matrices()
         # get the distance between H_alkyl and c_1
@@ -81,6 +83,8 @@ class LigninMaccollFunctionalGroupFactory(stk.SmartsFunctionalGroupFactory):
         
 
 class LigninMaccollCalculator:
+    factory = LigninMaccollFunctionalGroupFactory()
+    
     def calculate_distances(self, rdkit_mol):
         dist_matrix_2d, dist_matrices_3d = setup_dist_matrices()
         # get the distance between H and O
