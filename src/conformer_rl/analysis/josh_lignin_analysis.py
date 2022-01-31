@@ -29,7 +29,7 @@ pn.extension("ngl_viewer", sizing_mode="stretch_width")
 ## %%
 class LigninDashboard(param.Parameterized):
     # mechanism = param.Selector(['Pericylic', 'Maccoll'])
-    mechanism = param.ObjectSelector(default=LigninMaccollCalculator,
+    mechanism = param.ObjectSelector(default=LigninPericyclicCalculator,
                                      objects=[LigninPericyclicCalculator, LigninMaccollCalculator])
     func_group_factories = {LigninPericyclicCalculator: LigninPericyclicFunctionalGroupFactory,
                             LigninMaccollCalculator: LigninMaccollFunctionalGroupFactory}
@@ -38,6 +38,7 @@ class LigninDashboard(param.Parameterized):
         super().__init__()
         self.mol = setup_mol()
         self.dataframe()
+        self.stream = Selection1D()
     
     @param.depends('mechanism', watch=True)
     def dataframe(self):
@@ -55,9 +56,11 @@ class LigninDashboard(param.Parameterized):
             opts.Scatter(tools=['tap', 'hover'], active_tools=['wheel_zoom'], width=600, height=600,
                         marker='triangle', size=10,)
         )
-        self.stream = Selection1D(source=points)
+        self.stream.update(index=[])
+        self.stream.source = points
         return points
     
+    param.depends('display_mol', 'scatter_plot', 'index_conf', 'disp_mechanism', 'mechanism')
     def app(self):
         return pn.Row(pn.Column(self.param.mechanism, self.scatter_plot, self.index_conf, self.disp_mechanism), self.display_mol)
     
@@ -68,7 +71,7 @@ class LigninDashboard(param.Parameterized):
             functional_groups=(self.func_group_factories[self.mechanism](),),
         )
         
-    @param.depends('stream.index', watch=True)
+    @param.depends('stream.index', 'scatter_plot', watch=True)
     def display_mol(self):
         index = self.stream.index
         if not index:
@@ -83,7 +86,7 @@ class LigninDashboard(param.Parameterized):
     def index_conf(self):
         # index = self.stream.index
         # return index
-        return f'{self.stream.index = }\n{self = }'
+        return f'{self.stream.index = }\n{repr(dashboard) = }'
     
     @param.depends('mechanism', watch=True)
     def disp_mechanism(self):
@@ -95,14 +98,16 @@ class LigninDashboard(param.Parameterized):
             if self.mechanism == LigninMaccollCalculator:
                 atom_1 = mol.GetAtomWithIdx(f_group.H.get_id())
                 atom_2 = mol.GetAtomWithIdx(f_group.O.get_id())
+                if i == int(func_group_id):
+                    atom_1.SetAtomicNum(9)
+                    atom_2.SetAtomicNum(15)
+                else: # gently highlight other functional groups in the same conformer
+                    atom_1.SetAtomicNum(2)
             elif self.mechanism == LigninPericyclicCalculator:
-                atom_1 = mol.GetAtomWithIdx(f_group.c_1.get_id())
+                atom_1 = mol.GetAtomWithIdx(f_group.H_phenyl.get_id())
                 atom_2 = mol.GetAtomWithIdx(f_group.H_alkyl.get_id())
-            if i == int(func_group_id):
-                atom_1.SetAtomicNum(9)
-                atom_2.SetAtomicNum(15)
-            else: # gently highlight other functional groups in the same conformer
-                atom_1.SetAtomicNum(2)
+                atom_1.SetAtomicNum(10)
+                atom_2.SetAtomicNum(10)
         return mol
 
 dashboard = LigninDashboard()
