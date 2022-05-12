@@ -55,11 +55,10 @@ class ConformerEnv(gym.Env):
         self.mol = self.config.mol
 
         # set mol to have exactly one conformer
-        if self.mol.GetNumConformers() != 1:
-            logging.debug("Input molecule to environment should have exactly one conformer, none or more than one detected.")
-            self.mol.RemoveAllConformers()
-            if Chem.EmbedMolecule(self.mol, randomSeed=self.config.seed, useRandomCoords=True) == -1:
-                raise Exception('Unable to embed molecule with conformer using rdkit')
+        self.mol.RemoveAllConformers()
+        if Chem.EmbedMolecule(self.mol, randomSeed=self.config.seed, useRandomCoords=True) == -1:
+            raise Exception('Unable to embed molecule with conformer using rdkit')
+
         self.conf = self.mol.GetConformer()
         nonring, ring = TorsionFingerprints.CalculateTorsionLists(self.mol)
         self.nonring = [list(atoms[0]) for atoms, ang in nonring]
