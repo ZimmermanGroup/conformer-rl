@@ -1,3 +1,4 @@
+import torch
 """
 Agent_config
 ============
@@ -76,7 +77,7 @@ class Config:
     def __init__(self):
 
         # naming
-        self.tag = 'test'
+        self.tag = 'conformer_generation'
 
         # training objects
         self.train_env = None
@@ -86,15 +87,15 @@ class Config:
         # self.curriculum = None
 
         # batch hyperparameters
-        self.num_workers = 1
-        self.rollout_length = None
+        self.num_workers = 20
+        self.rollout_length = 20
         self.max_steps = 1000000
-        self.save_interval = 0
-        self.eval_interval = 0
+        self.save_interval = self.num_workers * 1000
+        self.eval_interval = self.num_workers * 1000
         self.eval_episodes = 2
-        self.recurrence = 1
+        self.recurrence = 5
         self.optimization_epochs = 4
-        self.mini_batch_size = 64
+        self.mini_batch_size = 50
 
         # training hyperparameters
         self.discount = 0.9999

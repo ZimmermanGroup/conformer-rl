@@ -7,7 +7,7 @@ from conformer_rl.config import Config
 from conformer_rl.environments import Task
 from conformer_rl.models import RTGNRecurrent, RTGN, RTGNGat
 
-from conformer_rl.molecule_generation import xorgate
+from conformer_rl.molecule_generation.generate_alkanes import branched_alkane_config
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -17,11 +17,10 @@ logging.basicConfig(level=logging.DEBUG)
 if __name__ == '__main__':
     utils.set_one_thread()
 
-    mol_config = xorgate(2, 3)
+    mol_config = branched_alkane_config(12)
 
     config = Config()
     config.tag = 'example1'
-    # config.network = RTGN(6, 128, edge_dim=6, node_dim=5).to(device)
     config.network = RTGNGat(6, 128, node_dim=5).to(device)
     # Batch Hyperparameters
     config.num_workers = 2

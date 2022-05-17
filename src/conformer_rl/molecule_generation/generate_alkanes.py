@@ -2,9 +2,36 @@
 Generate_branched_alkane
 ========================
 """
+from conformer_rl.config import MolConfig
+from conformer_rl.molecule_generation.generate_molecule import config_from_rdkit
 from rdkit import Chem
 import numpy as np
 import random
+
+def branched_alkane_config(num_atoms: int) -> MolConfig:
+    """Generates a randomized branched alkane :class:`~conformer_rl.config.mol_config.MolConfig`,
+    including constants for calculating Gibbs Score.
+
+    Parameters
+    ----------
+    num_atoms : int
+        The number of atoms in the branched alkane.
+    """
+ 
+    mol = generate_branched_alkane(num_atoms)
+    return config_from_rdkit(mol)
+
+def straight_alkane_config(num_atoms: int) -> MolConfig:
+    """Generates a straight alkane chain :class:`~conformer_rl.config.mol_config.MolConfig`,
+    including constants for calculating Gibbs Score.
+
+    Parameters
+    ----------
+    num_atoms : int
+        The number of atoms in the alkane.
+    """
+    mol = Chem.MolFromSmiles('C' * num_atoms)
+    return config_from_rdkit(mol)
 
 def generate_branched_alkane(num_atoms: int, save: bool=False) -> Chem.Mol:
     """Generates a branched alkane.

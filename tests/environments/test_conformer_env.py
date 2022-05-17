@@ -1,5 +1,5 @@
 from conformer_rl.environments.conformer_env import ConformerEnv
-from conformer_rl.molecule_generation.molecules import test_alkane
+from conformer_rl.molecule_generation.generate_molecule import test_alkane
 from rdkit import Chem
 import pytest
 

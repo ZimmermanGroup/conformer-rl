@@ -3,6 +3,8 @@ generate_lignin
 ===============
 """
 import numpy as np
+from conformer_rl.molecule_generation.generate_molecule import config_from_rdkit
+from conformer_rl.config import MolConfig
 
 # Chemical Drawing
 from rdkit.Chem import MolFromMolBlock
@@ -18,10 +20,24 @@ from ligninkmc.kmc_common import (DEF_E_BARRIER_KCAL_MOL, ADJ_MATRIX, MONO_LIST,
 temp = 298.15  # K
 rxn_rates = calc_rates(temp, ea_kcal_mol_dict=DEF_E_BARRIER_KCAL_MOL)
 
+
+def lignin_config(num_monomers: int) -> MolConfig:
+    """Generates a lignin :class:`~conformer_rl.config.mol_config.MolConfig`,
+    including constants for calculating Gibbs Score.
+
+    Parameters
+    ----------
+    num_monomers : int
+        Number of monomers in the lignin.
+    """
+    mol = generate_lignin(num_monomers)
+    return config_from_rdkit(mol)
+
+    
 def generate_lignin(num_monomers: int = 1) -> Chem.Mol:
         """Generates lignin molecule.
 
-        parameters
+        Parameters
         ----------
         num_monomers : int
                 Number of monomers in lignin molecule.
