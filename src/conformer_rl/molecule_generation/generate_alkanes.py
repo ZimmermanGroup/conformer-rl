@@ -1,6 +1,6 @@
 """
-Generate_branched_alkane
-========================
+Alkane Generators
+=================
 """
 from conformer_rl.config import MolConfig
 from conformer_rl.molecule_generation.generate_molecule import config_from_rdkit

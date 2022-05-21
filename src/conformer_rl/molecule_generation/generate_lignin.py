@@ -1,6 +1,6 @@
 """
-generate_lignin
-===============
+Lignin Generators
+=================
 """
 import numpy as np
 from conformer_rl.molecule_generation.generate_molecule import config_from_rdkit

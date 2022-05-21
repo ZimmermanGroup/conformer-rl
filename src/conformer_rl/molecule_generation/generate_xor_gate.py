@@ -1,6 +1,6 @@
 """
-Generate_xor_gate
-=================
+Xor Gate Generators
+===================
 """
 from conformer_rl.config import MolConfig
 from conformer_rl.molecule_generation.generate_molecule import config_from_rdkit
@@ -23,7 +23,7 @@ def xorgate(gate_complexity: int, num_gates: int) -> MolConfig:
         Number of gates in molecule.
     """
 
-    mol = generation.generate_xor_gate(gate_complexity, num_gates)
+    mol = generate_xor_gate(gate_complexity, num_gates)
     return config_from_rdkit(mol)
 
 def generate_xor_gate(gate_complexity: int=2, num_gates: int=3) -> Chem.Mol:

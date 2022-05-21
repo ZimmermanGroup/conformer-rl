@@ -1,8 +1,9 @@
-import torch
 """
 Agent_config
 ============
 """
+
+import torch
 
 class Config:
     """Configuration object for agents.
