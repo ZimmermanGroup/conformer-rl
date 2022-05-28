@@ -73,4 +73,4 @@ html_sidebars = {
     ]
 }
 
-autodoc_mock_imports = ["rdkit", "torch_geometric", "IPython"]
+autodoc_mock_imports = ["rdkit", "torch_geometric", "IPython", "stk", "ligninkmc", "seaborn", "py3Dmol"]
