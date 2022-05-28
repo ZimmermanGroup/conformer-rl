@@ -6,7 +6,7 @@ The following modules contain functions for generating several classes of molecu
     :maxdepth: 2
     :caption: Molecule Generation
 
-    generate_molecule
+    generate_molecule_config
     generate_alkanes
     generate_lignin
     generate_xor_gate

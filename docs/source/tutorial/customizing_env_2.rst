@@ -7,15 +7,13 @@ that is, not using one of the pre-built environment components.
 The code for the following examples can be found in
 `examples/custom_env_advanced/custom_env.py <https://github.com/ZimmermanGroup/conformer-rl/tree/master/examples/custom_env_advanced>`_.
 
-Example
--------
 
 Suppose we want an environment where conformers are sequentially generated
 and the reward for each step of an episode is 1 if the generated conformer has an energy
 below some threshold, otherwise the reward is 0.
 
 Overriding the constructor
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+--------------------------
 Since we now have a new parameter for the environment, the energy threshold, we need to override
 the constructor for :class:`~conformer_rl.environments.conformer_env.ConformerEnv`. Since the threshold
 may differ depending on the molecule, the best way to handle this parameter is to pass it in through the
@@ -34,7 +32,7 @@ may differ depending on the molecule, the best way to handle this parameter is t
             self.confs_below_threshold = 0
 
 Overriding :meth:`~conformer_rl.environments.conformer_env.ConformerEnv._reward`
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+--------------------------------------------------------------------------------
 First, notice that we have initialized another attribute, ``confs_below_threshold``, to
 keep track of the number of conformers below the threshold in each episode. Thus, we need to reset this
 every episode::

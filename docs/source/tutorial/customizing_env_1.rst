@@ -27,7 +27,7 @@ cover most of the functionality of any environment.
 Creating and registering new environments
 -----------------------------------------
 
-The source code for this experiment can be found in `examples/custom_env_basic <https://github.com/ZimmermanGroup/conformer-rl/tree/master/examples/custom_env_basic>`_. The code for setting up the new environment is found in ``custom_env.py``. The code for the updated training script is found in ``custom_run.py``.
+The source code for this experiment can be found in `examples/custom_env_basic <https://github.com/ZimmermanGroup/conformer-rl/tree/master/examples/custom_env_basic>`_. The code for setting up the new environment is found in ``custom_env.py``. The code for the updated training script is found in ``run.py``.
 
 In :ref:`Getting Started - Training a Conformer Generation Agent` we trained an agent on one of the pre-built environments, :class:`~conformer_rl.environments.environments.GibbsScorePruningEnv`. Notice that the observation handler for :class:`~conformer_rl.environments.environments.GibbsScorePruningEnv` creates an embedding for each node/atom that includes both a one-hot representation for whether the atom is a carbon or oxygen atom, as well as the x, y, z coordinates for the atom resulting in a vector of dimension 5 for each node.
 
@@ -53,25 +53,26 @@ Next, since this is not a pre-built environment, we must register the environmen
 We can try training an agent on this new environment by modifying the training script in :ref:`Getting Started - Training a Conformer Generation Agent` and see if the results have changed. The full training script code for this example can be found in `examples/custom_env_basic/run.py <https://github.com/ZimmermanGroup/conformer-rl/tree/master/examples/custom_env_basic/run.py>`_. First, import the ``custom_env.py`` module to run
 the gym registration code::
 
-  # custom_run.py
+  # run.py
   # import the custom created environment to run the gym register script
   import custom_env
 
 The setup for the molecule config will be the same as in :ref:`Getting Started - Training a Conformer Generation Agent`, so we will not explicitly cover the details here.
 Next, we should change the tag of the agent to represent the environment of this experiment::
 
-  # custom_run.py
+  # run.py
   # set the tag to reflect the custom environment
   config.tag = 'atom_type_env'
 
 Additionally, since each node of the graph returned by the observation handler now has a dimension of only 2,
-we must initialize the neural network with the correct ```node_dim``. In :ref:`Getting Started - Training a Conformer Generation Agent`, we did not explicitly set the neural network, so the neural network was set by default to :class:`~conformer_rl.models.RTGN_recurrent.RTGNRecurrent`. In this example, we will use the same network and initialize it with the correct ``node_dim``::
+we must initialize the neural network with the correct ``node_dim``. In :ref:`Getting Started - Training a Conformer Generation Agent`, we did not explicitly set the neural network, so the neural network was set by default to :class:`~conformer_rl.models.RTGN_recurrent.RTGNRecurrent`. In this example, we will use the same network and initialize it with the correct ``node_dim``::
 
-  # custom_run.py
+  # run.py
   # Update the network's node_dim to equal 2
   config.network = RTGNRecurrent(6, 128, edge_dim=6, node_dim=2).to(device)
 
 Finally, when setting the ``train_env`` and ``eval_env``, we must specify the name of the environment to be the ``'Test-Env-v0'`` we registered::
+  
   # Set the environment to the test env
   config.train_env = Task('TestEnv-v0', concurrency=True, num_envs=5, seed=np.random.randint(0,1e5), mol_config=mol_config, max_steps=200)
   config.eval_env = Task('TestEnv-v0', seed=np.random.randint(0,7e4), mol_config=mol_config, max_steps=200)

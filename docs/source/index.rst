@@ -56,22 +56,22 @@ Features
 
 Scripts and Examples
 --------------------
-Using :mod:`conformer_rl`'s API, a reinforcement learning agent can be trained in generating conformers for a molecule given only that molecule as input. Several examples of training scripts can be found in the examples directory, which can be easily modified to set up a training script for your own molecule. For more details on setting up a Python training script see :ref:`Getting Started - Training a Conformer Generation Agent`.
+Using :mod:`conformer_rl`'s API, a reinforcement learning agent can be trained in generating conformers for a molecule given only that molecule as input. Several examples of training scripts can be found in the `examples <https://github.com/ZimmermanGroup/conformer-rl/tree/master/examples>`_ directory, which can be easily modified to set up a training script for your own molecule. For more details on setting up a Python training script see :ref:`Getting Started - Training a Conformer Generation Agent`.
 
 Reinforcement Learning components
 ---------------------------------
 
 :ref:`Agents`
 ^^^^^^^^^^^^^
-:mod:`conformer_rl` contains implementations of several state-of-the-art algorithms for training reinforcement learning agents on a task, including recurrent and non-recurrent versions of A2C and PPO. :mod:`conformer_rl` also includes a base agent interface :mod:`~conformer_rl.agents.base_agent` for constructing new agents.
+:mod:`conformer_rl` contains implementations of several state-of-the-art algorithms for training reinforcement learning agents on a task, including recurrent and non-recurrent versions of advantage actor critic (A2C) and proximal policy optimization (PPO). :mod:`conformer_rl` also includes a base agent interface :mod:`~conformer_rl.agents.base_agent` for constructing new agents.
 
 :ref:`Models`
 ^^^^^^^^^^^^^
-Implementations of various graph neural network models are included.
+Implementations of various graph neural network models are included. Each neural network implementation is modular and can be used with molecules of varying sizes.
 
 :ref:`Environments`
 ^^^^^^^^^^^^^^^^^^^
-:mod:`conformer_rl` contains several pre-built reinforcement learning environments that simulate the conformer generation task for any covalently bonded molecule. Many environments are similar to the conformer generation environment described in [1], where in each episode, conformers for the molecule are sequentially generated in each step. However, environments are built on top of the modularized :mod:`~conformer_rl.environments.conformer_env` interface, making it easy to create custom environments and mix-and-match different environment components.
+:mod:`conformer_rl` contains several pre-built reinforcement learning environments that simulate the conformer generation task for any covalently bonded molecule. Many environments are similar (i.e., variations) to the conformer generation environment described in [1]_, where in each episode, conformers for the molecule are sequentially generated in each step. However, environments are built on top of the modularized :mod:`~conformer_rl.environments.conformer_env` interface, making it easy to create custom environments and mix-and-match different environment components.
 
 :ref:`Analysis`
 ^^^^^^^^^^^^^^^
@@ -82,4 +82,4 @@ Getting Started
 ===============
 The `examples <https://github.com/ZimmermanGroup/conformer-rl/tree/master/examples>`_ directory contains several scripts for training on pre-built agents and environments. See :ref:`Installation` on how to install :mod:`conformer_rl`. See the :ref:`Getting Started - Training a Conformer Generation Agent` section to learn how to train an agent on your own custom molecule.
 
-.. [1] `TorsionNet <https://arxiv.org/abs/2006.07078>`_
+.. [1] `TorsionNet Paper <https://arxiv.org/abs/2006.07078>`_

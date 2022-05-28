@@ -25,8 +25,8 @@ class Config:
         Lambda function that maps the parameters of a torch.nn.module 
         (as obtained by calling the `.parameters()` method on the module) to a torch.optim.Optimizer function
         by passing in the parameters to the constructor of the optimizer function. For example::
+        
             config.optimizer_fn = lambda params : torch.optim.Adam(params, lr=0.001)
-
 
     num_workers : int, required by all agents
         Number of parallel environments to sample from during training.

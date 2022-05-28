@@ -7,7 +7,7 @@ Prerequisites
 -------------
 * We recommend installing in a new Conda environment.
 
-   * If you are new to using Conda, you can install it `here <https://conda.io/projects/conda/en/latest/user-guide/install/index.html>`_ and learn more about environments `here <https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html>`_.
+   * If you are new to using Conda, you can install it in `conda installation <https://conda.io/projects/conda/en/latest/user-guide/install/index.html>`_ and learn more about environments in `conda environments <https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html>`_.
 
 * Install dependencies
 

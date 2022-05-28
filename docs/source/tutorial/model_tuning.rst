@@ -3,13 +3,14 @@ Hyperparameter Tuning and Additional Options
 
 This section walks through more advanced options and configurations when training an agent, such as specifying the neural network to be used, setting hyperparameters, and more.
 
-The code in this section will follow the training script `examples/example1.py <https://github.com/ZimmermanGroup/conformer-rl/blob/master/examples/example2.py>`_.
+The code in this section will follow the training script `examples/example2.py <https://github.com/ZimmermanGroup/conformer-rl/blob/master/examples/example2.py>`_.
 
 Note that the options discussed here only covers a subset of all the possible options available when training an agent, and more options may be added in the future. For an updated full list of configurable options, see the attributes for the :class:`~conformer_rl.config.agent_config.Config` object.
 
 Configuring Molecule and Environment
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 As in :ref:`Getting Started - Training a Conformer Generation Agent`, we set up the molecule and environment. In this example, we generate conformers for a lignin polymer with three monomers::
+
     # configure molecule
     mol = generate_lignin(3)
     mol_config = config_from_rdkit(mol, calc_normalizers=True, save_file='lignin')
@@ -21,7 +22,8 @@ As in :ref:`Getting Started - Training a Conformer Generation Agent`, we set up 
 
 Configuring the Neural Network
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-:mod:`conformer_rl` contains implementations of several graph neural network models, which can be found in :ref:`models`. One neural network architecture that has performed well empirically in conformer generation is :class:`~conformer_rl.models.RTGN_recurrent.RTGNRecurrent`, which we will use in this example::
+:mod:`conformer_rl` contains implementations of several graph neural network models, which can be found in :ref:`models`. One neural network architecture that has performed well empirically in conformer generation is :class:`~conformer_rl.models.RTGN.RTGN`, which we will use in this example::
+
     config.network = RTGN(6, 128, edge_dim=6, node_dim=5).to(device)
     
 Notice that the observation from :class:`~conformer_rl.environments.environments.GibbsScorePruningEnv`
