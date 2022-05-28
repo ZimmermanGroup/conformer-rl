@@ -1,6 +1,6 @@
 """
-generate_lignin
-===============
+Lignin Generators
+=================
 """
 import numpy as np
 
@@ -18,10 +18,11 @@ from ligninkmc.kmc_common import (DEF_E_BARRIER_KCAL_MOL, ADJ_MATRIX, MONO_LIST,
 temp = 298.15  # K
 rxn_rates = calc_rates(temp, ea_kcal_mol_dict=DEF_E_BARRIER_KCAL_MOL)
 
+    
 def generate_lignin(num_monomers: int = 1) -> Chem.Mol:
         """Generates lignin molecule.
 
-        parameters
+        Parameters
         ----------
         num_monomers : int
                 Number of monomers in lignin molecule.

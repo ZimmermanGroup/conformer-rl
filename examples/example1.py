@@ -5,11 +5,9 @@ from conformer_rl import utils
 from conformer_rl.agents import PPORecurrentAgent
 from conformer_rl.config import Config
 from conformer_rl.environments import Task
-from conformer_rl.models import RTGNGatRecurrent
 
-from conformer_rl.molecule_generation import test_alkane
-
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+from conformer_rl.molecule_generation.generate_alkanes import generate_branched_alkane
+from conformer_rl.molecule_generation.generate_molecule_config import config_from_rdkit
 
 import logging
 logging.basicConfig(level=logging.DEBUG)
@@ -17,29 +15,18 @@ logging.basicConfig(level=logging.DEBUG)
 if __name__ == '__main__':
     utils.set_one_thread()
 
-    mol_config = test_alkane()
+    # Create config object
+    mol = generate_branched_alkane(14)
+    mol_config = config_from_rdkit(mol, calc_normalizers=True, ep_steps=200, save_file='alkane')
 
+    # Create agent training config object
     config = Config()
     config.tag = 'example1'
-    config.network = RTGNGatRecurrent(6, 128, node_dim=5).to(device)
-    # Batch Hyperparameters
-    config.num_workers = 20
-    config.rollout_length = 20
-    config.recurrence = 5
-    config.optimization_epochs = 4
-    config.max_steps = 10000000
-    config.save_interval = config.num_workers*200*5
-    config.eval_interval = config.num_workers*200*5
-    config.eval_episodes = 2
-    config.mini_batch_size = 50
 
-    # Coefficient Hyperparameters
-    lr = 2e-6 * np.sqrt(config.num_workers)
-    config.optimizer_fn = lambda params: torch.optim.Adam(params, lr=lr, eps=1e-5)
-
-    # Task Settings
-    config.train_env = Task('GibbsScorePruningEnv-v0', concurrency=True, num_envs=config.num_workers, seed=np.random.randint(0,1e5), mol_config=mol_config, max_steps=200)
+    # Configure Environment
+    config.train_env = Task('GibbsScorePruningEnv-v0', concurrency=True, num_envs=5, seed=np.random.randint(0,1e5), mol_config=mol_config, max_steps=200)
     config.eval_env = Task('GibbsScorePruningEnv-v0', seed=np.random.randint(0,7e4), mol_config=mol_config, max_steps=200)
+    config.eval_episodes=10000
 
     agent = PPORecurrentAgent(config)
     agent.run_steps()

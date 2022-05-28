@@ -8,5 +8,5 @@ python:
     - requirements: docs/requirements.txt
     - method: pip
       path: .
-  version: 3.7
+  version: 3.8
 

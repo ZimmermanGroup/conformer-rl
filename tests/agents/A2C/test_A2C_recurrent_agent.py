@@ -8,10 +8,10 @@ def mock_init(self):
 def test_init(mocker):
     def inner_init(self, config):
         self.recurrence = 6
+        self.num_workers=12
     mocker.patch('conformer_rl.agents.A2C.A2C_recurrent_agent.BaseACAgentRecurrent.__init__', inner_init)
     config = mocker.Mock()
     config.rollout_length = 5
-    config.num_workers = 12
 
     agent = A2CRecurrentAgent(config)
 
@@ -23,7 +23,6 @@ def test_train_losses(mocker):
     nn = mocker.patch('conformer_rl.agents.A2C.A2C_recurrent_agent.nn')
 
     config = mocker.Mock()
-    config.num_workers = 3
     config.rollout_length = 2
     config.entropy_weight = 11.
     config.value_loss_weight = 113
@@ -59,6 +58,7 @@ def test_train_losses(mocker):
     agent.network = network
     agent.num_recurrent_units = 0
     agent.recurrence = 1
+    agent.num_workers = 3
     
     agent._train()
     agent.optimizer.zero_grad.assert_called_once()
@@ -80,7 +80,6 @@ def test_recurrence(mocker):
     nn = mocker.patch('conformer_rl.agents.A2C.A2C_recurrent_agent.nn')
 
     config = mocker.Mock()
-    config.num_workers = 3
     config.rollout_length = 2
     config.entropy_weight = 11.
     config.value_loss_weight = 113
@@ -116,6 +115,7 @@ def test_recurrence(mocker):
     agent.network = network
     agent.num_recurrent_units = 5
     agent.recurrence = 2
+    agent.num_workers = 3
     
     agent._train()
     agent.optimizer.zero_grad.assert_called_once()

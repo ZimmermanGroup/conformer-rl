@@ -1,11 +1,11 @@
 from conformer_rl.environments.conformer_env import ConformerEnv
-from conformer_rl.molecule_generation.molecules import test_alkane
+from conformer_rl.molecule_generation.generate_molecule_config import test_alkane_config
 from rdkit import Chem
 import pytest
 
 def test_conformer_env(mocker):
     step = mocker.patch('conformer_rl.environments.conformer_env.ConformerEnv._step')
-    config = test_alkane()
+    config = test_alkane_config()
     env = ConformerEnv(config)
 
     assert env.mol.GetNumAtoms() == 47
@@ -23,7 +23,7 @@ def test_conformer_env(mocker):
     step.assert_called_with(180)
 
 def test_conformer_env1(mocker):
-    config = test_alkane()
+    config = test_alkane_config()
     env = ConformerEnv(config)
 
     assert env.mol.GetNumAtoms() == 47
@@ -47,7 +47,7 @@ def test_step(mocker):
     energy = mocker.patch('conformer_rl.environments.conformer_env.get_conformer_energy')
     energy.return_value = 5
 
-    config = test_alkane()
+    config = test_alkane_config()
     env = ConformerEnv(config)
 
     obs, reward, done, info = env.step(180)
@@ -57,7 +57,7 @@ def test_step(mocker):
 def test_exception(mocker):
     embed = mocker.patch('conformer_rl.environments.conformer_env.Chem.EmbedMolecule')
     embed.return_value = -1
-    config = test_alkane()
+    config = test_alkane_config()
     with pytest.raises(Exception):
         env = ConformerEnv(config)
 

@@ -11,7 +11,6 @@ def test_train(mocker):
     nn = mocker.patch('conformer_rl.agents.A2C.A2C_agent.nn')
 
     config = mocker.Mock()
-    config.num_workers = 3
     config.rollout_length = 2
     config.entropy_weight = 11.
     config.value_loss_weight = 113
@@ -39,6 +38,7 @@ def test_train(mocker):
     agent.storage = storage
     agent.config = config
     agent.network = mocker.Mock()
+    agent.num_workers = 3
     
     agent._train()
     agent.optimizer.zero_grad.assert_called_once()

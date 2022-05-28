@@ -1,20 +1,28 @@
 """
-Generate_branched_alkane
-========================
+Alkane Generators
+=================
 """
 from rdkit import Chem
 import numpy as np
 import random
 
-def generate_branched_alkane(num_atoms: int, save: bool=False) -> Chem.Mol:
+def generate_straight_alkane(num_atoms: int) -> Chem.Mol:
+    """Generates a straight alkane chain
+    
+    Parameters
+    ----------
+    num_atoms : int
+        Number of atoms in the molecule."""
+
+    return Chem.MolFromSmiles('C' * num_atoms)
+
+def generate_branched_alkane(num_atoms: int) -> Chem.Mol:
     """Generates a branched alkane.
 
     Parameters
     ----------
     num_atoms : int
         Number of atoms in molecule to be generated.
-    save : bool
-        Whether to save the molecule as a .mol file.
     """
     mol = Chem.MolFromSmiles('CCCC')
     edit_mol = Chem.RWMol(mol)
@@ -32,7 +40,5 @@ def generate_branched_alkane(num_atoms: int, save: bool=False) -> Chem.Mol:
     Chem.SanitizeMol(edit_mol)
     mol = Chem.rdmolops.AddHs(edit_mol.GetMol())
 
-    if save:
-        Chem.rdmolfiles.MolToMolFile(mol, f'{num_atoms}_branched_alkane.mol')
     return mol
 

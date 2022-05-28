@@ -35,7 +35,6 @@ class A2CRecurrentAgent(BaseACAgentRecurrent):
     * eval_env
     * optimizer_fn
     * network
-    * num_workers
     * rollout_length
     * max_steps
     * save_interval
@@ -69,22 +68,22 @@ class A2CRecurrentAgent(BaseACAgentRecurrent):
     """
     def __init__(self, config: Config):
         super().__init__(config)
-        assert config.rollout_length * config.num_workers % self.recurrence == 0
+        assert config.rollout_length * self.num_workers % self.recurrence == 0
 
     def _train(self) -> None:
         config = self.config
         storage = self.storage
 
         actions = storage.order('a')
-        returns = torch.stack(self.returns, 1).view(config.num_workers * config.rollout_length, -1)
-        advantages = torch.stack(self.advantages, 1).view(config.num_workers * config.rollout_length, -1)
+        returns = torch.stack(self.returns, 1).view(self.num_workers * config.rollout_length, -1)
+        advantages = torch.stack(self.advantages, 1).view(self.num_workers * config.rollout_length, -1)
 
         recurrent_states = [storage.order(f'recurrent_states_{i}') for i in range(self.num_recurrent_units)]
         states = storage.order('states')
 
         total_entropy, total_value_loss, total_policy_loss, total_loss = 0, 0, 0, 0
 
-        starting_indices = np.arange(0, self.config.rollout_length * self.config.num_workers, self.recurrence)
+        starting_indices = np.arange(0, config.rollout_length * self.num_workers, self.recurrence)
         sampled_recurrent_states = (recurrent_states[i][:, starting_indices]for i in range(self.num_recurrent_units))
         for i in range(self.recurrence):
             sampled_actions = actions[starting_indices + i]

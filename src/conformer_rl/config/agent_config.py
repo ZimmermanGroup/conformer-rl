@@ -3,6 +3,9 @@ Agent_config
 ============
 """
 
+import torch
+from conformer_rl.models import RTGNGatRecurrent
+
 class Config:
     """Configuration object for agents.
 
@@ -16,10 +19,14 @@ class Config:
         Wrapper for environments used to train the agents.
     eval_env : wrapper for environments from :func:`~conformer_env.environments.environment_wrapper.Task`, optional
         Wrapper for environment used to evaluate the agent.
-    optimizer_fn : pytorch optimizer (torch.optim.Optimizer), required for all agents
-        Optimizer function for training the neural network.
     network : pytorch neural network module (torch.nn.Module), required for all agents
         Neural network to be used by the agent.
+    optimizer_fn : lambda(iterable) -> torch.optim.Optimizer, required for all agents
+        Lambda function that maps the parameters of a torch.nn.module 
+        (as obtained by calling the `.parameters()` method on the module) to a torch.optim.Optimizer function
+        by passing in the parameters to the constructor of the optimizer function. For example::
+        
+            config.optimizer_fn = lambda params : torch.optim.Adam(params, lr=0.001)
 
     num_workers : int, required by all agents
         Number of parallel environments to sample from during training.
@@ -47,7 +54,7 @@ class Config:
         Determines whether to use generalized advantage estimation (GAE) for estimating advantages, or
         SARSA update.
     gae_lambda : float, required by all agents if `use_gae` is ``True``
-        The λ parameter used in by the generalized advantage estimator. See [1]_ for details.
+        The λ parameter used by the generalized advantage estimator (gae). See [1]_ for details.
     entropy_weight : float, required by all agents
         Coefficient for the entropy when calculating total loss.
     value_loss_coefficient : float, required by all agents
@@ -76,25 +83,26 @@ class Config:
     def __init__(self):
 
         # naming
-        self.tag = 'test'
+        self.tag = 'conformer_generation'
 
         # training objects
         self.train_env = None
         self.eval_env = None
-        self.optimizer_fn = None
-        self.network = None
+        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        self.network = RTGNGatRecurrent(6, 128, node_dim=5).to(self.device)
+        self.optimizer_fn = lambda params : torch.optim.Adam(params, lr=1e-5, eps=1e-5)
+
         # self.curriculum = None
 
         # batch hyperparameters
-        self.num_workers = 1
-        self.rollout_length = None
-        self.max_steps = 1000000
+        self.rollout_length = 20
+        self.max_steps = 50000
         self.save_interval = 0
         self.eval_interval = 0
-        self.eval_episodes = 2
-        self.recurrence = 1
+        self.eval_episodes = 1
+        self.recurrence = 2
         self.optimization_epochs = 4
-        self.mini_batch_size = 64
+        self.mini_batch_size = 24
 
         # training hyperparameters
         self.discount = 0.9999

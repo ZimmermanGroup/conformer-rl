@@ -1,14 +1,21 @@
 """
-Generate_xor_gate
-=================
+Xor Gate Generators
+===================
 """
 from rdkit import Chem
-from rdkit.Chem import Draw
 import stk
 from itertools import cycle, islice
 
 def generate_xor_gate(gate_complexity: int=2, num_gates: int=3) -> Chem.Mol:
-    """Generates xorgate molecule.
+    """Generates xorgate molecule. An xorgate is a chain of alternating gates, where each gate is a chain of benzenes
+    with a single carbon chain tail.
+
+    Parameters
+    ----------
+    gate_complexity : int
+        Number of benzenes in each gate.
+    num_gates : int
+        Number of gates in molecule.
     """
     xorgate = XorGate(gate_complexity, num_gates)
     xorgate = xorgate.polymer.to_rdkit_mol()

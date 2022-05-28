@@ -19,17 +19,13 @@ setuptools.setup(
     python_requires=">=3.7",
     install_requires=(
         'numpy',
-        'tensorboard',
+        'tensorflow',
         'gym',
-        'stable-baselines3>=1.0',
-        'common_wrangler == 0.3.5',
-        'ligninkmc',
-        'stk',
-        'py3Dmol',
-        'seaborn',
-        'jupyterlab'
+        'stable-baselines3>=1.0'
     ),
     extras_require={
-        "dev": ["sphinx", "sphinx_rtd_theme", "pytest", "coverage", "pytest-mock"]
+        "dev": ["sphinx", "sphinx_rtd_theme", "pytest", "coverage", "pytest-mock"],
+        "generate_molecules": ['common_wrangler == 0.3.5', 'ligninkmc', 'stk',],
+        "visualization": ['py3Dmol', 'seaborn', 'jupyterlab']
     },
 )

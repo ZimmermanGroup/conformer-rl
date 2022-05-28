@@ -41,6 +41,7 @@ class BaseAgent:
     def __init__(self, config: Config):
         self.config = config
         self.task = config.train_env # gym environment wrapper
+        self.num_workers = self.task.num_envs
 
         self.dir = config.data_dir
         self.unique_tag = f'{config.tag}_{current_time()}'
@@ -48,7 +49,10 @@ class BaseAgent:
         self.eval_logger = EnvLogger(tag=self.unique_tag, dir=self.dir)
         self.train_logger = TrainLogger(tag=self.unique_tag, dir=self.dir, use_tensorboard=config.use_tensorboard, use_cache=False, use_print=False)
         self.total_steps = 0
-        self.storage = Storage(config.rollout_length, config.num_workers)
+        self.storage = Storage(config.rollout_length, self.num_workers)
+
+        self.network = config.network
+        self.optimizer = config.optimizer_fn(self.network.parameters())
 
     def run_steps(self) -> None:
         """ Trains the agent.

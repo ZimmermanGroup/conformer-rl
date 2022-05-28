@@ -32,7 +32,6 @@ class PPOAgent(BaseACAgent):
     * eval_env
     * optimizer_fn
     * network
-    * num_workers
     * rollout_length
     * max_steps
     * save_interval
@@ -81,8 +80,8 @@ class PPOAgent(BaseACAgent):
 
         actions = storage.order('a')
         log_probs_old = storage.order('log_pi_a')
-        returns = torch.stack(self.returns, 1).view(config.num_workers * config.rollout_length, -1)
-        advantages = torch.stack(self.advantages, 1).view(config.num_workers * config.rollout_length, -1)
+        returns = torch.stack(self.returns, 1).view(self.num_workers * config.rollout_length, -1)
+        advantages = torch.stack(self.advantages, 1).view(self.num_workers * config.rollout_length, -1)
         states = storage.order('states')
 
         self.train_logger.add_scalar('advantages', advantages.mean(), self.total_steps)
@@ -92,7 +91,7 @@ class PPOAgent(BaseACAgent):
         #Training Loop
         ############################################################################################
         for _ in range(config.optimization_epochs):
-            indices = np.arange(0, self.config.rollout_length * self.config.num_workers)
+            indices = np.arange(0, self.config.rollout_length * self.num_workers)
             indices = np.random.permutation(indices)
 
             num_indices = config.mini_batch_size
