@@ -1,4 +1,4 @@
-Customizing Environment - advanced
+Customizing Environment - Part Two
 ==================================
 
 This section will cover an example of creating a custom environment from scratch, 
@@ -8,7 +8,7 @@ The code for the following examples can be found in
 `examples/custom_env_advanced/custom_env.py <https://github.com/ZimmermanGroup/conformer-rl/tree/master/examples/custom_env_advanced>`_.
 
 Example
----------
+-------
 
 Suppose we want an environment where conformers are sequentially generated
 and the reward for each step of an episode is 1 if the generated conformer has an energy
@@ -69,5 +69,6 @@ Finally, to use the environment we must register it with OpenAI gym::
         entry_point='custom_env:CustomEnv'
     )
 
+We can now create a training script using this new environment in the same way as we did in :ref:`Customizing Environment - Part One`
 
 

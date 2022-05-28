@@ -30,7 +30,6 @@ class A2CAgent(BaseACAgent):
     * eval_env
     * optimizer_fn
     * network
-    * num_workers
     * rollout_length
     * max_steps
     * save_interval
@@ -70,8 +69,8 @@ class A2CAgent(BaseACAgent):
         log_prob = storage.order('log_pi_a')
         value = storage.order('v')
         entropy = storage.order('ent')
-        returns = torch.stack(self.returns, 1).view(config.num_workers * config.rollout_length, -1)
-        advantages = torch.stack(self.advantages, 1).view(config.num_workers * config.rollout_length, -1)
+        returns = torch.stack(self.returns, 1).view(self.num_workers * config.rollout_length, -1)
+        advantages = torch.stack(self.advantages, 1).view(self.num_workers * config.rollout_length, -1)
 
         entropy_loss = entropy.mean()
         policy_loss = -(log_prob * advantages).mean()

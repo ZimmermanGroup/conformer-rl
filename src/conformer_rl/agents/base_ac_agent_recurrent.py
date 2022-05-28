@@ -59,7 +59,7 @@ class BaseACAgentRecurrent(BaseACAgent, BaseAgentRecurrent):
         #Sampling Loop
         ##############################################################################################
         for _ in range(config.rollout_length):
-            self.total_steps += config.num_workers
+            self.total_steps += self.num_workers
 
             #add recurrent states (lstm hidden and lstm cell states) to storage
             storage.append({f'recurrent_states_{i}' : rstate for i, rstate in enumerate(self.recurrent_states)})

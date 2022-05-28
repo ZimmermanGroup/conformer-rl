@@ -1,8 +1,10 @@
 Installation
 ============
 
+Since :mod:`conformer_rl` can be run within a Conda environment, it should work on all platforms (Windows, MacOS, and Linux).
+
 Prerequisites
-^^^^^^^^^^^^^
+-------------
 * We recommend installing in a new Conda environment.
 
    * If you are new to using Conda, you can install it `here <https://conda.io/projects/conda/en/latest/user-guide/install/index.html>`_ and learn more about environments `here <https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html>`_.
@@ -23,9 +25,9 @@ Prerequisites
    pip install conformer-rl
 
 Verify Installation
-^^^^^^^^^^^^^^^^^^^
+-------------------
 As a quick check to verify the installation has succeeded, navigate to the ``examples`` directory
-and run `base_example.py <https://github.com/ZimmermanGroup/conformer-rl/blob/master/examples/base_example.py>`_. The script should finish running in a few minutes or less. If no errors are encountered
+and run `examples/test_example.py <https://github.com/ZimmermanGroup/conformer-rl/blob/master/examples/test_example.py>`_. The script should finish running in a few minutes or less. If no errors are encountered
 then most likely the installation has succeeded.
 
 Additional Installation for Analysis/Visualization Tools

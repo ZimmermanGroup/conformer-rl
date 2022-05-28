@@ -19,7 +19,7 @@ setuptools.setup(
     python_requires=">=3.7",
     install_requires=(
         'numpy',
-        'tensorboard',
+        'tensorflow',
         'gym',
         'stable-baselines3>=1.0'
     ),

@@ -1,5 +1,5 @@
 Models
-=======
+======
 
 Neural networks implemented using PyTorch and PyTorch Geometric.
 

@@ -2,18 +2,13 @@
 Xor Gate Generators
 ===================
 """
-from conformer_rl.config import MolConfig
-from conformer_rl.molecule_generation.generate_molecule import config_from_rdkit
 from rdkit import Chem
 import stk
 from itertools import cycle, islice
 
-
-def xorgate(gate_complexity: int, num_gates: int) -> MolConfig:
-    """Generates a xorgate :class:`~conformer_rl.config.mol_config.MolConfig`.
-
-    An xorgate is a chain of alternating gates, where each gate is a chain of benzenes
-    with a single carbon chain tail. 
+def generate_xor_gate(gate_complexity: int=2, num_gates: int=3) -> Chem.Mol:
+    """Generates xorgate molecule. An xorgate is a chain of alternating gates, where each gate is a chain of benzenes
+    with a single carbon chain tail.
 
     Parameters
     ----------
@@ -21,13 +16,6 @@ def xorgate(gate_complexity: int, num_gates: int) -> MolConfig:
         Number of benzenes in each gate.
     num_gates : int
         Number of gates in molecule.
-    """
-
-    mol = generate_xor_gate(gate_complexity, num_gates)
-    return config_from_rdkit(mol)
-
-def generate_xor_gate(gate_complexity: int=2, num_gates: int=3) -> Chem.Mol:
-    """Generates xorgate molecule.
     """
     xorgate = XorGate(gate_complexity, num_gates)
     xorgate = xorgate.polymer.to_rdkit_mol()

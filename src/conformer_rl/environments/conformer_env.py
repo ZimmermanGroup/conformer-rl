@@ -43,7 +43,7 @@ class ConformerEnv(gym.Env):
 
     def __init__(self, mol_config: MolConfig, max_steps = 200):
         super(ConformerEnv, self).__init__()
-        logging.info('initializing conformer environment')
+        logging.debug('initializing conformer environment')
         self.config = copy.deepcopy(mol_config)
         self.max_steps = max_steps
         self.total_reward = 0
@@ -115,7 +115,7 @@ class ConformerEnv(gym.Env):
     def reset(self) -> object:
         """Resets the environment and returns the observation of the environment.
         """
-        logging.info("reset called")
+        logging.debug("reset called")
         # reset environment state variables
         self.total_reward = 0
         self.current_step = 0

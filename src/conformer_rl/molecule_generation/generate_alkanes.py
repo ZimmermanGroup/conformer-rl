@@ -2,46 +2,27 @@
 Alkane Generators
 =================
 """
-from conformer_rl.config import MolConfig
-from conformer_rl.molecule_generation.generate_molecule import config_from_rdkit
 from rdkit import Chem
 import numpy as np
 import random
 
-def branched_alkane_config(num_atoms: int) -> MolConfig:
-    """Generates a randomized branched alkane :class:`~conformer_rl.config.mol_config.MolConfig`,
-    including constants for calculating Gibbs Score.
-
+def generate_straight_alkane(num_atoms: int) -> Chem.Mol:
+    """Generates a straight alkane chain
+    
     Parameters
     ----------
     num_atoms : int
-        The number of atoms in the branched alkane.
-    """
- 
-    mol = generate_branched_alkane(num_atoms)
-    return config_from_rdkit(mol)
+        Number of atoms in the molecule."""
 
-def straight_alkane_config(num_atoms: int) -> MolConfig:
-    """Generates a straight alkane chain :class:`~conformer_rl.config.mol_config.MolConfig`,
-    including constants for calculating Gibbs Score.
+    return Chem.MolFromSmiles('C' * num_atoms)
 
-    Parameters
-    ----------
-    num_atoms : int
-        The number of atoms in the alkane.
-    """
-    mol = Chem.MolFromSmiles('C' * num_atoms)
-    return config_from_rdkit(mol)
-
-def generate_branched_alkane(num_atoms: int, save: bool=False) -> Chem.Mol:
+def generate_branched_alkane(num_atoms: int) -> Chem.Mol:
     """Generates a branched alkane.
 
     Parameters
     ----------
     num_atoms : int
         Number of atoms in molecule to be generated.
-    save : bool
-        Whether to save the molecule as a .mol file.
     """
     mol = Chem.MolFromSmiles('CCCC')
     edit_mol = Chem.RWMol(mol)
@@ -59,7 +40,5 @@ def generate_branched_alkane(num_atoms: int, save: bool=False) -> Chem.Mol:
     Chem.SanitizeMol(edit_mol)
     mol = Chem.rdmolops.AddHs(edit_mol.GetMol())
 
-    if save:
-        Chem.rdmolfiles.MolToMolFile(mol, f'{num_atoms}_branched_alkane.mol')
     return mol
 

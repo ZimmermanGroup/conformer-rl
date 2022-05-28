@@ -31,7 +31,6 @@ class PPORecurrentAgent(BaseACAgentRecurrent):
     * eval_env
     * optimizer_fn
     * network
-    * num_workers
     * rollout_length
     * max_steps
     * save_interval
@@ -76,8 +75,8 @@ class PPORecurrentAgent(BaseACAgentRecurrent):
 
         actions = storage.order('a')
         log_probs_old = storage.order('log_pi_a')
-        returns = torch.stack(self.returns, 1).view(config.num_workers * config.rollout_length, -1)
-        advantages = torch.stack(self.advantages, 1).view(config.num_workers * config.rollout_length, -1)
+        returns = torch.stack(self.returns, 1).view(self.num_workers * config.rollout_length, -1)
+        advantages = torch.stack(self.advantages, 1).view(self.num_workers * config.rollout_length, -1)
 
         recurrent_states = [storage.order(f'recurrent_states_{i}') for i in range(self.num_recurrent_units)]
         states = storage.order('states')
@@ -89,7 +88,7 @@ class PPORecurrentAgent(BaseACAgentRecurrent):
         #Training Loop
         ############################################################################################
         for _ in range(config.optimization_epochs):
-            indices = np.arange(0, self.config.rollout_length * self.config.num_workers, self.recurrence)
+            indices = np.arange(0, self.config.rollout_length * self.num_workers, self.recurrence)
             indices = np.random.permutation(indices)
 
             num_indices = config.mini_batch_size // self.recurrence

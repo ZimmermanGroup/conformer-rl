@@ -25,10 +25,7 @@ class BaseACAgent(BaseAgent):
     def __init__(self, config: Config):
         super().__init__(config)
 
-        self.network = config.network # neural network / model
-        self.optimizer = config.optimizer_fn(self.network.parameters())
-
-        self.total_rewards = np.zeros(config.num_workers)
+        self.total_rewards = np.zeros(self.num_workers)
         self.states = self.task.reset()
         self.prediction = None
 
@@ -55,7 +52,7 @@ class BaseACAgent(BaseAgent):
         #Sampling Loop
         ##############################################################################################
         for _ in range(config.rollout_length):
-            self.total_steps += config.num_workers
+            self.total_steps += self.num_workers
 
             #run the neural net once to get prediction
             prediction = self.network(states)
@@ -100,7 +97,7 @@ class BaseACAgent(BaseAgent):
         storage = self.storage
 
         self.advantages, self.returns = [None] * config.rollout_length, [None] * config.rollout_length
-        adv = torch.zeros((config.num_workers, 1), dtype=torch.float64).to(device)
+        adv = torch.zeros((self.num_workers, 1), dtype=torch.float64).to(device)
         ret = self.prediction['v'].squeeze(0)
 
         for i in reversed(range(config.rollout_length)):

@@ -16,7 +16,6 @@ class MolConfig:
     seed: int, required for all environments
         Seed for generating initial conformers for the molecule. If set to -1,
         the seed is randomized.
-    
     E0: float, required for environments that use Gibbs score reward.
         The normalizing :math:`E_0` parameter for calculating Gibbs Score for the molecule. See [1]_ for more details.
     Z0 : float, required for environments that use Gibbs score reward.
@@ -38,9 +37,9 @@ class MolConfig:
         self.seed = -1
 
         # Parameters for using Gibbs Score
-        self.E0 = 1
+        self.E0 = 0
         self.Z0 = 1
-        self.tau = 503
+        self.tau = 300
 
         # Parameters used for pruning 
         self.pruning_thresh = 0.05

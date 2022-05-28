@@ -10,6 +10,7 @@ from rdkit.Chem import TorsionFingerprints
 import rdkit.Chem.AllChem as Chem
 
 from typing import Tuple, List
+import logging
 
 
 def get_conformer_energies(mol: Chem.Mol) -> List[float]:
