@@ -1,4 +1,4 @@
-from conformer_rl.molecule_generation.generation.generate_branched_alkane import generate_branched_alkane
+from conformer_rl.molecule_generation.generate_alkanes import generate_branched_alkane
 
 
 def test_branched_alkane(mocker):
@@ -8,8 +8,7 @@ def test_branched_alkane(mocker):
     assert mol.GetNumAtoms() == 14
     mol = generate_branched_alkane(8)
     assert mol.GetNumAtoms() == 26
-    mol = generate_branched_alkane(25, save=True)
-    tofile.assert_called_once()
+    mol = generate_branched_alkane(25)
     assert mol.GetNumAtoms() == 77
 
     

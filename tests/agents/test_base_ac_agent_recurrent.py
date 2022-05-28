@@ -56,7 +56,6 @@ def test_sample(mocker):
 
     config = mocker.Mock()
     config.rollout_length = 4
-    config.num_workers = 7
 
     train_logger = mocker.Mock()
 
@@ -70,6 +69,7 @@ def test_sample(mocker):
     agent.train_logger = train_logger
     agent.network = network
     agent.recurrent_states = ([torch.rand(1, 7, 128), torch.rand(1, 7, 128)])
+    agent.num_workers = 7
 
     agent._sample()
 

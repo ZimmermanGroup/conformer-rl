@@ -31,12 +31,14 @@ def test_init(mocker):
     config.data_dir = data_dir
     config.tag = tag
     config.rollout_length = 7
-    config.num_workers = 5
     config.use_tensorboard=False
+    config.train_env.num_envs = 5
+    config.network.parameters.return_value = 'params'
 
     agent = BaseAgent(config)
     conformer_rl.agents.base_agent.Storage.assert_called_with(7, 5)
     conformer_rl.agents.base_agent.EnvLogger.assert_called_with(unique_tag, data_dir)
+    config.optimizer_fn.assert_called_with('params')
     conformer_rl.agents.base_agent.TrainLogger.assert_called_with(unique_tag, data_dir, False, False, False)
 
 def test_run_steps(mocker):

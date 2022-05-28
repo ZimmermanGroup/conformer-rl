@@ -11,17 +11,16 @@ def test_init(mocker):
 
     def inner_mock_init(self, config):
         self.task = mocker.Mock()
+        self.num_workers = 5
 
     mocker.patch('conformer_rl.agents.base_ac_agent.BaseAgent.__init__', inner_mock_init)
     mocker.patch('conformer_rl.agents.base_ac_agent.np.zeros')
 
     config = mocker.Mock()
-    config.num_workers = 5
-    config.network.parameters.return_value = 'params'
 
     agent = BaseACAgent(config)
     conformer_rl.agents.base_ac_agent.np.zeros.assert_called_with(5)
-    config.optimizer_fn.assert_called_with('params')
+
     agent.task.reset.assert_called()
     
 def test_step(mocker):
@@ -54,7 +53,6 @@ def test_sample(mocker):
 
     config = mocker.Mock()
     config.rollout_length = 4
-    config.num_workers = 7
 
     train_logger = mocker.Mock()
 
@@ -67,6 +65,7 @@ def test_sample(mocker):
     agent.total_rewards = np.array([0] * 7)
     agent.train_logger = train_logger
     agent.network = network
+    agent.num_workers = 7
 
     agent._sample()
 
@@ -78,7 +77,6 @@ def test_calculate_advantages_sarsa(mocker):
     mocker.patch.object(conformer_rl.agents.base_ac_agent.BaseACAgent, '__init__', mock_init)
 
     config = mocker.Mock()
-    config.num_workers = 1
     config.rollout_length = 7
     config.use_gae = False
     config.discount = 0.75
@@ -93,6 +91,7 @@ def test_calculate_advantages_sarsa(mocker):
 
     agent = BaseACAgent()
     agent.storage = storage
+    agent.num_workers = 1
     agent.config = config
     agent.prediction = {'v': torch.tensor([2])}
     agent._calculate_advantages()
@@ -104,7 +103,6 @@ def test_calculate_advantages_gae(mocker):
     mocker.patch.object(conformer_rl.agents.base_ac_agent.BaseACAgent, '__init__', mock_init)
 
     config = mocker.Mock()
-    config.num_workers = 1
     config.rollout_length = 7
     config.use_gae = True
     config.gae_lambda = 0.5
@@ -117,6 +115,7 @@ def test_calculate_advantages_gae(mocker):
     storage['v'] = torch.tensor([4, 8, 1, 2, 4, 3, 7, 2])
 
     agent = BaseACAgent()
+    agent.num_workers = 1
     agent.storage = storage
     agent.config = config
     agent.prediction = {'v': torch.tensor([2])}

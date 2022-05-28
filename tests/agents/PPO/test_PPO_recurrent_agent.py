@@ -26,7 +26,6 @@ def test_train1(mocker):
     mocker.patch('conformer_rl.agents.PPO.PPO_recurrent_agent.np.random.permutation', same)
 
     config = mocker.Mock()
-    config.num_workers = 3
     config.rollout_length = 2
     config.entropy_weight = 11.
     config.value_loss_weight = 113
@@ -75,6 +74,7 @@ def test_train1(mocker):
     agent.recurrence = 1
     agent.num_recurrent_units = 0
     agent.batch_num = 0
+    agent.num_workers = 3
     
     agent._train()
     assert(agent.optimizer.zero_grad.call_count == 2)
@@ -99,7 +99,6 @@ def test_train2(mocker):
     mocker.patch('conformer_rl.agents.PPO.PPO_recurrent_agent.np.random.permutation', same)
 
     config = mocker.Mock()
-    config.num_workers = 3
     config.rollout_length = 2
     config.entropy_weight = 11.
     config.value_loss_weight = 113
@@ -140,6 +139,7 @@ def test_train2(mocker):
     agent.recurrence = 1
     agent.num_recurrent_units = 0
     agent.batch_num = 0
+    agent.num_workers = 3
     
     agent._train()
     assert(agent.optimizer.zero_grad.call_count == 1)
@@ -163,7 +163,6 @@ def test_train1_recurrent(mocker):
     mocker.patch('conformer_rl.agents.PPO.PPO_recurrent_agent.np.random.permutation', same)
 
     config = mocker.Mock()
-    config.num_workers = 3
     config.rollout_length = 2
     config.entropy_weight = 11.
     config.value_loss_weight = 113
@@ -225,6 +224,7 @@ def test_train1_recurrent(mocker):
     agent.recurrence = 2
     agent.num_recurrent_units = 1
     agent.batch_num = 0
+    agent.num_workers = 3
     
     agent._train()
     assert(agent.optimizer.zero_grad.call_count == 2)

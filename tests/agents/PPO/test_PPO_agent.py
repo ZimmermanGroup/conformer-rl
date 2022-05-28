@@ -34,7 +34,6 @@ def test_train1(mocker):
     mocker.patch('conformer_rl.agents.PPO.PPO_agent.np.random.permutation', same)
 
     config = mocker.Mock()
-    config.num_workers = 3
     config.rollout_length = 2
     config.entropy_weight = 11.
     config.value_loss_weight = 113
@@ -79,6 +78,7 @@ def test_train1(mocker):
     agent.storage = storage
     agent.config = config
     agent.network = network
+    agent.num_workers = 3
     
     agent._train()
     assert(agent.optimizer.zero_grad.call_count == 2)
@@ -104,7 +104,6 @@ def test_train2(mocker):
     mocker.patch('conformer_rl.agents.PPO.PPO_agent.np.random.permutation', same)
 
     config = mocker.Mock()
-    config.num_workers = 3
     config.rollout_length = 2
     config.entropy_weight = 11.
     config.value_loss_weight = 113
@@ -142,6 +141,7 @@ def test_train2(mocker):
     agent.storage = storage
     agent.config = config
     agent.network = network
+    agent.num_workers = 3
     
     agent._train()
     assert(agent.optimizer.zero_grad.call_count == 1)
