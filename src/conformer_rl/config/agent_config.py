@@ -92,8 +92,6 @@ class Config:
         self.network = RTGNGatRecurrent(6, 128, node_dim=5).to(self.device)
         self.optimizer_fn = lambda params : torch.optim.Adam(params, lr=1e-5, eps=1e-5)
 
-        # self.curriculum = None
-
         # batch hyperparameters
         self.rollout_length = 20
         self.max_steps = 50000
@@ -112,6 +110,12 @@ class Config:
         self.value_loss_weight = 0.25
         self.gradient_clip = 0.5
         self.ppo_ratio_clip = 0.2
+
+        # curriculum hyperparameters
+        self.curriculum_agent_buffer_len = 20
+        self.curriculum_agent_reward_thresh = 0.7
+        self.curriculum_agent_success_rate = 0.7
+        self.curriculum_agent_fail_rate = 0.2
 
         # logging config
         self.data_dir = 'data'

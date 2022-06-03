@@ -40,7 +40,7 @@ class ConformerEnv(gym.Env):
     metadata = {'render.modes': ['human']}
 
     def __init__(self, mol_config: MolConfig):
-        super(ConformerEnv, self).__init__()
+        gym.Env.__init__(self)
         logging.debug('initializing conformer environment')
         self.config = copy.deepcopy(mol_config)
         self.max_steps = mol_config.num_conformers

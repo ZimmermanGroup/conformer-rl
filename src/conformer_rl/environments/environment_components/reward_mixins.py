@@ -21,10 +21,11 @@ class GibbsRewardMixin:
     .. [1] `TorsionNet paper <https://arxiv.org/abs/2006.07078>`_
     """
     def reset(self):
+        obs = super().reset()
         self.seen = set()
         self.repeats = 0
         self.episode_info['repeats'] = 0
-        return super().reset()
+        return obs
 
     def _reward(self) -> float:
         """
@@ -55,9 +56,10 @@ class GibbsEndPruningRewardMixin:
 
     """
     def reset(self):
+        obs = super().reset()
         self.backup_mol = Chem.Mol(self.mol)
         self.backup_mol.RemoveAllConformers()
-        return super().reset()
+        return obs
 
     def _reward(self) -> float:
         """
@@ -94,10 +96,11 @@ class GibbsPruningRewardMixin:
 
     """
     def reset(self):
+        obs = super().reset()
         self.backup_mol = Chem.Mol(self.mol)
         self.backup_mol.RemoveAllConformers()
         self.backup_energys = []
-        return super().reset()
+        return obs
 
     def _reward(self) -> float:
         """
