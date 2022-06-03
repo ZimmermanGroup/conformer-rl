@@ -74,7 +74,7 @@ we must initialize the neural network with the correct ``node_dim``. In :ref:`Ge
 Finally, when setting the ``train_env`` and ``eval_env``, we must specify the name of the environment to be the ``'Test-Env-v0'`` we registered::
   
   # Set the environment to the test env
-  config.train_env = Task('TestEnv-v0', concurrency=True, num_envs=5, seed=np.random.randint(0,1e5), mol_config=mol_config, max_steps=200)
-  config.eval_env = Task('TestEnv-v0', seed=np.random.randint(0,7e4), mol_config=mol_config, max_steps=200)
+  config.train_env = Task('TestEnv-v0', concurrency=True, num_envs=5, seed=np.random.randint(0,1e5), mol_config=mol_config)
+  config.eval_env = Task('TestEnv-v0', seed=np.random.randint(0,7e4), mol_config=mol_config)
 
   

@@ -71,6 +71,7 @@ class BaseACAgent(BaseAgent):
             storage.append(prediction)
             storage.append({
                 'states': states,
+                'terminals': torch.tensor(terminals).unsqueeze(-1).to(device),
                 'r': torch.tensor(rewards).unsqueeze(-1).to(device),
                 'm': torch.tensor(1 - terminals).unsqueeze(-1).to(device)
                 })

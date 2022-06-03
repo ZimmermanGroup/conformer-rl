@@ -17,7 +17,7 @@ def test_alkane_config() -> MolConfig:
     config.tau = 503
     return config
 
-def config_from_molFile(file: str, calc_normalizers: bool = False, ep_steps: int = 200, pruning_thresh: float = 0.05, save_file: str = "") -> MolConfig:
+def config_from_molFile(file: str, num_conformers: int, calc_normalizers: bool = False, pruning_thresh: float = 0.05, save_file: str = "") -> MolConfig:
     """Generates a :class:`~conformer_rl.config.mol_config.MolConfig` object for a molecule specified by the location of a 
     `MOL <https://chem.libretexts.org/Courses/University_of_Arkansas_Little_Rock/ChemInformatics_(2017)%3A_Chem_4399_5399/2.2%3A_Chemical_Representations_on_Computer%3A_Part_II/2.2.2%3A_Anatomy_of_a_MOL_file>`_ file
     containing the molecule.
@@ -27,13 +27,13 @@ def config_from_molFile(file: str, calc_normalizers: bool = False, ep_steps: int
     file : str
         Name of the MOL file containing the molecule to be converted into a :class:`~conformer_rl.config.mol_config.MolConfig` object.
 
+    num_conformers : int
+        Number of conformers to be generated. This parameter is only used for calculating normalizers and is ignored
+        if ``calc_normalizers`` is set to ``False``.
+
     calc_normalizers : bool
         Whether to calculate normalizing constants used in the Gibbs score reward.
         See :class:`~conformer_rl.config.mol_config.MolConfig` for more details.
-
-    ep_steps : int
-        Number of conformers to be generated. This parameter is only used for calculating normalizers and is ignored
-        if ``calc_normalizers`` is set to ``False``.
 
     pruning_thresh : float
         Torsional fingerprint distance (TFD) threshold for pruning similar conformers when calculating normalizers.
@@ -52,9 +52,9 @@ def config_from_molFile(file: str, calc_normalizers: bool = False, ep_steps: int
 
     """
     mol = Chem.MolFromMolFile(file)
-    return config_from_rdkit(mol, calc_normalizers, ep_steps, pruning_thresh, save_file)
+    return config_from_rdkit(mol, num_conformers, calc_normalizers, pruning_thresh, save_file)
 
-def config_from_smiles(smiles: str, calc_normalizers: bool = False, ep_steps: int = 200, pruning_thresh: float = 0.05, save_file: str = "") -> MolConfig:
+def config_from_smiles(smiles: str, num_conformers: int, calc_normalizers: bool = False, pruning_thresh: float = 0.05, save_file: str = "") -> MolConfig:
     """Generates a :class:`~conformer_rl.config.mol_config.MolConfig` object for a molecule specified by a 
     `SMILES <https://en.wikipedia.org/wiki/Simplified_molecular-input_line-entry_system>`_ string.
 
@@ -63,13 +63,13 @@ def config_from_smiles(smiles: str, calc_normalizers: bool = False, ep_steps: in
     smiles : str
         A SMILES string representing the molecule.
 
+    num_conformers : int
+        Number of conformers to be generated. This parameter is only used for calculating normalizers and is ignored
+        if ``calc_normalizers`` is set to ``False``.
+
     calc_normalizers : bool
         Whether to calculate normalizing constants used in the Gibbs score reward.
         See :class:`~conformer_rl.config.mol_config.MolConfig` for more details.
-
-    ep_steps : int
-        Number of conformers to be generated. This parameter is only used for calculating normalizers and is ignored
-        if ``calc_normalizers`` is set to ``False``.
 
     pruning_thresh : float
         Torsional fingerprint distance (TFD) threshold for pruning similar conformers when calculating normalizers.
@@ -87,9 +87,9 @@ def config_from_smiles(smiles: str, calc_normalizers: bool = False, ep_steps: in
         normalizing constants if ``calc_normalizers`` is set to ``True``.
     """
     mol = Chem.MolFromSmiles(smiles)
-    return config_from_rdkit(mol, calc_normalizers, ep_steps, pruning_thresh, save_file)
+    return config_from_rdkit(mol, num_conformers, calc_normalizers, pruning_thresh, save_file)
 
-def config_from_rdkit(mol: Chem.rdchem.Mol, calc_normalizers: bool = False, ep_steps: int=200, pruning_thresh: float=0.05, save_file: str = "") -> MolConfig:
+def config_from_rdkit(mol: Chem.rdchem.Mol, num_conformers: int, calc_normalizers: bool = False, pruning_thresh: float=0.05, save_file: str = "") -> MolConfig:
     """Generates a :class:`~conformer_rl.config.mol_config.MolConfig` object for a molecule specified by an rdkit molecule object.
 
     Parameters
@@ -97,13 +97,13 @@ def config_from_rdkit(mol: Chem.rdchem.Mol, calc_normalizers: bool = False, ep_s
     mol: rdkit.Chem.rdchem.Mol
         A rdkit molecule object.
 
+    num_conformers : int
+        Number of conformers to be generated. This parameter is only used for calculating normalizers and is ignored
+        if ``calc_normalizers`` is set to ``False``.
+        
     calc_normalizers : bool
         Whether to calculate normalizing constants used in the Gibbs score reward.
         See :class:`~conformer_rl.config.mol_config.MolConfig` for more details.
-
-    ep_steps : int
-        Number of conformers to be generated. This parameter is only used for calculating normalizers and is ignored
-        if ``calc_normalizers`` is set to ``False``.
 
     pruning_thresh : float
         Torsional fingerprint distance (TFD) threshold for pruning similar conformers when calculating normalizers.
@@ -124,8 +124,9 @@ def config_from_rdkit(mol: Chem.rdchem.Mol, calc_normalizers: bool = False, ep_s
     config = MolConfig()
     mol = _preprocess_mol(mol)
     config.mol = mol
+    config.num_conformers = num_conformers
     if calc_normalizers:
-        config.E0, config.Z0 = calculate_normalizers(mol, ep_steps, pruning_thresh)
+        config.E0, config.Z0 = calculate_normalizers(mol, num_conformers, pruning_thresh)
 
     logging.info('mol_config object constructed for the following molecule:')
     logging.info(Chem.MolToMolBlock(mol))

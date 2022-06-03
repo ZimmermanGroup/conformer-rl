@@ -13,17 +13,18 @@ As in :ref:`Getting Started - Training a Conformer Generation Agent`, we set up 
 
     # configure molecule
     mol = generate_lignin(3)
-    mol_config = config_from_rdkit(mol, calc_normalizers=True, save_file='lignin')
+    mol_config = config_from_rdkit(mol, num_conformers=200, calc_normalizers=True, save_file='lignin')
 
     # create agent config and set environment
     config = Config()
     config.tag = 'example2'
-    config.train_env = Task('GibbsScorePruningEnv-v0', concurrency=True, num_envs=20, mol_config=mol_config, max_steps=200)
+    config.train_env = Task('GibbsScorePruningEnv-v0', concurrency=True, num_envs=10, mol_config=mol_config)
 
 Configuring the Neural Network
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 :mod:`conformer_rl` contains implementations of several graph neural network models, which can be found in :ref:`models`. One neural network architecture that has performed well empirically in conformer generation is :class:`~conformer_rl.models.RTGN.RTGN`, which we will use in this example::
 
+    # Neural Network
     config.network = RTGN(6, 128, edge_dim=6, node_dim=5).to(device)
     
 Notice that the observation from :class:`~conformer_rl.environments.environments.GibbsScorePruningEnv`
@@ -34,6 +35,7 @@ Configuring Logging
 ^^^^^^^^^^^^^^^^^^^
 Next, we configure logging options::
 
+    # Logging Parameters
     config.save_interval = 20000
     config.data_dir = 'data'
     config.use_tensorboard = True
@@ -45,9 +47,10 @@ Configuring the Evaluation Environment
 
 Next, we can set up evaluation of the agent. In this example, we will have the agent be evaluated every 20000 steps, and we will set the eval environment to be conformer generation for a lignin polymer with four monomers (instead of three). Thus, the evaluation environment will allow us to see whether the agent is able to generalize from three monomer lignin to four monomer lignin. We will also have the agent evaluate for 2 episodes during each evaluation::
 
+    # Set up evaluation
     eval_mol = generate_lignin(4)
-    eval_mol_config = config_from_rdkit(mol, calc_normalizers=True, ep_steps=200, save_file='lignin_eval')
-    config.eval_env = Task('GibbsScorePruningEnv-v0', num_envs=1, mol_config=eval_mol_config, max_steps=200)
+    eval_mol_config = config_from_rdkit(mol, num_conformers=200, calc_normalizers=True, save_file='lignin_eval')
+    config.eval_env = Task('GibbsScorePruningEnv-v0', num_envs=1, mol_config=eval_mol_config)
     config.eval_interval = 20000
     config.eval_episodes = 2
 
@@ -59,7 +62,7 @@ Finally, we can set the other hyperparameters. For more information on what each
     config.rollout_length = 20
     config.recurrence = 5
     config.optimization_epochs = 4
-    config.max_steps = 200000
+    config.max_steps = 80000
     config.mini_batch_size = 50
 
     # Training Hyperparameters

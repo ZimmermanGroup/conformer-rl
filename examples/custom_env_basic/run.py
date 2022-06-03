@@ -23,7 +23,7 @@ if __name__ == '__main__':
 
     # Create config object
     mol = generate_branched_alkane(14)
-    mol_config = config_from_rdkit(mol, calc_normalizers=True, ep_steps=200, save_file='alkane')
+    mol_config = config_from_rdkit(mol, num_conformers=200, calc_normalizers=True, save_file='alkane')
 
     # Create agent training config object
     config = Config()
@@ -35,8 +35,8 @@ if __name__ == '__main__':
     config.network = RTGNRecurrent(6, 128, edge_dim=6, node_dim=2).to(device)
 
     # Set the environment to the test env
-    config.train_env = Task('TestEnv-v0', concurrency=True, num_envs=5, seed=np.random.randint(0,1e5), mol_config=mol_config, max_steps=200)
-    config.eval_env = Task('TestEnv-v0', seed=np.random.randint(0,7e4), mol_config=mol_config, max_steps=200)
+    config.train_env = Task('TestEnv-v0', concurrency=True, num_envs=5, seed=np.random.randint(0,1e5), mol_config=mol_config)
+    config.eval_env = Task('TestEnv-v0', seed=np.random.randint(0,7e4), mol_config=mol_config)
     config.eval_episodes=10000
 
     agent = PPORecurrentAgent(config)
