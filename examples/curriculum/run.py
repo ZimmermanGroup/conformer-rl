@@ -9,10 +9,7 @@ from conformer_rl.models import RTGNRecurrent
 
 from conformer_rl.molecule_generation.generate_alkanes import generate_branched_alkane
 from conformer_rl.molecule_generation.generate_molecule_config import config_from_rdkit
-from conformer_rl.agents import PPORecurrentAgent
-
-from conformer_rl.agents.curriculum_agent_mixin import ExternalCurriculumAgentMixin
-import curriculum_env
+from conformer_rl.agents import PPORecurrentExternalCurriculumAgent
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
                                                                                                                                                                                                      
@@ -20,8 +17,7 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 
 
-class CurriculumAgent(ExternalCurriculumAgentMixin, PPORecurrentAgent):
-    pass
+
 
 if __name__ == '__main__':
     utils.set_one_thread()
@@ -54,9 +50,9 @@ if __name__ == '__main__':
     config.optimizer_fn = lambda params: torch.optim.Adam(params, lr=lr, eps=1e-5)
 
     # Task Settings
-    config.train_env = Task('CurriculumEnv-v0', concurrency=False, num_envs=2, seed=np.random.randint(0,1e5), mol_configs=mol_configs)
+    config.train_env = Task('GibbsScorePruningCurriculumEnv-v0', concurrency=False, num_envs=2, seed=np.random.randint(0,1e5), mol_configs=mol_configs)
     config.eval_env = Task('GibbsScorePruningEnv-v0', seed=np.random.randint(0,7e4), mol_config=mol_configs[-1])
     config.curriculum = None
 
-    agent = CurriculumAgent(config)
+    agent = PPORecurrentExternalCurriculumAgent(config)
     agent.run_steps()
