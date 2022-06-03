@@ -11,7 +11,7 @@ import logging
 import pickle
 
 def test_alkane_config() -> MolConfig:
-    config = config_from_smiles("CC(CCC)CCCC(CCCC)CC", calc_normalizers=False)
+    config = config_from_smiles("CC(CCC)CCCC(CCCC)CC", num_conformers=200, calc_normalizers=False)
     config.E0 = 7.668625034772399
     config.Z0 = 13.263723987526067
     config.tau = 503
@@ -28,8 +28,7 @@ def config_from_molFile(file: str, num_conformers: int, calc_normalizers: bool =
         Name of the MOL file containing the molecule to be converted into a :class:`~conformer_rl.config.mol_config.MolConfig` object.
 
     num_conformers : int
-        Number of conformers to be generated. This parameter is only used for calculating normalizers and is ignored
-        if ``calc_normalizers`` is set to ``False``.
+        Number of conformers to be generated. This parameter is also used for calculating normalizers.
 
     calc_normalizers : bool
         Whether to calculate normalizing constants used in the Gibbs score reward.
@@ -64,8 +63,7 @@ def config_from_smiles(smiles: str, num_conformers: int, calc_normalizers: bool 
         A SMILES string representing the molecule.
 
     num_conformers : int
-        Number of conformers to be generated. This parameter is only used for calculating normalizers and is ignored
-        if ``calc_normalizers`` is set to ``False``.
+        Number of conformers to be generated. This parameter is also used for calculating normalizers.
 
     calc_normalizers : bool
         Whether to calculate normalizing constants used in the Gibbs score reward.
@@ -98,8 +96,7 @@ def config_from_rdkit(mol: Chem.rdchem.Mol, num_conformers: int, calc_normalizer
         A rdkit molecule object.
 
     num_conformers : int
-        Number of conformers to be generated. This parameter is only used for calculating normalizers and is ignored
-        if ``calc_normalizers`` is set to ``False``.
+        Number of conformers to be generated. This parameter is also used for calculating normalizers.
         
     calc_normalizers : bool
         Whether to calculate normalizing constants used in the Gibbs score reward.
