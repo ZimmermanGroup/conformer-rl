@@ -64,14 +64,29 @@ class Config:
     ppo_ratio_clip : float, required by PPO and PPORecurrent agents.
         Clipping parameter ε for PPO algorithm, see [2]_ for details.
 
+    curriculum_agent_buffer_len : int, required by all curriculum agents
+        The number of most recent completed episodes in which to evaluate the agent on for curriculum learning.
+        See :meth:`~conformer_rl.agents.curriculum_agents.ExternalCurriculumAgentMixin.update_curriculum` for more details on how
+        curriculum learning is implemented.
+    curriculum_agent_reward_thresh : float, required by all curriculum agents
+        The reward threshold for considering the agent to have "succeeded" in an episode. Used for evaluating the agent
+        for curriculum learning.
+        See :meth:`~conformer_rl.agents.curriculum_agents.ExternalCurriculumAgentMixin.update_curriculum` for more details on how
+        curriculum learning is implemented.
+    curriculum_agent_success_rate : float, required by all curriculum agents
+        The minimum success rate for the agent to signal the environment to increase the level/difficulty for the curriculum.
+        See :meth:`~conformer_rl.agents.curriculum_agents.ExternalCurriculumAgentMixin.update_curriculum` for more details on how
+        curriculum learning is implemented.
+    curriculum_agent_fail_rate : float, required by all curriculum agents
+        The maximum success rate for the agent to signal the environment to decrease the level/difficulty of the curriculum.
+        See :meth:`~conformer_rl.agents.curriculum_agents.ExternalCurriculumAgentMixin.update_curriculum` for more details on how
+        curriculum learning is implemented.
+
     data_dir : str, required by all agents
         Directory path for saving log files.
     use_tensorboard : bool, required by all agents
         Whether or not to save agent information to Tensorboard.
 
-
-
-    
 
     References
     ----------

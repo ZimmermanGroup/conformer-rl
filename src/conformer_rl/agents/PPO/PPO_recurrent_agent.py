@@ -23,7 +23,7 @@ class PPORecurrentAgent(BaseACAgentRecurrent):
 
     Notes
     -----
-    *Config parameters:* The following parameters are required in the `config` object. See :class:`~conformer_rl.config.agent_config.Config`
+    *Config parameters:* The following parameters are required in the ``config`` object. See :class:`~conformer_rl.config.agent_config.Config`
     for more details on the parameters.
 
     * tag

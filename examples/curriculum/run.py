@@ -17,8 +17,6 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 
 
-
-
 if __name__ == '__main__':
     utils.set_one_thread()
 

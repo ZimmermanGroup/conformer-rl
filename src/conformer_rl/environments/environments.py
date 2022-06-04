@@ -72,7 +72,7 @@ class GibbsScoreLogPruningEnv(GibbsLogPruningRewardMixin, DiscreteActionMixin, A
     pass
 
 class GibbsScorePruningCurriculumEnv(GibbsPruningRewardMixin, AtomCoordsTypeGraphObsMixin, DiscreteActionMixin, CurriculumConformerEnv):
-    pass
+    """Same handlers as the :class:`~conformer_rl.environments.environment.GibbsScorePruningEnv` but with support for curriculum learning."""
 
 class GibbsScoreLogPruningCurriculumEnv(GibbsLogPruningRewardMixin, DiscreteActionMixin, AtomCoordsTypeGraphObsMixin, CurriculumConformerEnv):
-    pass
+    """Same handlers as the :class:`~conformer_rl.environments.environment.GibbsScoreLogPruningEnv` but with support for curriculum learning."""
