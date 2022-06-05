@@ -19,9 +19,11 @@ All pre-built environments inherit from :class:`~conformer_rl.environments.confo
 """
 
 from conformer_rl.environments.conformer_env import ConformerEnv
+from conformer_rl.environments.curriculum_conformer_env import CurriculumConformerEnv
 from conformer_rl.environments.environment_components.action_mixins import ContinuousActionMixin, DiscreteActionMixin
 from conformer_rl.environments.environment_components.reward_mixins import GibbsRewardMixin, GibbsPruningRewardMixin, GibbsEndPruningRewardMixin, GibbsLogPruningRewardMixin
 from conformer_rl.environments.environment_components.obs_mixins import GraphObsMixin, AtomCoordsTypeGraphObsMixin
+
 
 
 
@@ -68,3 +70,9 @@ class GibbsScoreLogPruningEnv(GibbsLogPruningRewardMixin, DiscreteActionMixin, A
     * Observation Handler: :class:`~conformer_rl.environments.environment_components.obs_mixins.AtomCoordsTypeGraphObsMixin`
     """
     pass
+
+class GibbsScorePruningCurriculumEnv(GibbsPruningRewardMixin, AtomCoordsTypeGraphObsMixin, DiscreteActionMixin, CurriculumConformerEnv):
+    """Same handlers as the :class:`~conformer_rl.environments.environment.GibbsScorePruningEnv` but with support for curriculum learning."""
+
+class GibbsScoreLogPruningCurriculumEnv(GibbsLogPruningRewardMixin, DiscreteActionMixin, AtomCoordsTypeGraphObsMixin, CurriculumConformerEnv):
+    """Same handlers as the :class:`~conformer_rl.environments.environment.GibbsScoreLogPruningEnv` but with support for curriculum learning."""

@@ -17,6 +17,7 @@ Introduction
    tutorial/model_tuning
    tutorial/customizing_env_1
    tutorial/customizing_env_2
+   tutorial/curriculum
 
 .. toctree::
    :caption: API Reference

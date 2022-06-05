@@ -13,6 +13,9 @@ class MolConfig:
     ----------
     mol : rdkit Mol, required for all environments
         The molecule to be used by the environment.
+    num_conformers : int
+        The number of conformers to be generated in each episode of the environment for this molecule. In other words,
+        the number of steps the environment will iterate through in each episode before resetting and entering a new episode.
     seed: int, required for all environments
         Seed for generating initial conformers for the molecule. If set to -1,
         the seed is randomized.
@@ -34,6 +37,7 @@ class MolConfig:
 
     def __init__(self):
         self.mol = None
+        self.num_conformers = 200
         self.seed = -1
 
         # Parameters for using Gibbs Score

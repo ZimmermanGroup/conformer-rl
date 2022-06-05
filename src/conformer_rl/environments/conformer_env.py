@@ -21,8 +21,6 @@ class ConformerEnv(gym.Env):
     ----------
     mol_config : :class:`~conformer_rl.config.mol_config.MolConfig`
         Configuration object specifying molecule and parameters to be used in the environment.
-    max_steps : int
-        The number of steps before the end of an episode.
 
     Attributes
     ----------
@@ -41,11 +39,11 @@ class ConformerEnv(gym.Env):
     """
     metadata = {'render.modes': ['human']}
 
-    def __init__(self, mol_config: MolConfig, max_steps = 200):
-        super(ConformerEnv, self).__init__()
+    def __init__(self, mol_config: MolConfig):
+        gym.Env.__init__(self)
         logging.debug('initializing conformer environment')
         self.config = copy.deepcopy(mol_config)
-        self.max_steps = max_steps
+        self.max_steps = mol_config.num_conformers
         self.total_reward = 0
         self.current_step = 0
 
@@ -121,6 +119,7 @@ class ConformerEnv(gym.Env):
         self.current_step = 0
 
         self.step_info = {}
+        self.episode_info = {}
         self.episode_info['mol'] = Chem.Mol(self.mol)
         self.episode_info['mol'].RemoveAllConformers()
 
