@@ -17,6 +17,7 @@ from conformer_rl.environments.conformer_env import ConformerEnv
 
 class CurriculumConformerEnv(ConformerEnv):
     """Base interface for building conformer generation environments with support for curriculum learning.
+    
     Parameters
     ----------
     mol_configs : list of :class:`~conformer_rl.config.mol_config.MolConfig`

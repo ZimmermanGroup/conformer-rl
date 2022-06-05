@@ -6,4 +6,5 @@ Agents
    :caption: Agents
 
    prebuilt
+   curriculum_agents
    base

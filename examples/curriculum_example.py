@@ -20,37 +20,31 @@ logging.basicConfig(level=logging.DEBUG)
 if __name__ == '__main__':
     utils.set_one_thread()
 
-    mol_configs = [config_from_rdkit(generate_branched_alkane(i), num_conformers=6, calc_normalizers=True) for i in range(8, 16)]
+    # Create mol_configs for the curriculum
+    mol_configs = [config_from_rdkit(generate_branched_alkane(i), num_conformers=200, calc_normalizers=True) for i in range(8, 16)]
+    eval_mol_config = config_from_rdkit(generate_branched_alkane(16), num_conformers=200, calc_normalizers=True)
 
     config = Config()
     config.tag = 'curriculum_test'
     config.network = RTGNRecurrent(6, 128, edge_dim=6, node_dim=5).to(device)
 
     # Batch Hyperparameters
-    config.rollout_length = 2
-    config.recurrence = 1
-    config.optimization_epochs = 1
-    config.max_steps = 96
-    config.save_interval = 8
-    config.eval_interval = 8
-    config.eval_episodes = 1
-    config.mini_batch_size = 4
+    config.max_steps = 100000
 
-    # curriculum Hyperparameters
-    config.curriculum_agent_buffer_len = 4
-    config.curriculum_agent_reward_thresh = 0.
-    config.curriculum_agent_success_rate = 0.
-    config.curriculum_agent_fail_rate = -1.
-
-
-    # Coefficient Hyperparameters
-    lr = 5e-6 * np.sqrt(2)
+    # training Hyperparameters
+    lr = 5e-6 * np.sqrt(10)
     config.optimizer_fn = lambda params: torch.optim.Adam(params, lr=lr, eps=1e-5)
 
     # Task Settings
-    config.train_env = Task('GibbsScorePruningCurriculumEnv-v0', concurrency=False, num_envs=2, seed=np.random.randint(0,1e5), mol_configs=mol_configs)
-    config.eval_env = Task('GibbsScorePruningEnv-v0', seed=np.random.randint(0,7e4), mol_config=mol_configs[-1])
-    config.curriculum = None
+    config.train_env = Task('GibbsScorePruningCurriculumEnv-v0', concurrency=True, num_envs=10, seed=np.random.randint(0,1e5), mol_configs=mol_configs)
+    config.eval_env = Task('GibbsScorePruningEnv-v0', seed=np.random.randint(0,7e4), mol_config=eval_mol_config)
+    config.eval_interval = 20000
+
+    # curriculum Hyperparameters
+    config.curriculum_agent_buffer_len = 20
+    config.curriculum_agent_reward_thresh = 0.4
+    config.curriculum_agent_success_rate = 0.7
+    config.curriculum_agent_fail_rate = 0.2
 
     agent = PPORecurrentExternalCurriculumAgent(config)
     agent.run_steps()
