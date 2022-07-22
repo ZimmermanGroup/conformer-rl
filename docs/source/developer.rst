@@ -1,7 +1,15 @@
 Developer Documentation
 =======================
 
-This section describes the setup steps for development on :mod:`conformer_rl`.
+Thank you for your interest in contributing to :mod:`conformer_rl`. This section walks through how to submit
+bug reports and feature requests, as well as setup instructions and best practices for developing on :mod:`conformer_rl`.
+
+The best way to contribute code to :mod:`conformer_rl` is by `forking the project on GitHub <https://github.com/ZimmermanGroup/conformer-rl/fork>`_ and making a pull request. We encourage developers to document new features and write unit tests (if applicable).
+
+Bug Reports and Feature Requests
+--------------------------------
+We are actively adding new features to this project and are open to all suggestions. If you believe you have encountered a bug, or if you have a feature that you would like to see implemented, please feel free to file an
+`issue on GitHub <https://github.com/ZimmermanGroup/conformer-rl/issues>`_
 
 Installing Developer Dependencies
 ---------------------------------
