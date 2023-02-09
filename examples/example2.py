@@ -20,12 +20,12 @@ if __name__ == '__main__':
 
     # configure molecule
     mol = generate_lignin(3)
-    mol_config = config_from_rdkit(mol, calc_normalizers=True, ep_steps=200, save_file='lignin')
+    mol_config = config_from_rdkit(mol, num_conformers=200, calc_normalizers=True, save_file='lignin')
 
     # create agent config and set environment
     config = Config()
     config.tag = 'example2'
-    config.train_env = Task('GibbsScorePruningEnv-v0', concurrency=True, num_envs=10, mol_config=mol_config, max_steps=200)
+    config.train_env = Task('GibbsScorePruningEnv-v0', concurrency=True, num_envs=10, mol_config=mol_config)
 
     # Neural Network
     config.network = RTGN(6, 128, edge_dim=6, node_dim=5).to(device)
@@ -37,8 +37,8 @@ if __name__ == '__main__':
 
     # Set up evaluation
     eval_mol = generate_lignin(4)
-    eval_mol_config = config_from_rdkit(mol, calc_normalizers=True, ep_steps=200, save_file='lignin_eval')
-    config.eval_env = Task('GibbsScorePruningEnv-v0', num_envs=1, mol_config=eval_mol_config, max_steps=200)
+    eval_mol_config = config_from_rdkit(mol, num_conformers=200, calc_normalizers=True, save_file='lignin_eval')
+    config.eval_env = Task('GibbsScorePruningEnv-v0', num_envs=1, mol_config=eval_mol_config)
     config.eval_interval = 20000
     config.eval_episodes = 2
 
@@ -46,7 +46,7 @@ if __name__ == '__main__':
     config.rollout_length = 20
     config.recurrence = 5
     config.optimization_epochs = 4
-    config.max_steps = 200000
+    config.max_steps = 80000
     config.mini_batch_size = 50
 
     # Training Hyperparameters

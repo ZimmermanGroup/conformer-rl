@@ -1,18 +1,116 @@
-numpy == 1.21.2
-torch == 1.9.0
-tensorboard == 2.6.0
-gym == 0.20.0
-stable-baselines3 == 1.2.0
-common_wrangler == 0.3.5
-ligninkmc == 0.2.2
-seaborn == 0.11.2
-stk == 2021.8.2.0
-py3Dmol == 1.7.0
-
---find-links https://data.pyg.org/whl/torch-1.9.0+cu102.html
-torch-scatter
-
---find-links https://data.pyg.org/whl/torch-1.9.0+cu102.html
-torch-sparse
-
-torch-geometric
+absl-py==1.4.0
+alabaster==0.7.13
+astunparse==1.6.3
+attrs==22.2.0
+Babel==2.11.0
+Bottleneck @ file:///home/conda/feedstock_root/build_artifacts/bottleneck_1674242883327/work
+cachetools==5.3.0
+certifi @ file:///croot/certifi_1671487769961/work/certifi
+charset-normalizer==3.0.1
+cloudpickle==2.2.1
+common-wrangler==0.3.5
+conformer-rl==1.1.0
+coverage==7.1.0
+cycler @ file:///home/conda/feedstock_root/build_artifacts/cycler_1635519461629/work
+dill==0.3.6
+dnspython==2.3.0
+docutils==0.18.1
+exceptiongroup==1.1.0
+flatbuffers==23.1.21
+gast==0.4.0
+google-auth==2.16.0
+google-auth-oauthlib==0.4.6
+google-pasta==0.2.0
+grpcio==1.51.1
+gym==0.21.0
+h5py==3.8.0
+idna==3.4
+imagesize==1.4.1
+importlib-metadata==4.13.0
+iniconfig==2.0.0
+Jinja2==3.1.2
+joblib==1.2.0
+keras==2.11.0
+kiwisolver @ file:///croot/kiwisolver_1672387140495/work
+libclang==15.0.6.1
+ligninkmc==0.2.2
+Markdown==3.4.1
+MarkupSafe==2.1.2
+matplotlib @ file:///home/conda/feedstock_root/build_artifacts/matplotlib-suite_1636786646663/work
+MCHammer==1.0.4
+multiprocess==0.70.14
+networkx==3.0
+numexpr @ file:///croot/numexpr_1668713893690/work
+numpy==1.24.2
+nvidia-cublas-cu11==11.10.3.66
+nvidia-cuda-nvrtc-cu11==11.7.99
+nvidia-cuda-runtime-cu11==11.7.99
+nvidia-cudnn-cu11==8.5.0.96
+oauthlib==3.2.2
+opt-einsum==3.3.0
+packaging @ file:///home/conda/feedstock_root/build_artifacts/packaging_1673482170163/work
+pandas==1.4.4
+pathos==0.3.0
+Pillow==9.3.0
+pluggy==1.0.0
+pox==0.3.2
+ppft==1.7.6.6
+protobuf==3.19.6
+psutil==5.9.4
+pyasn1==0.4.8
+pyasn1-modules==0.2.8
+pycairo==1.23.0
+pyg-lib==0.1.0+pt113cu117
+Pygments==2.14.0
+pymongo==4.3.3
+pyparsing @ file:///home/conda/feedstock_root/build_artifacts/pyparsing_1652235407899/work
+pytest==7.2.1
+pytest-mock==3.10.0
+python-dateutil @ file:///home/conda/feedstock_root/build_artifacts/python-dateutil_1626286286081/work
+pytz @ file:///home/conda/feedstock_root/build_artifacts/pytz_1673864280276/work
+rdkit-pypi==2022.9.4
+reportlab @ file:///home/conda/feedstock_root/build_artifacts/reportlab_1671121821275/work
+requests==2.28.2
+requests-oauthlib==1.3.1
+rsa==4.9
+scikit-learn==1.2.1
+scipy==1.10.0
+seaborn==0.12.2
+six @ file:///home/conda/feedstock_root/build_artifacts/six_1620240208055/work
+snowballstemmer==2.2.0
+Sphinx==6.1.3
+sphinx-rtd-theme==1.2.0
+sphinxcontrib-applehelp==1.0.4
+sphinxcontrib-devhelp==1.0.2
+sphinxcontrib-htmlhelp==2.0.1
+sphinxcontrib-jquery==2.0.0
+sphinxcontrib-jsmath==1.0.1
+sphinxcontrib-qthelp==1.0.3
+sphinxcontrib-serializinghtml==1.1.5
+SpinDry==0.0.91
+SQLAlchemy @ file:///home/conda/feedstock_root/build_artifacts/sqlalchemy_1649751516381/work
+stable-baselines3==1.7.0
+stk==2022.6.17.0
+tensorboard==2.11.2
+tensorboard-data-server==0.6.1
+tensorboard-plugin-wit==1.8.1
+tensorflow==2.11.0
+tensorflow-estimator==2.11.0
+tensorflow-io-gcs-filesystem==0.30.0
+termcolor==2.2.0
+threadpoolctl==3.1.0
+tomli==2.0.1
+torch==1.13.1
+torch-cluster==1.6.0+pt113cu117
+torch-geometric==2.2.0
+torch-scatter==2.1.0+pt113cu117
+torch-sparse==0.6.16+pt113cu117
+torch-spline-conv==1.2.1+pt113cu117
+tornado @ file:///home/conda/feedstock_root/build_artifacts/tornado_1666788587690/work
+tqdm==4.64.1
+typing_extensions==4.4.0
+urllib3==1.26.14
+vabene==0.0.5
+Werkzeug==2.2.2
+wrapt==1.14.1
+zipp==3.13.0
