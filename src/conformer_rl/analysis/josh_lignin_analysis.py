@@ -42,19 +42,19 @@ class LigninDashboard(param.Parameterized):
     
     @param.depends('mechanism', watch=True)
     def dataframe(self):
-        maccoll_distances = self.mechanism().calculate_distances(self.mol)
-        self.df = maccoll_distances.to_dataframe().reset_index().astype({FUNC_GROUP_ID_1: 'str'})
+        distances = self.mechanism().calculate_distances(self.mol)
+        self.df = distances.to_dataframe().reset_index().astype({FUNC_GROUP_ID_1: 'str'})
     
     @param.depends('dataframe', 'setup_stk_mol')
     def scatter_plot(self):
         if self.mechanism == LigninMaccollCalculator:
             points = self.df.hvplot.scatter(x='Lignin Maccoll mechanism distances', y='Energies', c='func_group_id_1')
         elif self.mechanism == LigninPericyclicCalculator:
-            points = self.df.hvplot.scatter(x='Lignin pericyclic mechanism distances',
-                                            y='Lignin pericyclic mechanism inhibition differences')
+            points = self.df.hvplot.scatter(x='Lignin retro-ene mechanism distances',
+                                            y='Inhibition distance differences')
         points.opts(
             opts.Scatter(tools=['tap', 'hover'], active_tools=['wheel_zoom'], width=600, height=600,
-                        marker='triangle', size=10,)
+                        marker='triangle', size=10, fontsize={'labels': 14}),
         )
         self.stream.update(index=[])
         self.stream.source = points
@@ -62,7 +62,7 @@ class LigninDashboard(param.Parameterized):
     
     param.depends('display_mol', 'scatter_plot', 'index_conf', 'disp_mechanism', 'mechanism')
     def app(self):
-        return pn.Row(pn.Column(self.param.mechanism, self.scatter_plot, self.index_conf, self.disp_mechanism), self.display_mol)
+        return pn.Row(pn.Column(self.param.mechanism, self.scatter_plot, self.index_conf), self.display_mol)
     
     @param.depends('mechanism', watch=True)
     def setup_stk_mol(self):

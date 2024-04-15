@@ -63,11 +63,11 @@ class LigninPericyclicCalculator:
             dims=FUNC_GROUP_ID_1,
         )
         func_group_distances = xr.Dataset()
-        func_group_distances['Lignin pericyclic mechanism distances'] \
+        func_group_distances['Lignin retro-ene mechanism distances'] \
             = dist_matrices_3d.isel(atom_1=c_1_ids, atom_2=H_alkyl_ids)
-        func_group_distances['Lignin pericyclic mechanism inhibition differences'] \
+        func_group_distances['Inhibition distance differences'] \
             = (dist_matrices_3d.isel(atom_1=H_alkyl_ids, atom_2=H_phenyl_ids)
-               - func_group_distances['Lignin pericyclic mechanism distances'])
+               - func_group_distances['Lignin retro-ene mechanism distances'])
         return func_group_distances
 
 class LigninMaccollFunctionalGroupFactory(stk.SmartsFunctionalGroupFactory):
